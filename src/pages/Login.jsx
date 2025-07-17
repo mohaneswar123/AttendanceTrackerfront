@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AttendanceContext } from '../contexts/AttendanceContext';
-import AdBanner from '../components/AdBanner';
+
 
 
 function Login() {
@@ -115,9 +115,7 @@ function Login() {
             </a>
           </div>
         </form>
-        <div className="mt-6">
-          <AdBanner />
-        </div>
+        
       </div>
     </div>
   );
