@@ -12,7 +12,7 @@ function Layout({ children }) {
       </div>
 
       {/* Ad Banner that scrolls */}
-      <div className="w-full bg-white px-4 py-2 border-b border-gray-200 shadow">
+      <div className="w-full bg-black px-4 py-2 border-b border-gray-200 shadow">
         <div className="max-w-6xl mx-auto">
           <AdBanner />
         </div>
