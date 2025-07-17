@@ -80,7 +80,7 @@ function Dashboard() {
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-indigo-50 to-blue-50">
       <div className="container mx-auto px-4 py-6 max-w-5xl">
         {/* Welcome Banner */}
-        <div className="bg-black bg-opacity-20 shadow-md p-6 rounded-xl text-center text-white">
+        <div className="bg-blue shadow-md p-6 rounded-xl text-center text-white">
           <h2 className="text-2xl font-bold">
             Welcome, <span className="text-yellow-400">P V Mohan Eswar</span>!
           </h2>
