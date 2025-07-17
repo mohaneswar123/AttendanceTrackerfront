@@ -1,6 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { AttendanceContext } from '../contexts/AttendanceContext';
-import AdBanner from '../components/AdBanner';
+
 
 
 function Settings() {
@@ -86,9 +86,7 @@ function Settings() {
         {/* Background decorative elements */}
         <div className="absolute top-20 right-10 w-32 h-32 bg-gradient-to-br from-purple-300 to-indigo-300 rounded-full opacity-20 blur-xl animate-pulse-slow"></div>
         <div className="absolute bottom-20 left-5 w-28 h-28 bg-gradient-to-br from-blue-400 to-cyan-300 rounded-full opacity-20 blur-xl"></div>
-        <div className="mt-6">
-          <AdBanner />
-        </div>
+        
         <h1 className="text-2xl md:text-3xl font-bold mb-6 text-gray-800 relative z-10">Settings</h1>
         
         {/* Success/Error Messages */}
