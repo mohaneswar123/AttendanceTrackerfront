@@ -1,6 +1,8 @@
 import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AttendanceContext } from '../contexts/AttendanceContext';
+import AdBanner from '../components/AdBanner';
+
 
 function Register() {
   const [formData, setFormData] = useState({
