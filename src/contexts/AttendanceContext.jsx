@@ -105,22 +105,28 @@ export const AttendanceProvider = ({ children }) => {
     }
   };
 
-  const removeSubject = async (subjectId) => {
-    setLoading(true);
-    try {
-      await subjectService.deleteSubject(subjectId);
-      setSubjects(subjects.filter(s => s.id !== subjectId));
-      // Also remove associated attendance records
-      setAttendanceRecords(attendanceRecords.filter(record => record.subjectId !== subjectId));
-      return { success: true };
-    } catch (err) {
-      console.error("Error removing subject:", err);
-      setError("Failed to remove subject. Please try again.");
-      return { success: false };
-    } finally {
-      setLoading(false);
-    }
-  };
+ const removeSubject = async (subjectId) => {
+  setLoading(true);
+  try {
+    // Send both subjectId and userId
+    await subjectService.deleteSubject(subjectId, currentUser.id);
+    
+    // Remove subject locally
+    setSubjects(subjects.filter(s => s.id !== subjectId));
+    
+    // Remove associated attendance records locally
+    setAttendanceRecords(attendanceRecords.filter(record => record.subjectId !== subjectId));
+    
+    return { success: true };
+  } catch (err) {
+    console.error("Error removing subject:", err);
+    setError("Failed to remove subject. Please try again.");
+    return { success: false };
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   // Attendance record methods
   const addAttendanceRecord = async (record) => {
