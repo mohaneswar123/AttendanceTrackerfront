@@ -87,7 +87,7 @@ function Dashboard() {
           {/* Content Layer */}
           <div className="relative z-10">
             <h2 className="text-3xl font-extrabold tracking-wide drop-shadow-lg animate-pulse">
-              Welcome, <span className="text-yellow-300">P V Mohan Eswar</span>!
+              Welcome, <span className="text-yellow-300">{userName}</span>!
             </h2>
             <p className="mt-2 text-white text-sm sm:text-base font-medium drop-shadow-sm">
               Track your attendance effortlessly with just a few taps.
