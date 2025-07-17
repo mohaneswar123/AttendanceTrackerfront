@@ -8,9 +8,14 @@ function AboutUs() {
     <Layout>
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <h1 className="text-3xl font-bold mb-6 text-gray-800">About Us</h1>
-        <div className="mt-6">
-          <AdBanner />
+        <div className="my-6">
+        <div className="w-full flex justify-center items-center">
+          <div className="w-full md:w-[728px] max-w-full">
+            <AdBanner />
+          </div>
         </div>
+      </div>
+
         <div className="bg-white rounded-xl shadow-md p-6 mb-8">
           {/* Our Mission */}
           <section className="mb-8">
