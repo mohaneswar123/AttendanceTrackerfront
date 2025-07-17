@@ -1,6 +1,6 @@
 import React from 'react';
 import Layout from '../components/Layout';
-import AdBanner from '../components/AdBanner';
+
 
 
 function ContactUs() {
