@@ -1,6 +1,6 @@
 import React, { useContext, useMemo } from 'react';
 import { AttendanceContext } from '../contexts/AttendanceContext';
-import AdBanner from '../components/AdBanner';
+
 
 function History() {
   const { 
@@ -43,7 +43,7 @@ function History() {
             </svg>
           </div>
         </div>
-        <AdBanner />
+  
         {/* Notice at top when records exist */}
         {sortedRecords.length > 0 && (
           <div className="mb-4 bg-gradient-to-r from-indigo-50 to-blue-50 border border-indigo-100 rounded-lg p-3 text-sm text-gray-700 flex items-start">
