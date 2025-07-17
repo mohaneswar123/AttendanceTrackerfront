@@ -10,14 +10,21 @@ function AdBanner() {
   }, []);
 
   return (
-    <ins
-      className="adsbygoogle"
-      style={{ display: "block", textAlign: "center", margin: "24px 0" }}
-      data-ad-client="ca-pub-8050610790386120"
-      data-ad-slot="3627716758"
-      data-ad-format="auto"
-      data-full-width-responsive="true"
-    ></ins>
+    <div className="flex justify-center my-4 px-2">
+      <ins
+        className="adsbygoogle"
+        style={{
+          display: "block",
+          width: "100%",
+          maxWidth: "100%",
+          textAlign: "center",
+        }}
+        data-ad-client="ca-pub-8050610790386120"
+        data-ad-slot="3627716758"
+        data-ad-format="auto"
+        data-full-width-responsive="true"
+      ></ins>
+    </div>
   );
 }
 
