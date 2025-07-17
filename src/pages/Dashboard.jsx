@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AttendanceContext } from '../contexts/AttendanceContext';
-import AdBanner from '../components/AdBanner';
+
 
 function Dashboard() {
   const navigate = useNavigate();
