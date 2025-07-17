@@ -80,14 +80,15 @@ function Dashboard() {
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-indigo-50 to-blue-50">
       <div className="container mx-auto px-4 py-6 max-w-5xl">
         {/* Welcome Banner */}
-        <div className="mb-8 bg-gradient-to-r from-violet-600 to-blue-600 rounded-2xl p-6 sm:p-8 text-white shadow-lg text-center sm:text-left">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold">
-            Welcome, <span className="text-yellow-300">{userName}</span>!
+        <div className="bg-white shadow-md p-6 rounded-xl text-center">
+          <h2 className="text-2xl font-bold text-gray-800">
+            Welcome, <span className="text-yellow-600">P V Mohan Eswar</span>!
           </h2>
-          <p className="mt-2 text-sm sm:text-base md:text-lg font-medium">
+          <p className="text-gray-600 mt-2">
             Track your attendance effortlessly with just a few taps.
           </p>
         </div>
+
 
         {/* Header and Reports Button */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
