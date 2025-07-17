@@ -80,14 +80,21 @@ function Dashboard() {
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-indigo-50 to-blue-50">
       <div className="container mx-auto px-4 py-6 max-w-5xl">
         {/* Welcome Banner */}
-        <div className="bg-blue shadow-md p-6 rounded-xl text-center text-white">
-          <h2 className="text-2xl font-bold">
-            Welcome, <span className="text-yellow-400">P V Mohan Eswar</span>!
-          </h2>
-          <p className="mt-2">
-            Track your attendance effortlessly with just a few taps.
-          </p>
+        <div className="relative bg-gradient-to-r from-purple-600 via-pink-500 to-yellow-400 p-6 rounded-3xl shadow-xl text-white text-center overflow-hidden">
+          {/* Glowing background effect */}
+          <div className="absolute inset-0 bg-white/10 backdrop-blur-sm rounded-3xl"></div>
+        
+          {/* Content Layer */}
+          <div className="relative z-10">
+            <h2 className="text-3xl font-extrabold tracking-wide drop-shadow-lg animate-pulse">
+              Welcome, <span className="text-yellow-300">P V Mohan Eswar</span>!
+            </h2>
+            <p className="mt-2 text-white text-sm sm:text-base font-medium drop-shadow-sm">
+              Track your attendance effortlessly with just a few taps.
+            </p>
+          </div>
         </div>
+
 
 
 
