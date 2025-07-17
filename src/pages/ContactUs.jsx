@@ -52,13 +52,6 @@ function ContactUs() {
               </div>
             </div>
           </div>
-          <div className="mt-6 flex justify-center">
-            <div className="w-full md:w-3/4 lg:w-2/3 xl:w-1/2 px-2">
-              <div className="border rounded-lg shadow-lg overflow-hidden">
-                <AdBanner />
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* FAQ Section */}
