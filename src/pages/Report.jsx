@@ -1,5 +1,7 @@
 import React, { useContext, useMemo } from 'react';
 import { AttendanceContext } from '../contexts/AttendanceContext';
+import AdBanner from '../components/AdBanner';
+
 
 function Report() {
   const { subjects, attendanceRecords } = useContext(AttendanceContext);
