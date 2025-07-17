@@ -1,6 +1,6 @@
 import React, { useContext, useMemo } from 'react';
 import { AttendanceContext } from '../contexts/AttendanceContext';
-import AdBanner from '../components/AdBanner';
+
 
 
 function Report() {
@@ -92,9 +92,7 @@ function Report() {
     <div className="max-w-6xl mx-auto px-4 py-6">
       {/* Header with Gradient Background */}
       <div className="relative mb-8 bg-gradient-to-r from-blue-600 to-indigo-700 rounded-xl p-6 text-white shadow-lg overflow-hidden">
-        <div className="mt-6">
-          <AdBanner />
-        </div>
+       
         <div className="relative z-10">
           <h1 className="text-2xl md:text-3xl font-bold mb-2">Attendance Report</h1>
           <p className="text-blue-100 text-sm md:text-base">
