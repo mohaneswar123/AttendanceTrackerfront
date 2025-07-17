@@ -1,6 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AttendanceContext } from '../contexts/AttendanceContext';
+// ... (imports remain the same)
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -35,7 +36,15 @@ function Dashboard() {
 
   const handleChange = e => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    let val = name === 'classNumber' ? Number(value) : value;
+
+    // Restrict classNumber to only 1 or 2
+    if (name === 'classNumber') {
+      if (val < 1) val = 1;
+      if (val > 2) val = 2;
+    }
+
+    setFormData(prev => ({ ...prev, [name]: val }));
     if (message.text) setMessage({ text: '', type: '' });
   };
 
@@ -47,23 +56,28 @@ function Dashboard() {
       const selectedSubject = subjects.find(s => s.name === formData.subject);
       if (!selectedSubject) throw new Error("Subject not found");
 
+      // Final check to ensure classNumber is 1 or 2
+      const classNumberClamped = Math.min(Math.max(Number(formData.classNumber), 1), 2);
+
       const record = {
         ...formData,
         subjectId: selectedSubject.id,
-        classNumber: Number(formData.classNumber)
+        classNumber: classNumberClamped
       };
 
       addAttendanceRecord(record);
 
       setMessage({
-        text: `✅ Attendance saved for ${formData.subject} (Class ${formData.classNumber}).`,
+        text: `✅ Attendance saved for ${formData.subject} (Class ${classNumberClamped}).`,
         type: 'success'
       });
 
+      // Auto increment (but only between 1 and 2)
+      const nextClass = classNumberClamped === 1 ? 2 : 1;
       setFormData(prev => ({
         ...prev,
         status: 'Present',
-        classNumber: prev.classNumber < 5 ? prev.classNumber + 1 : 1
+        classNumber: nextClass
       }));
     } catch (err) {
       console.error("Error:", err);
@@ -81,10 +95,7 @@ function Dashboard() {
       <div className="container mx-auto px-4 py-6 max-w-5xl">
         {/* Welcome Banner */}
         <div className="relative bg-gradient-to-r from-purple-600 via-pink-500 to-yellow-400 p-6 rounded-3xl shadow-xl text-white text-center overflow-hidden">
-          {/* Glowing background effect */}
           <div className="absolute inset-0 bg-white/10 backdrop-blur-sm rounded-3xl"></div>
-        
-          {/* Content Layer */}
           <div className="relative z-10">
             <h2 className="text-3xl font-extrabold tracking-wide drop-shadow-lg animate-pulse">
               Welcome, <span className="text-yellow-300">{userName}</span>!
@@ -94,9 +105,6 @@ function Dashboard() {
             </p>
           </div>
         </div>
-
-
-
 
         {/* Header and Reports Button */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
@@ -109,7 +117,7 @@ function Dashboard() {
           </button>
         </div>
 
-        {/* Message Feedback */}
+        {/* Feedback Messages */}
         {message.text && (
           <div className={`mb-6 p-4 rounded-md shadow-md border-l-4 transition-all ${
             message.type === 'success'
@@ -120,7 +128,6 @@ function Dashboard() {
           </div>
         )}
 
-        {/* Duplicate Warning */}
         {existingRecord && (
           <div className="mb-6 bg-yellow-50 border border-yellow-300 rounded-lg p-4 text-yellow-800 shadow-sm">
             ⚠️ Attendance already exists for <strong>{formData.subject}</strong> on <strong>{formData.date}</strong> (Class <strong>{formData.classNumber}</strong>).
@@ -178,7 +185,7 @@ function Dashboard() {
                 </select>
               </div>
 
-              {/* Class Hour */}
+              {/* Class Hour (Only 1 or 2) */}
               <div>
                 <label className="block text-sm font-semibold mb-1">Class Hour</label>
                 <select
@@ -188,7 +195,7 @@ function Dashboard() {
                   className="w-full p-2 border border-gray-300 rounded"
                   required
                 >
-                  {[1, 2, 3, 4, 5].map(n => (
+                  {[1, 2].map(n => (
                     <option key={n} value={n}>
                       {n} Hour{n > 1 ? 's' : ''}
                     </option>
