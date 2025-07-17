@@ -1,15 +1,13 @@
 import React from 'react';
 import Layout from '../components/Layout';
-import AdBanner from '../components/AdBanner';
+
 
 
 function PrivacyPolicy() {
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8 max-w-3xl">
-        <div className="mb-6">
-      <AdBanner />
-    </div>
+        
         <h1 className="text-3xl font-bold mb-6 text-gray-800">Privacy Policy</h1>
 
         <div className="bg-white rounded-xl shadow-md p-6 mb-8 text-gray-700">
