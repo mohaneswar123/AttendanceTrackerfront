@@ -80,9 +80,13 @@ function Dashboard() {
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-indigo-50 to-blue-50">
       <div className="container mx-auto px-4 py-6 max-w-5xl">
         {/* Welcome Banner */}
-        <div className="mb-8 bg-gradient-to-r from-violet-600 to-blue-600 rounded-xl p-6 text-white shadow-xl">
-          <h2 className="text-xl md:text-2xl font-bold">Welcome, <span className="font-extrabold">{userName}</span>!</h2>
-          <p className="mt-1 text-sm md:text-base">Track your attendance effortlessly.</p>
+        <div className="mb-8 bg-gradient-to-r from-violet-600 to-blue-600 rounded-2xl p-6 sm:p-8 text-white shadow-lg text-center sm:text-left">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold">
+            Welcome, <span className="text-yellow-300">{userName}</span>!
+          </h2>
+          <p className="mt-2 text-sm sm:text-base md:text-lg font-medium">
+            Track your attendance effortlessly with just a few taps.
+          </p>
         </div>
 
         {/* Header and Reports Button */}
@@ -90,7 +94,7 @@ function Dashboard() {
           <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Record Attendance</h1>
           <button
             onClick={() => navigate('/reports')}
-            className="mt-4 sm:mt-0 bg-indigo-700 hover:bg-indigo-800 text-white font-medium py-2.5 px-4 rounded-lg shadow-md"
+            className="mt-3 sm:mt-0 bg-indigo-700 hover:bg-indigo-800 text-white font-medium py-2 px-4 rounded-lg shadow-md w-full sm:w-auto"
           >
             View Reports
           </button>
@@ -115,9 +119,9 @@ function Dashboard() {
         )}
 
         {/* Form */}
-        <div className="bg-white p-6 rounded-xl shadow-xl">
+        <div className="bg-white p-6 sm:p-8 rounded-xl shadow-xl">
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid md:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
               {/* Subject */}
               <div>
                 <label className="block text-sm font-semibold mb-1">Subject</label>
@@ -125,7 +129,7 @@ function Dashboard() {
                   name="subject"
                   value={formData.subject}
                   onChange={handleChange}
-                  className="w-full p-2 border rounded"
+                  className="w-full p-2 border border-gray-300 rounded"
                   required
                 >
                   {subjects.map(subject => (
@@ -144,7 +148,7 @@ function Dashboard() {
                   name="date"
                   value={formData.date}
                   onChange={handleChange}
-                  className="w-full p-2 border rounded"
+                  className="w-full p-2 border border-gray-300 rounded"
                   required
                 />
               </div>
@@ -156,7 +160,7 @@ function Dashboard() {
                   name="status"
                   value={formData.status}
                   onChange={handleChange}
-                  className="w-full p-2 border rounded"
+                  className="w-full p-2 border border-gray-300 rounded"
                   required
                 >
                   <option value="Present">Present</option>
@@ -172,11 +176,13 @@ function Dashboard() {
                   name="classNumber"
                   value={formData.classNumber}
                   onChange={handleChange}
-                  className="w-full p-2 border rounded"
+                  className="w-full p-2 border border-gray-300 rounded"
                   required
                 >
                   {[1, 2, 3, 4, 5].map(n => (
-                    <option key={n} value={n}>{n} Hour{n > 1 ? 's' : ''}</option>
+                    <option key={n} value={n}>
+                      {n} Hour{n > 1 ? 's' : ''}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -185,7 +191,7 @@ function Dashboard() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className={`mt-4 w-full md:w-auto px-6 py-2 rounded-lg text-white font-semibold ${
+              className={`mt-4 w-full sm:w-auto px-6 py-2 rounded-lg text-white font-semibold ${
                 isSubmitting ? 'bg-gray-400 cursor-not-allowed' : 'bg-indigo-700 hover:bg-indigo-800'
               }`}
             >
