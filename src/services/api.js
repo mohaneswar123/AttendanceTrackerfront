@@ -58,9 +58,9 @@ export const subjectService = {
     return response.data;
   },
   
-  deleteSubject: async (subjectId) => {
-    const response = await apiClient.delete(`/subjects/${subjectId}`);
-    return response.data;
+  deleteSubject: async (subjectId, userId) => {
+  const response = await apiClient.delete(`/subjects/${subjectId}/user/${userId}`);
+  return response.data;
   }
 };
 
