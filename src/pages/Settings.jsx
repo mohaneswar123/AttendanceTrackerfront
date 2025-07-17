@@ -1,5 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { AttendanceContext } from '../contexts/AttendanceContext';
+import AdBanner from '../components/AdBanner';
+
 
 function Settings() {
   const { subjects, addSubject, removeSubject, resetAllData } = useContext(AttendanceContext);
