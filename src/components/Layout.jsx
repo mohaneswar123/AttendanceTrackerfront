@@ -8,23 +8,35 @@ function Layout({ children }) {
   const location = useLocation();
 
   // List of routes where you want to show ads
-  const showAdOnRoutes = ['/', '/dashboard', '/history','/reports','/settings','/privacy-policy','/about-us','/contact-us','/terms']; // update as needed
+  const showAdOnRoutes = [
+    '/', 
+    '/dashboard', 
+    '/history',
+    '/reports',
+    '/settings',
+    '/privacy-policy',
+    '/about-us',
+    '/contact-us',
+    '/terms'
+  ];
   const showAd = showAdOnRoutes.includes(location.pathname);
 
   return (
-    <div className="pt-[4rem] min-h-screen bg-gray-100 flex flex-col">
+    <div className="min-h-screen bg-gray-100 flex flex-col">
       {/* Fixed Header */}
       <div className="fixed top-0 left-0 w-full z-50">
         <Header />
       </div>
 
+      {/* Spacer to prevent overlap with fixed header */}
+      <div className="h-16" /> {/* Adjust height as per your Header component */}
+
       {/* Conditionally show Ad Banner */}
       {showAd && (
         <div className="w-full bg-transparent px-4 py-2 border-b border-gray-200 shadow">
           <div className="max-w-6xl mx-auto">
-            
             <AdBanner />
-            <p className="text-black-300" >for ads</p>
+            <p className="text-gray-600 text-sm">for ads</p>
           </div>
         </div>
       )}
