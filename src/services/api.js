@@ -59,9 +59,14 @@ export const subjectService = {
   },
   
   deleteSubject: async (subjectId, userId) => {
-  const response = await apiClient.delete(`/subjects/${subjectId}/user/${userId}`);
-  return response.data;
+  try {
+    const response = await apiClient.delete(`/subjects/${subjectId}/user/${userId}`);
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || "Failed to delete subject");
   }
+}
+
 };
 
 // Attendance Services
