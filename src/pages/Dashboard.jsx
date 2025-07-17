@@ -158,7 +158,12 @@ function Dashboard() {
             </p>
           </div>
         </div>
-        <AdBanner/>
+        <div className="mt-6">
+        <div className="rounded-xl border border-gray-200 p-3 shadow-md bg-gray-50">
+          <AdBanner />
+        </div>
+      </div>
+
         {/* Header Section with Darker Buttons */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 space-y-4 sm:space-y-0 relative z-10">
           <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Record Attendance</h1>
