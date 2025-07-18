@@ -34,7 +34,7 @@ function Layout({ children }) {
   
 
       {/* Main Content */}
-      <main className="flex-grow px-4">
+      <main className="flex-grow px-2">
         {children}
       </main>
 
