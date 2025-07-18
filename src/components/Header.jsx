@@ -11,44 +11,38 @@ function Header() {
     navigate('/login');
   };
 
-  // Get the user's name from the currentUser object
-  // Access username property as per your API model, with fallbacks
   const displayName = currentUser?.username || currentUser?.name || 'User';
 
   return (
     <header className="bg-blue-600 text-white shadow-md">
-      <div className="container mx-auto px-4 py-3 flex justify-between items-center">
-        <Link to="/" className="text-xl font-bold">Attendance Register</Link>
-        
-        <div className="flex items-center space-x-6">
-          <nav className="hidden md:flex space-x-4">
-            <Link to="/" className="hover:text-blue-200 transition-colors">Dashboard</Link>
-            <Link to="/history" className="hover:text-blue-200 transition-colors">History</Link>
-            <Link to="/reports" className="hover:text-blue-200 transition-colors">Reports</Link>
-            <Link to="/settings" className="hover:text-blue-200 transition-colors">Settings</Link>
+      <div className="container mx-auto px-4 py-3 flex flex-col lg:flex-row justify-between items-center space-y-3 lg:space-y-0">
+        {/* Logo and Title */}
+        <Link to="/" className="text-xl font-bold text-center lg:text-left">
+          Attendance Register
+        </Link>
+
+        {/* Navigation and User Actions */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-6 text-center space-y-2 sm:space-y-0">
+          {/* Navigation Links - always visible */}
+          <nav className="flex flex-wrap justify-center gap-4 text-sm">
+            <Link to="/" className="hover:text-blue-200">Dashboard</Link>
+            <Link to="/history" className="hover:text-blue-200">History</Link>
+            <Link to="/reports" className="hover:text-blue-200">Reports</Link>
+            <Link to="/settings" className="hover:text-blue-200">Settings</Link>
           </nav>
-          
-          <div className="flex items-center space-x-3">
-            <span className="hidden md:block">
-              Welcome, {displayName}
+
+          {/* User Info and Logout */}
+          <div className="flex flex-col sm:flex-row items-center gap-2 text-sm">
+            <span className="text-white text-center">
+              Welcome, <span className="font-semibold">{displayName}</span>
             </span>
-            <button 
+            <button
               onClick={handleLogout}
-              className="bg-blue-700 hover:bg-blue-800 px-3 py-1 rounded-md text-sm"
+              className="bg-blue-700 hover:bg-blue-800 px-3 py-1 rounded-md"
             >
               Logout
             </button>
           </div>
-        </div>
-      </div>
-      
-      {/* Mobile navigation */}
-      <div className="md:hidden bg-blue-700">
-        <div className="container mx-auto px-4 py-2 flex justify-between">
-          <Link to="/" className="text-blue-100 hover:text-white">Dashboard</Link>
-          <Link to="/history" className="text-blue-100 hover:text-white">History</Link>
-          <Link to="/reports" className="text-blue-100 hover:text-white">Reports</Link>
-          <Link to="/settings" className="text-blue-100 hover:text-white">Settings</Link>
         </div>
       </div>
     </header>
