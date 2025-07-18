@@ -15,16 +15,16 @@ function Header() {
 
   return (
     <header className="bg-blue-600 text-white shadow-md">
-      <div className="container mx-auto px-4 py-3">
-        {/* Logo and Title */}
-        <div className="text-xl font-bold text-center lg:text-left mb-2 lg:mb-0">
+      <div className="container mx-auto px-4 py-3 flex flex-col lg:flex-row justify-between items-center gap-3">
+        {/* Logo/Title */}
+        <div className="text-xl font-bold">
           Attendance Register
         </div>
 
-        {/* Navigation + Logout (Horizontal layout on all screen sizes) */}
-        <div className="flex flex-wrap justify-center lg:justify-between items-center gap-4 text-sm">
+        {/* Navigation + Logout */}
+        <div className="flex flex-wrap items-center justify-center lg:justify-end gap-4 text-sm">
           {/* Navigation Links */}
-          <nav className="flex flex-wrap justify-center gap-4">
+          <nav className="flex flex-wrap gap-4">
             <Link to="/" className="hover:text-blue-200">Dashboard</Link>
             <Link to="/history" className="hover:text-blue-200">History</Link>
             <Link to="/reports" className="hover:text-blue-200">Reports</Link>
