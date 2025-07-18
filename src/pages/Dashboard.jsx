@@ -93,6 +93,31 @@ function Dashboard() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-indigo-50 to-blue-50">
       <div className="container mx-auto px-4 py-6 max-w-5xl">
+        <div className="bg-white p-6 rounded-xl shadow-md mb-6 max-w-3xl mx-auto">
+          <h2 className="text-2xl font-bold text-blue-700 mb-2">
+            Track Your Attendance Effortlessly – Anytime, Anywhere
+          </h2>
+          <p className="text-gray-700 mb-4">
+            Welcome to <strong>Attendance In Hand</strong>, your personal attendance tracker designed to simplify your academic life.
+          </p>
+        
+          <ul className="list-disc pl-5 text-gray-700 space-y-1 mb-4">
+            <li>Easily <strong>add your subjects</strong> under the <em>Settings</em> section.</li>
+            <li><strong>Record your daily attendance</strong> by selecting the class date, duration, and your status.</li>
+            <li>Instantly view your <strong>overall attendance percentage</strong> and track trends over time.</li>
+          </ul>
+        
+          <h3 className="text-xl font-semibold text-blue-600 mb-2">Why Use This App?</h3>
+          <p className="text-gray-700 mb-4">
+            Traditionally, tracking attendance meant maintaining physical notes or visiting the office room – often a hassle. You might miss out if staff are unavailable, or it becomes hard to stay consistent.
+          </p>
+          <p className="text-gray-700 mb-4">
+            With <strong>Attendance In Hand</strong>, everything is streamlined. You can maintain your own private digital log, stay up to date, and take full control of your academic attendance – all in just a few taps.
+          </p>
+        
+          <p className="font-semibold text-purple-700">Start using <strong>Attendance In Hand</strong> today and never lose track again!</p>
+        </div>
+
         {/* Welcome Banner */}
         <div className="relative bg-gradient-to-r from-purple-600 via-pink-500 to-yellow-400 p-6 rounded-3xl shadow-xl text-white text-center overflow-hidden">
           <div className="absolute inset-0 bg-white/10 backdrop-blur-sm rounded-3xl"></div>
