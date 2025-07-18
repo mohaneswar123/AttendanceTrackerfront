@@ -31,6 +31,13 @@ function Layout({ children }) {
       {/* Spacer to prevent overlap with fixed header */}
       <div className="h-16" /> {/* Adjust height as per your Header component */}
 
+  
+
+      {/* Main Content */}
+      <main className="flex-grow px-4">
+        {children}
+      </main>
+
       {/* Conditionally show Ad Banner */}
       {showAd && (
         <div className="w-full bg-transparent px-4 py-2 border-b border-gray-200 shadow">
@@ -40,12 +47,7 @@ function Layout({ children }) {
           </div>
         </div>
       )}
-
-      {/* Main Content */}
-      <main className="flex-grow px-4">
-        {children}
-      </main>
-
+      
       {/* Footer */}
       <Footer />
     </div>
