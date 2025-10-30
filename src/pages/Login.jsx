@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AttendanceContext } from '../contexts/AttendanceContext';
 
@@ -11,7 +11,14 @@ function Login() {
   });
   const [error, setError] = useState('');
   const navigate = useNavigate();
-  const { login, loading } = useContext(AttendanceContext);
+  const { currentUser, login, loading } = useContext(AttendanceContext);
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (currentUser) {
+      navigate('/');
+    }
+  }, [currentUser, navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;

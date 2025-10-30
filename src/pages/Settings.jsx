@@ -1,16 +1,26 @@
 import React, { useState, useContext } from 'react';
+import { Link } from 'react-router-dom';
 import { AttendanceContext } from '../contexts/AttendanceContext';
 
 
 
 function Settings() {
-  const { subjects, addSubject, removeSubject, resetAllData } = useContext(AttendanceContext);
+  const { currentUser, subjects, addSubject, removeSubject, resetAllData } = useContext(AttendanceContext);
   const [newSubject, setNewSubject] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [isResetting, setIsResetting] = useState(false);
   const [message, setMessage] = useState({ text: '', type: '' });
 
   const handleAddSubject = () => {
+    if (!currentUser) {
+      setMessage({ 
+        text: 'Please login to add subjects!', 
+        type: 'error' 
+      });
+      setTimeout(() => setMessage({ text: '', type: '' }), 3000);
+      return;
+    }
+    
     if (newSubject.trim()) {
       // Check if subject already exists - now checking against subject names
       const subjectExists = subjects.some(subject => 
@@ -43,6 +53,14 @@ function Settings() {
   };
 
   const initiateDelete = (subjectId) => {
+    if (!currentUser) {
+      setMessage({ 
+        text: 'Please login to delete subjects!', 
+        type: 'error' 
+      });
+      setTimeout(() => setMessage({ text: '', type: '' }), 3000);
+      return;
+    }
     setConfirmDelete(subjectId);
   };
 
@@ -63,6 +81,14 @@ function Settings() {
   };
 
   const initiateReset = () => {
+    if (!currentUser) {
+      setMessage({ 
+        text: 'Please login to reset data!', 
+        type: 'error' 
+      });
+      setTimeout(() => setMessage({ text: '', type: '' }), 3000);
+      return;
+    }
     setIsResetting(true);
   };
 
@@ -88,6 +114,23 @@ function Settings() {
         <div className="absolute bottom-20 left-5 w-28 h-28 bg-gradient-to-br from-blue-400 to-cyan-300 rounded-full opacity-20 blur-xl"></div>
         
         <h1 className="text-2xl md:text-3xl font-bold mb-6 text-gray-800 relative z-10">Settings</h1>
+        
+        {/* Login Notice for Guest Users */}
+        {!currentUser && (
+          <div className="mb-6 bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg shadow-md">
+            <div className="flex items-start">
+              <svg className="w-6 h-6 text-blue-500 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              <div>
+                <p className="text-blue-800 font-medium">You are viewing in guest mode</p>
+                <p className="text-blue-700 text-sm mt-1">
+                  Please <Link to="/login" className="underline font-semibold hover:text-blue-900">login</Link> to manage subjects and settings.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
         
         {/* Success/Error Messages */}
         {message.text && (
@@ -123,10 +166,16 @@ function Settings() {
               onKeyPress={handleKeyPress}
               placeholder="Add new subject"
               className="flex-grow border border-gray-300 rounded-lg sm:rounded-r-none px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white bg-opacity-90"
+              disabled={!currentUser}
             />
             <button 
               onClick={handleAddSubject} 
-              className="bg-gradient-to-r from-blue-800 to-indigo-900 hover:from-blue-900 hover:to-indigo-950 text-white px-4 py-2.5 rounded-lg sm:rounded-l-none font-medium transition-all duration-200 shadow-md hover:shadow-lg border border-blue-700 transform hover:-translate-y-0.5 active:translate-y-0 whitespace-nowrap"
+              disabled={!currentUser}
+              className={`px-4 py-2.5 rounded-lg sm:rounded-l-none font-medium transition-all duration-200 shadow-md border whitespace-nowrap ${
+                currentUser 
+                  ? 'bg-gradient-to-r from-blue-800 to-indigo-900 hover:from-blue-900 hover:to-indigo-950 text-white hover:shadow-lg border-blue-700 transform hover:-translate-y-0.5 active:translate-y-0'
+                  : 'bg-gray-300 text-gray-500 cursor-not-allowed border-gray-300'
+              }`}
             >
               Add Subject
             </button>
@@ -174,8 +223,14 @@ function Settings() {
                     ) : (
                       <button 
                         onClick={() => initiateDelete(subject.id)}
-                        className="text-red-500 hover:text-red-700 ml-3 p-1 hover:bg-red-50 rounded-full transition-colors"
+                        disabled={!currentUser}
+                        className={`ml-3 p-1 rounded-full transition-colors ${
+                          currentUser 
+                            ? 'text-red-500 hover:text-red-700 hover:bg-red-50'
+                            : 'text-gray-300 cursor-not-allowed'
+                        }`}
                         aria-label={`Delete ${subject.name}`}
+                        title={!currentUser ? 'Login required to delete' : `Delete ${subject.name}`}
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -234,7 +289,12 @@ function Settings() {
           ) : (
             <button 
               onClick={initiateReset} 
-              className="bg-gradient-to-r from-red-700 to-red-800 hover:from-red-800 hover:to-red-900 text-white px-4 py-2.5 rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg border border-red-800 transform hover:-translate-y-0.5 active:translate-y-0 flex items-center"
+              disabled={!currentUser}
+              className={`px-4 py-2.5 rounded-lg font-medium transition-all duration-200 shadow-md border transform flex items-center ${
+                currentUser
+                  ? 'bg-gradient-to-r from-red-700 to-red-800 hover:from-red-800 hover:to-red-900 text-white hover:shadow-lg border-red-800 hover:-translate-y-0.5 active:translate-y-0'
+                  : 'bg-gray-300 text-gray-500 cursor-not-allowed border-gray-300'
+              }`}
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />

@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { AttendanceContext } from '../contexts/AttendanceContext';
 // ... (imports remain the same)
 
@@ -50,6 +50,17 @@ function Dashboard() {
 
   const handleSubmit = e => {
     e.preventDefault();
+    
+    // Check if user is logged in
+    if (!currentUser) {
+      setMessage({
+        text: '⚠️ Please login to record attendance.',
+        type: 'error'
+      });
+      setTimeout(() => setMessage({ text: '', type: '' }), 3000);
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -122,14 +133,44 @@ function Dashboard() {
         <div className="relative bg-gradient-to-r from-purple-600 via-pink-500 to-yellow-400 p-6 rounded-3xl shadow-xl text-white text-center overflow-hidden">
           <div className="absolute inset-0 bg-white/10 backdrop-blur-sm rounded-3xl"></div>
           <div className="relative z-10">
-            <h2 className="text-3xl font-extrabold tracking-wide drop-shadow-lg animate-pulse">
-              Welcome, <span className="text-yellow-300">{userName}</span>!
-            </h2>
-            <p className="mt-2 text-white text-sm sm:text-base font-medium drop-shadow-sm">
-              Track your attendance effortlessly with just a few taps.
-            </p>
+            {currentUser ? (
+              <>
+                <h2 className="text-3xl font-extrabold tracking-wide drop-shadow-lg animate-pulse">
+                  Welcome, <span className="text-yellow-300">{userName}</span>!
+                </h2>
+                <p className="mt-2 text-white text-sm sm:text-base font-medium drop-shadow-sm">
+                  Track your attendance effortlessly with just a few taps.
+                </p>
+              </>
+            ) : (
+              <>
+                <h2 className="text-3xl font-extrabold tracking-wide drop-shadow-lg">
+                  Welcome to Attendance Tracker!
+                </h2>
+                <p className="mt-2 text-white text-sm sm:text-base font-medium drop-shadow-sm">
+                  Please <Link to="/login" className="underline font-bold hover:text-yellow-300">login</Link> to record your attendance.
+                </p>
+              </>
+            )}
           </div>
         </div>
+
+        {/* Login Alert for Non-logged in Users */}
+        {!currentUser && (
+          <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg shadow-sm">
+            <div className="flex items-start">
+              <svg className="w-6 h-6 text-blue-500 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              <div>
+                <p className="text-blue-800 font-medium">You are viewing in guest mode</p>
+                <p className="text-blue-700 text-sm mt-1">
+                  To record attendance and access all features, please <Link to="/login" className="underline font-semibold hover:text-blue-900">login</Link> or <Link to="/register" className="underline font-semibold hover:text-blue-900">create an account</Link>.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Header and Reports Button */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
@@ -161,6 +202,14 @@ function Dashboard() {
 
         {/* Form */}
         <div className="bg-white p-6 sm:p-8 rounded-xl shadow-xl">
+          {!currentUser && subjects.length === 0 && (
+            <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4 rounded-r-lg">
+              <p className="text-yellow-800">
+                <strong>No subjects available.</strong> Please login and add subjects in Settings to start tracking attendance.
+              </p>
+            </div>
+          )}
+          
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
               {/* Subject */}
@@ -172,12 +221,17 @@ function Dashboard() {
                   onChange={handleChange}
                   className="w-full p-2 border border-gray-300 rounded"
                   required
+                  disabled={!currentUser || subjects.length === 0}
                 >
-                  {subjects.map(subject => (
-                    <option key={subject.id} value={subject.name}>
-                      {subject.name}
-                    </option>
-                  ))}
+                  {subjects.length === 0 ? (
+                    <option value="">No subjects available</option>
+                  ) : (
+                    subjects.map(subject => (
+                      <option key={subject.id} value={subject.name}>
+                        {subject.name}
+                      </option>
+                    ))
+                  )}
                 </select>
               </div>
 
@@ -191,6 +245,7 @@ function Dashboard() {
                   onChange={handleChange}
                   className="w-full p-2 border border-gray-300 rounded"
                   required
+                  disabled={!currentUser}
                 />
               </div>
 
@@ -203,6 +258,7 @@ function Dashboard() {
                   onChange={handleChange}
                   className="w-full p-2 border border-gray-300 rounded"
                   required
+                  disabled={!currentUser}
                 >
                   <option value="Present">Present</option>
                   <option value="Absent">Absent</option>
@@ -219,6 +275,7 @@ function Dashboard() {
                   onChange={handleChange}
                   className="w-full p-2 border border-gray-300 rounded"
                   required
+                  disabled={!currentUser}
                 >
                   {[1, 2].map(n => (
                     <option key={n} value={n}>
@@ -231,12 +288,12 @@ function Dashboard() {
 
             <button
               type="submit"
-              disabled={isSubmitting}
+              disabled={isSubmitting || !currentUser || subjects.length === 0}
               className={`mt-4 w-full sm:w-auto px-6 py-2 rounded-lg text-white font-semibold ${
-                isSubmitting ? 'bg-gray-400 cursor-not-allowed' : 'bg-indigo-700 hover:bg-indigo-800'
+                isSubmitting || !currentUser || subjects.length === 0 ? 'bg-gray-400 cursor-not-allowed' : 'bg-indigo-700 hover:bg-indigo-800'
               }`}
             >
-              {isSubmitting ? 'Saving...' : 'Record Attendance'}
+              {!currentUser ? 'Login Required' : isSubmitting ? 'Saving...' : 'Record Attendance'}
             </button>
           </form>
         </div>

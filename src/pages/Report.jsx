@@ -1,10 +1,11 @@
 import React, { useContext, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { AttendanceContext } from '../contexts/AttendanceContext';
 
 
 
 function Report() {
-  const { subjects, attendanceRecords } = useContext(AttendanceContext);
+  const { currentUser, subjects, attendanceRecords } = useContext(AttendanceContext);
 
   // Calculate attendance statistics for each subject
   const statistics = useMemo(() => {
@@ -98,6 +99,11 @@ function Report() {
           <p className="text-blue-100 text-sm md:text-base">
             Your attendance summary and detailed statistics
           </p>
+          {!currentUser && (
+            <p className="text-yellow-200 text-xs mt-2 font-medium">
+              ⚠️ You are in guest mode. <Link to="/login" className="underline hover:text-white">Login</Link> to see your personal report.
+            </p>
+          )}
         </div>
         <div className="absolute right-0 top-0 h-full w-64 opacity-20">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" className="h-full w-full" strokeWidth="0.5">
@@ -112,7 +118,16 @@ function Report() {
             <svg className="h-5 w-5 text-yellow-400 mr-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
             </svg>
-            <p className="text-yellow-700">No subjects found. Please add subjects in Settings.</p>
+            <div>
+              <p className="text-yellow-700">No subjects found.</p>
+              <p className="text-yellow-600 text-sm mt-1">
+                {currentUser ? (
+                  <>Please add subjects in <Link to="/settings" className="underline font-semibold">Settings</Link>.</>
+                ) : (
+                  <>Please <Link to="/login" className="underline font-semibold">login</Link> and add subjects in Settings.</>
+                )}
+              </p>
+            </div>
           </div>
         </div>
       ) : (

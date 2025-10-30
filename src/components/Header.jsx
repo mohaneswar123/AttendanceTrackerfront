@@ -11,6 +11,10 @@ function Header() {
     navigate('/login');
   };
 
+  const handleLogin = () => {
+    navigate('/login');
+  };
+
   const displayName = currentUser?.username || currentUser?.name || 'User';
 
   return (
@@ -21,7 +25,7 @@ function Header() {
           Attendance Register
         </div>
 
-        {/* Navigation + Logout */}
+        {/* Navigation + Login/Logout */}
         <div className="flex flex-wrap items-center justify-center lg:justify-end gap-4 text-sm">
           {/* Navigation Links */}
           <nav className="flex flex-wrap gap-4">
@@ -31,13 +35,25 @@ function Header() {
             <Link to="/settings" className="hover:text-blue-200">Settings</Link>
           </nav>
 
-          {/* Logout Button */}
-          <button
-            onClick={handleLogout}
-            className="bg-blue-700 hover:bg-blue-800 px-3 py-1 rounded-md"
-          >
-            Logout
-          </button>
+          {/* Login/Logout Button */}
+          {currentUser ? (
+            <div className="flex items-center gap-3">
+              <span className="text-blue-100 hidden sm:inline">Hi, {displayName}</span>
+              <button
+                onClick={handleLogout}
+                className="bg-blue-700 hover:bg-blue-800 px-3 py-1 rounded-md"
+              >
+                Logout
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={handleLogin}
+              className="bg-blue-700 hover:bg-blue-800 px-3 py-1 rounded-md"
+            >
+              Login
+            </button>
+          )}
         </div>
       </div>
     </header>

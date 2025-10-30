@@ -1,9 +1,11 @@
 import React, { useContext, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { AttendanceContext } from '../contexts/AttendanceContext';
 
 
 function History() {
   const { 
+    currentUser,
     attendanceRecords, 
     deleteAttendanceRecord
   } = useContext(AttendanceContext);
@@ -15,6 +17,12 @@ function History() {
 
   // Handle delete functionality
   const handleDelete = (id) => {
+    // Check if user is logged in
+    if (!currentUser) {
+      alert('Please login to delete attendance records.');
+      return;
+    }
+    
     // Find the record to display in confirmation
     const recordToDelete = attendanceRecords.find(record => record.id === id);
     if (!recordToDelete) return;
@@ -36,6 +44,11 @@ function History() {
           <div className="relative z-10">
             <h1 className="text-2xl md:text-3xl font-bold">Attendance History</h1>
             <p className="text-blue-100 text-sm mt-1">View and manage your attendance records</p>
+            {!currentUser && (
+              <p className="text-yellow-200 text-xs mt-2 font-medium">
+                ⚠️ You are in guest mode. <Link to="/login" className="underline hover:text-white">Login</Link> to delete records.
+              </p>
+            )}
           </div>
           <div className="absolute right-0 top-0 h-full w-64 opacity-20">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" className="h-full w-full" strokeWidth="0.5">
@@ -100,7 +113,13 @@ function History() {
                     <div className="flex justify-end gap-2 mt-3">
                       <button 
                         onClick={() => handleDelete(record.id)}
-                        className="bg-red-700 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-red-800 flex items-center"
+                        disabled={!currentUser}
+                        className={`px-3 py-2 rounded-lg text-sm font-medium flex items-center ${
+                          currentUser 
+                            ? 'bg-red-700 text-white hover:bg-red-800' 
+                            : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                        }`}
+                        title={!currentUser ? 'Login required to delete' : 'Delete record'}
                       >
                         <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
@@ -156,7 +175,13 @@ function History() {
                             <div className="flex space-x-2">
                               <button 
                                 onClick={() => handleDelete(record.id)}
-                                className="bg-red-700 text-white px-3 py-1 rounded hover:bg-red-800 text-sm flex items-center"
+                                disabled={!currentUser}
+                                className={`px-3 py-1 rounded text-sm flex items-center ${
+                                  currentUser 
+                                    ? 'bg-red-700 text-white hover:bg-red-800' 
+                                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                }`}
+                                title={!currentUser ? 'Login required to delete' : 'Delete record'}
                               >
                                 <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>

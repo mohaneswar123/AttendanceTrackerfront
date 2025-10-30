@@ -2,6 +2,7 @@ import React, { Suspense, lazy, useContext } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
 import LoadingIndicator from './components/LoadingIndicator';
+import WelcomeModal from './components/WelcomeModal';
 import { AttendanceContext, AttendanceProvider } from './contexts/AttendanceContext';
 
 // Lazy-loaded pages
@@ -19,13 +20,8 @@ const ContactUs = lazy(() => import('./pages/ContactUs'));
 const Terms = lazy(() => import('./pages/Terms'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 
-// Protected route component for regular users
-const ProtectedRoute = ({ children }) => {
-  const { currentUser } = useContext(AttendanceContext);
-  return currentUser ? children : <Navigate to="/login" replace />;
-};
-
-// Protected route component for admin users
+// No longer need ProtectedRoute - all pages are accessible without login
+// Admin route still requires authentication
 const AdminRoute = ({ children }) => {
   const { currentUser } = useContext(AttendanceContext);
   return currentUser?.isAdmin ? children : <Navigate to="/admin/login" replace />;
@@ -37,6 +33,7 @@ function AppContent() {
   return (
     <>
       {loading && <LoadingIndicator />}
+      <WelcomeModal />
       <Router>
         <Suspense fallback={<div className="text-center p-6">Loading...</div>}>
           <Routes>
@@ -58,26 +55,18 @@ function AppContent() {
               </AdminRoute>
             } />
 
-            {/* User routes */}
+            {/* User routes - now accessible without login */}
             <Route path="/" element={
-              <ProtectedRoute>
-                <Layout><Dashboard /></Layout>
-              </ProtectedRoute>
+              <Layout><Dashboard /></Layout>
             } />
             <Route path="/history" element={
-              <ProtectedRoute>
-                <Layout><History /></Layout>
-              </ProtectedRoute>
+              <Layout><History /></Layout>
             } />
             <Route path="/settings" element={
-              <ProtectedRoute>
-                <Layout><Settings /></Layout>
-              </ProtectedRoute>
+              <Layout><Settings /></Layout>
             } />
             <Route path="/reports" element={
-              <ProtectedRoute>
-                <Layout><Report /></Layout>
-              </ProtectedRoute>
+              <Layout><Report /></Layout>
             } />
 
             {/* 404 */}
