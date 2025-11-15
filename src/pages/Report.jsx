@@ -7,57 +7,77 @@ import { AttendanceContext } from '../contexts/AttendanceContext';
 function Report() {
   const { currentUser, subjects, attendanceRecords } = useContext(AttendanceContext);
 
+  // Derive subjects from attendance records if subjects list is empty or missing
+  const derivedSubjects = useMemo(() => {
+    if (subjects && subjects.length > 0) return subjects;
+    const unique = new Map();
+    attendanceRecords.forEach(record => {
+      const subjObj = record.subject; // may be object or string
+      if (typeof subjObj === 'object' && subjObj !== null) {
+        if (!unique.has(subjObj.name)) {
+          unique.set(subjObj.name, { id: subjObj.id || subjObj.name, name: subjObj.name });
+        }
+      } else if (typeof subjObj === 'string' && subjObj.trim() !== '') {
+        if (!unique.has(subjObj)) {
+          unique.set(subjObj, { id: subjObj, name: subjObj });
+        }
+      }
+    });
+    return Array.from(unique.values());
+  }, [subjects, attendanceRecords]);
+
   // Calculate attendance statistics for each subject
   const statistics = useMemo(() => {
     const stats = {};
-    
-    // Initialize stats for each subject
-    subjects.forEach(subject => {
+    // Initialize from either actual subjects or derived subjects
+    derivedSubjects.forEach(subject => {
       stats[subject.name] = {
         present: 0,
         absent: 0,
         noClass: 0,
-        totalHours: 0, // Total hours of classes
-        totalAttendedHours: 0, // Hours attended
-        missedHours: 0,     // NEW: Track missed hours
+        totalHours: 0,
+        totalAttendedHours: 0,
+        missedHours: 0,
         percentage: 0
       };
     });
-    
-    // Count records by subject, status, and factor in class hours
+
     attendanceRecords.forEach(record => {
       const subjectName = record.subject?.name || record.subject;
-      const hours = Number(record.classNumber) || 1; // Default to 1 if not specified
-      
-      if (stats[subjectName]) {
-        if (record.status === 'Present') {
-          stats[subjectName].present += 1;
-          stats[subjectName].totalAttendedHours += hours; // Add hours to attended when present
-        } else if (record.status === 'Absent') {
-          stats[subjectName].absent += 1;
-          stats[subjectName].missedHours += hours; // NEW: Add hours to missed when absent
-        } else if (record.status === 'No Class') {
-          stats[subjectName].noClass += 1;
-        }
-        
-        // Only count Present and Absent towards total (not No Class)
-        if (record.status !== 'No Class') {
-          // Add hours to total regardless of attendance status
-          stats[subjectName].totalHours += hours;
-        }
+      if (!subjectName) return;
+      const hours = Number(record.classNumber) || 1;
+      if (!stats[subjectName]) {
+        // Handle case where a record exists for a subject not initialized yet
+        stats[subjectName] = {
+          present: 0,
+          absent: 0,
+          noClass: 0,
+          totalHours: 0,
+          totalAttendedHours: 0,
+          missedHours: 0,
+          percentage: 0
+        };
+      }
+      if (record.status === 'Present') {
+        stats[subjectName].present += 1;
+        stats[subjectName].totalAttendedHours += hours;
+      } else if (record.status === 'Absent') {
+        stats[subjectName].absent += 1;
+        stats[subjectName].missedHours += hours;
+      } else if (record.status === 'No Class') {
+        stats[subjectName].noClass += 1;
+      }
+      if (record.status !== 'No Class') {
+        stats[subjectName].totalHours += hours;
       }
     });
-    
-    // Calculate attendance percentage based on hours
+
     Object.keys(stats).forEach(subjectName => {
       const { totalAttendedHours, totalHours } = stats[subjectName];
-      stats[subjectName].percentage = totalHours > 0 
-        ? Math.round((totalAttendedHours / totalHours) * 100) 
-        : 0;
+      stats[subjectName].percentage = totalHours > 0 ? Math.round((totalAttendedHours / totalHours) * 100) : 0;
     });
-    
     return stats;
-  }, [subjects, attendanceRecords]);
+  }, [derivedSubjects, attendanceRecords]);
 
   // Calculate overall statistics
   const overallStats = useMemo(() => {
@@ -81,7 +101,7 @@ function Report() {
       
     return {
       totalAttendedHours,
-      totalMissedHours, // NEW: Include in return object
+      totalMissedHours,
       totalHours,
       totalClassesAttended,
       totalClassesHeld,
@@ -112,19 +132,19 @@ function Report() {
         </div>
       </div>
       
-      {subjects.length === 0 ? (
+      {derivedSubjects.length === 0 ? (
         <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 rounded-r-lg shadow-sm">
           <div className="flex">
             <svg className="h-5 w-5 text-yellow-400 mr-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
             </svg>
             <div>
-              <p className="text-yellow-700">No subjects found.</p>
+              <p className="text-yellow-700">No subjects or attendance records found.</p>
               <p className="text-yellow-600 text-sm mt-1">
                 {currentUser ? (
-                  <>Please add subjects in <Link to="/settings" className="underline font-semibold">Settings</Link>.</>
+                  <>Add subjects and start recording attendance in <Link to="/settings" className="underline font-semibold">Settings</Link>.</>
                 ) : (
-                  <>Please <Link to="/login" className="underline font-semibold">login</Link> and add subjects in Settings.</>
+                  <>Please <Link to="/login" className="underline font-semibold">login</Link> to begin tracking attendance.</>
                 )}
               </p>
             </div>
@@ -198,10 +218,10 @@ function Report() {
           <div className="block md:hidden mb-8">
             <h2 className="text-xl font-semibold mb-4">Subject-wise Attendance</h2>
             <div className="space-y-3">
-              {subjects.map(subject => {
-                const stat = statistics[subject.name] || { present: 0, absent: 0, total: 0, percentage: 0 };
+              {derivedSubjects.map(subject => {
+                const stat = statistics[subject.name] || { present: 0, absent: 0, totalHours: 0, totalAttendedHours: 0, missedHours: 0, percentage: 0 };
                 return (
-                  <div key={subject.id} className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 overflow-hidden">
+                  <div key={subject.id || subject.name} className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 overflow-hidden">
                     <div className="flex justify-between items-center mb-2">
                       <h3 className="font-medium text-gray-800">{subject.name}</h3>
                       <span 
@@ -260,7 +280,7 @@ function Report() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {subjects.map(subject => {
+                {derivedSubjects.map(subject => {
                   const stat = statistics[subject.name] || { 
                     present: 0, 
                     absent: 0, 
@@ -270,7 +290,7 @@ function Report() {
                     percentage: 0 
                   };
                   return (
-                    <tr key={subject.id} className="hover:bg-gray-50 transition-colors">
+                    <tr key={subject.id || subject.name} className="hover:bg-gray-50 transition-colors">
                       <td className="py-4 px-4 font-medium">{subject.name}</td>
                       <td className="py-4 px-4 text-center text-green-600 font-medium">{stat.totalAttendedHours}</td>
                       <td className="py-4 px-4 text-center text-red-600 font-medium">{stat.missedHours}</td> {/* Changed */}
