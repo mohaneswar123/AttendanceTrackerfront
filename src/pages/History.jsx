@@ -24,7 +24,7 @@ function History() {
     }
     
     // Find the record to display in confirmation
-    const recordToDelete = attendanceRecords.find(record => record.id === id);
+    const recordToDelete = attendanceRecords.find(record => record._id === id);
     if (!recordToDelete) return;
     
     const subject = recordToDelete.subject?.name || recordToDelete.subject;
@@ -82,7 +82,7 @@ function History() {
             {/* Mobile view - card layout */}
             <div className="block md:hidden space-y-4">
               {sortedRecords.map(record => (
-                <div key={record.id} className="bg-white rounded-xl shadow-sm border border-gray-100">
+                <div key={record._id} className="bg-white rounded-xl shadow-sm border border-gray-100">
                   <div className="p-4">
                     <div className="flex justify-between items-start mb-3">
                       <h3 className="font-semibold text-lg">
@@ -112,7 +112,7 @@ function History() {
                     
                     <div className="flex justify-end gap-2 mt-3">
                       <button 
-                        onClick={() => handleDelete(record.id)}
+                        onClick={() => handleDelete(record._id)}
                         disabled={!currentUser}
                         className={`px-3 py-2 rounded-lg text-sm font-medium flex items-center ${
                           currentUser 
@@ -151,7 +151,7 @@ function History() {
                     </thead>
                     <tbody className="divide-y divide-gray-200">
                       {sortedRecords.map(record => (
-                        <tr key={record.id} className="hover:bg-gray-50 transition-colors">
+                        <tr key={record._id} className="hover:bg-gray-50 transition-colors">
                           <td className="py-3 px-4 whitespace-nowrap">
                             <span className="font-medium">{record.subject?.name || record.subject}</span>
                           </td>
@@ -174,7 +174,7 @@ function History() {
                           <td className="py-3 px-4">
                             <div className="flex space-x-2">
                               <button 
-                                onClick={() => handleDelete(record.id)}
+                                onClick={() => handleDelete(record._id)}
                                 disabled={!currentUser}
                                 className={`px-3 py-1 rounded text-sm flex items-center ${
                                   currentUser 

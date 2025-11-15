@@ -15,11 +15,11 @@ function Report() {
       const subjObj = record.subject; // may be object or string
       if (typeof subjObj === 'object' && subjObj !== null) {
         if (!unique.has(subjObj.name)) {
-          unique.set(subjObj.name, { id: subjObj.id || subjObj.name, name: subjObj.name });
+          unique.set(subjObj.name, { _id: subjObj._id || subjObj.id || subjObj.name, name: subjObj.name });
         }
       } else if (typeof subjObj === 'string' && subjObj.trim() !== '') {
         if (!unique.has(subjObj)) {
-          unique.set(subjObj, { id: subjObj, name: subjObj });
+          unique.set(subjObj, { _id: subjObj, name: subjObj });
         }
       }
     });
@@ -221,7 +221,7 @@ function Report() {
               {derivedSubjects.map(subject => {
                 const stat = statistics[subject.name] || { present: 0, absent: 0, totalHours: 0, totalAttendedHours: 0, missedHours: 0, percentage: 0 };
                 return (
-                  <div key={subject.id || subject.name} className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 overflow-hidden">
+                  <div key={subject._id || subject.name} className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 overflow-hidden">
                     <div className="flex justify-between items-center mb-2">
                       <h3 className="font-medium text-gray-800">{subject.name}</h3>
                       <span 
@@ -290,7 +290,7 @@ function Report() {
                     percentage: 0 
                   };
                   return (
-                    <tr key={subject.id || subject.name} className="hover:bg-gray-50 transition-colors">
+                    <tr key={subject._id || subject.name} className="hover:bg-gray-50 transition-colors">
                       <td className="py-4 px-4 font-medium">{subject.name}</td>
                       <td className="py-4 px-4 text-center text-green-600 font-medium">{stat.totalAttendedHours}</td>
                       <td className="py-4 px-4 text-center text-red-600 font-medium">{stat.missedHours}</td> {/* Changed */}

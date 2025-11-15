@@ -27,7 +27,7 @@ function Dashboard() {
   useEffect(() => {
     const exists = attendanceRecords.find(
       r =>
-        r.subject?.name === formData.subject &&
+        (r.subject?.name || r.subject) === formData.subject &&
         r.date === formData.date &&
         Number(r.classNumber) === Number(formData.classNumber)
     );
@@ -72,7 +72,7 @@ function Dashboard() {
 
       const record = {
         ...formData,
-        subjectId: selectedSubject.id,
+        subjectId: selectedSubject._id,
         classNumber: classNumberClamped
       };
 

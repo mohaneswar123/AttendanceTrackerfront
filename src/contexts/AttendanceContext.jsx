@@ -8,7 +8,18 @@ export const AttendanceContext = createContext();
 export const AttendanceProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(() => {
     const savedUser = localStorage.getItem('currentUser');
-    return savedUser ? JSON.parse(savedUser) : null;
+    if (!savedUser) return null;
+    try {
+      const parsed = JSON.parse(savedUser);
+      // Migration: if old key 'id' exists but '_id' missing, map it.
+      if (parsed && parsed.id && !parsed._id) {
+        parsed._id = parsed.id;
+        delete parsed.id; // optional cleanup
+      }
+      return parsed;
+    } catch {
+      return null;
+    }
   });
   
   const [subjects, setSubjects] = useState([]);
@@ -33,14 +44,14 @@ export const AttendanceProvider = ({ children }) => {
     
     try {
       // Load subjects
-      const subjectsData = await subjectService.getSubjects(currentUser.id);
+      const subjectsData = await subjectService.getSubjects(currentUser._id);
       setSubjects(subjectsData.map(subject => ({
-        id: subject.id,
+        _id: subject._id || subject.id,
         name: subject.name
       })));
       
       // Load attendance records
-      const recordsData = await attendanceService.getRecords(currentUser.id);
+      const recordsData = await attendanceService.getRecords(currentUser._id);
       setAttendanceRecords(recordsData);
     } catch (err) {
       console.error("Error loading user data:", err);
@@ -55,8 +66,13 @@ export const AttendanceProvider = ({ children }) => {
     setLoading(true);
     try {
       const user = await authService.register(userData);
-      setCurrentUser(user);
-      localStorage.setItem('currentUser', JSON.stringify(user));
+      const normalized = { ...user };
+      if (normalized.id && !normalized._id) {
+        normalized._id = normalized.id;
+        delete normalized.id;
+      }
+      setCurrentUser(normalized);
+      localStorage.setItem('currentUser', JSON.stringify(normalized));
       return { success: true };
     } catch (err) {
       console.error("Registration error:", err);
@@ -73,8 +89,13 @@ export const AttendanceProvider = ({ children }) => {
     setLoading(true);
     try {
       const userData = await authService.login(email, password);
-      setCurrentUser(userData);
-      localStorage.setItem('currentUser', JSON.stringify(userData));
+      const normalized = { ...userData };
+      if (normalized.id && !normalized._id) {
+        normalized._id = normalized.id;
+        delete normalized.id;
+      }
+      setCurrentUser(normalized);
+      localStorage.setItem('currentUser', JSON.stringify(normalized));
       return userData;
     } catch (err) {
       // Let the component handle the error
@@ -93,8 +114,8 @@ export const AttendanceProvider = ({ children }) => {
   const addSubject = async (subjectName) => {
     setLoading(true);
     try {
-      const newSubject = await subjectService.addSubject(currentUser.id, subjectName);
-      setSubjects([...subjects, { id: newSubject.id, name: newSubject.name }]);
+      const newSubject = await subjectService.addSubject(currentUser._id, subjectName);
+      setSubjects([...subjects, { _id: newSubject._id || newSubject.id, name: newSubject.name }]);
       return { success: true };
     } catch (err) {
       console.error("Error adding subject:", err);
@@ -108,14 +129,13 @@ export const AttendanceProvider = ({ children }) => {
  const removeSubject = async (subjectId) => {
   setLoading(true);
   try {
-    // Send both subjectId and userId
-    await subjectService.deleteSubject(subjectId, currentUser.id);
+    await subjectService.deleteSubject(subjectId, currentUser._id);
     
     // Remove subject locally
-    setSubjects(subjects.filter(s => s.id !== subjectId));
+    setSubjects(subjects.filter(s => s._id !== subjectId));
     
     // Remove associated attendance records locally
-    setAttendanceRecords(attendanceRecords.filter(record => record.subjectId !== subjectId));
+    setAttendanceRecords(attendanceRecords.filter(record => record.subjectId !== subjectId && record.subject?._id !== subjectId));
     
     return { success: true };
   } catch (err) {
@@ -139,8 +159,8 @@ export const AttendanceProvider = ({ children }) => {
       }
       
       const newRecord = await attendanceService.addRecord(
-        currentUser.id,
-        subject.id,
+        currentUser._id,
+        subject._id,
         record.status,
         record.date,
         record.classNumber // Add class number parameter
@@ -180,7 +200,7 @@ export const AttendanceProvider = ({ children }) => {
       
       setAttendanceRecords(
         attendanceRecords.map(record => 
-          record.id === id ? updated : record
+          record._id === id ? updated : record
         )
       );
       return { success: true };
@@ -197,7 +217,7 @@ export const AttendanceProvider = ({ children }) => {
     setLoading(true);
     try {
       await attendanceService.deleteRecord(id);
-      setAttendanceRecords(attendanceRecords.filter(record => record.id !== id));
+      setAttendanceRecords(attendanceRecords.filter(record => record._id !== id));
       return { success: true };
     } catch (err) {
       console.error("Error deleting attendance:", err);
@@ -211,7 +231,7 @@ export const AttendanceProvider = ({ children }) => {
   const resetAllData = async () => {
     setLoading(true);
     try {
-      await resetService.resetUserData(currentUser.id);
+      await resetService.resetUserData(currentUser._id);
       setSubjects([]);
       setAttendanceRecords([]);
       return { success: true };
@@ -229,14 +249,13 @@ export const AttendanceProvider = ({ children }) => {
     setLoading(true);
     try {
       const adminData = await adminService.login(email, password);
-      setCurrentUser({
-        ...adminData,
-        isAdmin: true // Mark as admin user
-      });
-      localStorage.setItem('currentUser', JSON.stringify({
-        ...adminData,
-        isAdmin: true
-      }));
+      const normalized = { ...adminData };
+      if (normalized.id && !normalized._id) {
+        normalized._id = normalized.id;
+        delete normalized.id;
+      }
+      setCurrentUser({ ...normalized, isAdmin: true });
+      localStorage.setItem('currentUser', JSON.stringify({ ...normalized, isAdmin: true }));
       return adminData;
     } catch (err) {
       // Let the component handle the error

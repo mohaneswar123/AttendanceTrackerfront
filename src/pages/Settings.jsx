@@ -194,9 +194,9 @@ function Settings() {
             <div className="bg-gray-50 bg-opacity-80 rounded-lg border border-gray-200 overflow-hidden">
               <ul className="divide-y divide-gray-200">
                 {subjects.map((subject) => (
-                  <li key={subject.id} className="px-4 py-3 flex flex-wrap sm:flex-nowrap justify-between items-center gap-2">
+                  <li key={subject._id} className="px-4 py-3 flex flex-wrap sm:flex-nowrap justify-between items-center gap-2">
                     <span className="font-medium text-gray-800 break-all">{subject.name}</span>
-                    {confirmDelete === subject.id ? (
+                    {confirmDelete === subject._id ? (
                       <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 ml-auto">
                         <span className="text-sm text-red-600 whitespace-nowrap">Delete?</span>
                         <div className="flex gap-2">
@@ -222,7 +222,7 @@ function Settings() {
                       </div>
                     ) : (
                       <button 
-                        onClick={() => initiateDelete(subject.id)}
+                        onClick={() => initiateDelete(subject._id)}
                         disabled={!currentUser}
                         className={`ml-3 p-1 rounded-full transition-colors ${
                           currentUser 

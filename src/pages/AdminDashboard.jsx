@@ -45,11 +45,11 @@ function AdminDashboard() {
         setLoading(true);
         
         // Fetch subjects for selected user
-        const subjects = await adminService.getUserSubjects(selectedUser.id);
+        const subjects = await adminService.getUserSubjects(selectedUser._id);
         setUserSubjects(subjects);
         
         // Fetch attendance records for selected user
-        const attendance = await adminService.getUserAttendance(selectedUser.id);
+        const attendance = await adminService.getUserAttendance(selectedUser._id);
         setUserAttendance(attendance);
       } catch (err) {
         setError('Failed to load user data');
@@ -63,7 +63,7 @@ function AdminDashboard() {
   }, [selectedUser]);
 
   const handleUserSelect = (userId) => {
-    const user = users.find(u => u.id === userId);
+    const user = users.find(u => u._id === userId);
     setSelectedUser(user || null);
   };
 
@@ -90,7 +90,7 @@ function AdminDashboard() {
     const statistics = userSubjects.map(subject => {
       // Filter attendance records for this subject
       const subjectRecords = userAttendance.filter(record => 
-        record.subject?.id === subject.id
+        record.subject?._id === subject._id
       );
       
       // Count present, absent, and calculate hours
@@ -182,10 +182,10 @@ function AdminDashboard() {
               <div className="max-h-[500px] overflow-y-auto">
                 <ul className="space-y-2">
                   {filteredUsers.map(user => (
-                    <li key={user.id}>
+                    <li key={user._id}>
                       <button
-                        className={`w-full text-left px-3 py-2 rounded-md ${selectedUser?.id === user.id ? 'bg-purple-100 text-purple-700' : 'hover:bg-gray-100'}`}
-                        onClick={() => handleUserSelect(user.id)}
+                        className={`w-full text-left px-3 py-2 rounded-md ${selectedUser?._id === user._id ? 'bg-purple-100 text-purple-700' : 'hover:bg-gray-100'}`}
+                        onClick={() => handleUserSelect(user._id)}
                       >
                         <div className="font-medium">{user.username}</div>
                         <div className="text-sm text-gray-500">{user.email}</div>
@@ -241,7 +241,7 @@ function AdminDashboard() {
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
                               {subjectStatistics.map(subject => (
-                                <tr key={subject.id}>
+                                <tr key={subject._id}>
                                   <td className="px-6 py-4 whitespace-nowrap font-medium">
                                     {subject.name}
                                   </td>
@@ -309,7 +309,7 @@ function AdminDashboard() {
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
                               {userAttendance.map(record => (
-                                <tr key={record.id}>
+                                <tr key={record._id}>
                                   <td className="px-6 py-4 whitespace-nowrap">
                                     {record.subject?.name || '—'}
                                   </td>
