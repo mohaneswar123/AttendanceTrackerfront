@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:8080/api'; // Update with your actual API base URL
+const API_BASE_URL = 'https://attendancetrackerbackend-mongo.onrender.com/api'; // Update with your actual API base URL
 
 // Create axios instance with base config
 const apiClient = axios.create({
