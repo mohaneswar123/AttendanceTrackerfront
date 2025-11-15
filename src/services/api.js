@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'https://atb-production.up.railway.app/api'; // Update with your actual API base URL
+const API_BASE_URL = 'http://localhost:8080/api'; // Update with your actual API base URL
 
 // Create axios instance with base config
 const apiClient = axios.create({
