@@ -22,10 +22,10 @@ function WelcomeBanner({ currentUser }) {
       </div>
       
       {/* Content */}
-      <div className="relative z-10 px-5 py-4 flex items-center justify-between">
+      <div className="relative z-10 px-5 py-4 flex flex-wrap items-baseline gap-2 justify-between">
         {userName ? (
           <>
-            <div className="animate-fade-in flex items-baseline gap-2">
+            <div className="animate-fade-in flex flex-wrap items-baseline gap-2">
               <h2 className="text-lg md:text-xl font-bold">
                 {"Welcome back,".split('').map((char, i) => (
                   <span 
@@ -43,9 +43,10 @@ function WelcomeBanner({ currentUser }) {
                 {`${userName}!`.split('').map((char, i) => (
                   <span 
                     key={i} 
-                    className="inline-block animate-bounce-subtle text-primary-500"
+                    className="inline-block animate-bounce-subtle"
                     style={{
-                      animationDelay: `${i * 0.08}s`
+                      animationDelay: `${i * 0.08}s`,
+                      color: '#FF2E63'
                     }}
                   >
                     {char}
