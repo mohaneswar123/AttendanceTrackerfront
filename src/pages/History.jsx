@@ -153,7 +153,7 @@ function History() {
                       {sortedRecords.map(record => (
                         <tr key={record._id} className="hover:bg-gray-50 transition-colors">
                           <td className="py-3 px-4 whitespace-nowrap">
-                            <span className="font-medium">{record.subject?.name || record.subject}</span>
+                            <span className="font-medium">{record.subject?.name || (subjects?.find?.(s => s._id === record.subjectId)?.name) || record.subject || '—'}</span>
                           </td>
                           <td className="py-3 px-4 whitespace-nowrap">
                             {new Date(record.date).toLocaleDateString()}

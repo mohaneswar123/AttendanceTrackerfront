@@ -45,14 +45,27 @@ export const AttendanceProvider = ({ children }) => {
     try {
       // Load subjects
       const subjectsData = await subjectService.getSubjects(currentUser._id);
-      setSubjects(subjectsData.map(subject => ({
+      const normalizedSubjects = subjectsData.map(subject => ({
         _id: subject._id || subject.id,
         name: subject.name
-      })));
+      }));
+      setSubjects(normalizedSubjects);
+      const subjectMap = normalizedSubjects.reduce((acc, s) => { acc[s._id] = s; return acc; }, {});
       
-      // Load attendance records
+      // Load attendance records and normalize subject reference
       const recordsData = await attendanceService.getRecords(currentUser._id);
-      setAttendanceRecords(recordsData);
+      const normalizedRecords = recordsData.map(r => {
+        const subjObj = r.subject && typeof r.subject === 'object' ? r.subject : null;
+        const subjId = subjObj?._id || subjObj?.id || r.subjectId || (typeof r.subject === 'string' ? r.subject : undefined);
+        const resolvedSubject = subjId ? subjectMap[subjId] || (subjObj ? { _id: subjId, name: subjObj.name } : undefined) : null;
+        return {
+          ...r,
+          _id: r._id || r.id,
+          subject: resolvedSubject,
+          subjectId: subjId
+        };
+      });
+      setAttendanceRecords(normalizedRecords);
     } catch (err) {
       console.error("Error loading user data:", err);
       setError("Failed to load your data. Please try again.");
@@ -165,8 +178,13 @@ export const AttendanceProvider = ({ children }) => {
         record.date,
         record.classNumber // Add class number parameter
       );
-      
-      setAttendanceRecords([...attendanceRecords, newRecord]);
+      const normalized = {
+        ...newRecord,
+        _id: newRecord._id || newRecord.id,
+        subject: subject,
+        subjectId: subject._id
+      };
+      setAttendanceRecords([...attendanceRecords, normalized]);
       return { success: true };
     } catch (err) {
       console.error("Error adding attendance:", err);
@@ -187,7 +205,7 @@ export const AttendanceProvider = ({ children }) => {
         if (!subject) {
           throw new Error("Subject not found");
         }
-        subjectId = subject.id;
+        subjectId = subject._id;
       }
       
       // Prepare record data for API
@@ -197,12 +215,13 @@ export const AttendanceProvider = ({ children }) => {
       };
       
       const updated = await attendanceService.updateRecord(id, recordData);
-      
-      setAttendanceRecords(
-        attendanceRecords.map(record => 
-          record._id === id ? updated : record
-        )
-      );
+      const normalized = {
+        ...updated,
+        _id: updated._id || updated.id || id,
+        subject: subjectId ? subjects.find(s => s._id === subjectId) : (updated.subject && typeof updated.subject === 'object' ? { _id: updated.subject._id || updated.subject.id, name: updated.subject.name } : attendanceRecords.find(r => r._id === id)?.subject),
+        subjectId: subjectId || updated.subjectId || attendanceRecords.find(r => r._id === id)?.subjectId
+      };
+      setAttendanceRecords(attendanceRecords.map(r => r._id === id ? normalized : r));
       return { success: true };
     } catch (err) {
       console.error("Error updating attendance:", err);

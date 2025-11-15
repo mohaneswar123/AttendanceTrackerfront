@@ -43,7 +43,8 @@ function Report() {
     });
 
     attendanceRecords.forEach(record => {
-      const subjectName = record.subject?.name || record.subject;
+      // Determine subject name via linked subject object or subjectId mapping
+      const subjectName = record.subject?.name || record.subject || (subjects.find(s => s._id === record.subjectId)?.name);
       if (!subjectName) return;
       const hours = Number(record.classNumber) || 1;
       if (!stats[subjectName]) {
