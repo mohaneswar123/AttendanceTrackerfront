@@ -1,3 +1,50 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Import modern, legible font */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+@layer base {
+	html {
+		-webkit-tap-highlight-color: transparent;
+	}
+	body {
+		@apply font-sans text-light-primary bg-dark-primary min-h-screen antialiased;
+	}
+	h1 { @apply text-2xl md:text-3xl font-bold text-light-primary; }
+	h2 { @apply text-xl md:text-2xl font-semibold text-light-primary; }
+	h3 { @apply text-lg md:text-xl font-semibold text-light-primary; }
+	p { @apply leading-relaxed; }
+	/* Removed unsupported underline-offset-2; using hover:underline for compatibility */
+	a { @apply text-primary-500 hover:text-primary-400 hover:underline; }
+}
+
+@layer components {
+	.card {
+		@apply bg-dark-secondary rounded-xl shadow-soft border border-dark-primary;
+	}
+	.card-body { @apply p-4 md:p-6; }
+
+	.btn { @apply inline-flex items-center justify-center px-4 py-2 rounded-lg font-medium transition-colors duration-200; }
+	.btn-primary { @apply bg-primary-500 text-dark-primary hover:bg-primary-600 shadow-md; }
+	.btn-outline { @apply border border-primary-500 text-primary-500 hover:bg-primary-500 hover:text-dark-primary; }
+	.btn-danger { @apply bg-red-600 text-light-primary hover:bg-red-700; }
+	.btn-muted { @apply bg-dark-secondary text-light-primary hover:bg-dark-primary; }
+
+	.input { @apply w-full px-3 py-2 rounded-lg border border-dark-secondary focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-dark-primary text-light-primary; }
+	.select { @apply input; }
+	.label { @apply block text-sm font-medium text-light-primary mb-1; }
+
+	.badge { @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold; }
+	.badge-success { @apply bg-green-600 text-light-primary; }
+	.badge-danger { @apply bg-red-600 text-light-primary; }
+	.badge-neutral { @apply bg-dark-secondary text-light-primary; }
+}
+
+@layer utilities {
+	.glass {
+		/* Fallback without backdrop utilities (ensure Tailwind v2 compatibility) */
+		@apply bg-dark-secondary bg-opacity-70;
+	}
+}

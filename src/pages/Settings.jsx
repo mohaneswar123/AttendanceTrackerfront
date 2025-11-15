@@ -107,25 +107,25 @@ function Settings() {
   };
 
   return (
-    <div className="bg-gradient-to-br from-purple-50 via-indigo-50 to-blue-50">
+    <div className="bg-dark-primary min-h-screen">
       <div className="container mx-auto px-4 py-6 max-w-3xl relative">
         {/* Background decorative elements */}
-        <div className="absolute top-20 right-10 w-32 h-32 bg-gradient-to-br from-purple-300 to-indigo-300 rounded-full opacity-20 blur-xl animate-pulse-slow"></div>
-        <div className="absolute bottom-20 left-5 w-28 h-28 bg-gradient-to-br from-blue-400 to-cyan-300 rounded-full opacity-20 blur-xl"></div>
+        <div className="absolute top-20 right-10 w-32 h-32 bg-gradient-to-br from-primary-500 to-primary-400 rounded-full opacity-10 blur-xl animate-pulse-slow"></div>
+        <div className="absolute bottom-20 left-5 w-28 h-28 bg-gradient-to-br from-primary-600 to-primary-500 rounded-full opacity-10 blur-xl"></div>
         
-        <h1 className="text-2xl md:text-3xl font-bold mb-6 text-gray-800 relative z-10">Settings</h1>
+        <h1 className="text-2xl md:text-3xl font-bold mb-6 text-light-primary relative z-10">Settings</h1>
         
         {/* Login Notice for Guest Users */}
         {!currentUser && (
-          <div className="mb-6 bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg shadow-md">
+          <div className="mb-6 bg-dark-secondary border-l-4 border-primary-500 p-4 rounded-r-lg shadow-md">
             <div className="flex items-start">
-              <svg className="w-6 h-6 text-blue-500 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <svg className="w-6 h-6 text-primary-500 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
               </svg>
               <div>
-                <p className="text-blue-800 font-medium">You are viewing in guest mode</p>
-                <p className="text-blue-700 text-sm mt-1">
-                  Please <Link to="/login" className="underline font-semibold hover:text-blue-900">login</Link> to manage subjects and settings.
+                <p className="text-light-primary font-medium">You are viewing in guest mode</p>
+                <p className="text-light-primary/80 text-sm mt-1">
+                  Please <Link to="/login" className="underline font-semibold hover:text-primary-500">login</Link> to manage subjects and settings.
                 </p>
               </div>
             </div>
@@ -136,8 +136,8 @@ function Settings() {
         {message.text && (
           <div className={`mb-6 p-4 rounded-lg shadow-md border-l-4 transition-all duration-300 ease-in-out ${
             message.type === 'success' 
-              ? 'bg-gradient-to-r from-green-50 to-emerald-50 text-green-700 border-green-500' 
-              : 'bg-gradient-to-r from-red-50 to-rose-50 text-red-700 border-red-500'
+              ? 'bg-dark-secondary text-green-400 border-green-500' 
+              : 'bg-dark-secondary text-red-400 border-red-500'
           }`}>
             <div className="flex items-center">
               {message.type === 'success' ? (
@@ -155,8 +155,8 @@ function Settings() {
         )}
         
         {/* Manage Subjects Section */}
-        <div className="bg-white bg-opacity-80 backdrop-blur-md rounded-xl shadow-xl p-5 md:p-6 mb-6 border border-gray-100 relative z-10">
-          <h2 className="text-lg md:text-xl font-semibold mb-4 text-gray-800">Manage Subjects</h2>
+        <div className="bg-dark-secondary bg-opacity-80 backdrop-blur-md rounded-xl shadow-xl p-5 md:p-6 mb-6 border border-dark-primary relative z-10">
+          <h2 className="text-lg md:text-xl font-semibold mb-4 text-light-primary">Manage Subjects</h2>
           
           <div className="flex flex-col sm:flex-row mb-4 gap-2">
             <input
@@ -165,7 +165,7 @@ function Settings() {
               onChange={(e) => setNewSubject(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="Add new subject"
-              className="flex-grow border border-gray-300 rounded-lg sm:rounded-r-none px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white bg-opacity-90"
+              className="flex-grow border border-dark-primary rounded-lg sm:rounded-r-none px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-dark-primary text-light-primary bg-opacity-90"
               disabled={!currentUser}
             />
             <button 
@@ -173,8 +173,8 @@ function Settings() {
               disabled={!currentUser}
               className={`px-4 py-2.5 rounded-lg sm:rounded-l-none font-medium transition-all duration-200 shadow-md border whitespace-nowrap ${
                 currentUser 
-                  ? 'bg-gradient-to-r from-blue-800 to-indigo-900 hover:from-blue-900 hover:to-indigo-950 text-white hover:shadow-lg border-blue-700 transform hover:-translate-y-0.5 active:translate-y-0'
-                  : 'bg-gray-300 text-gray-500 cursor-not-allowed border-gray-300'
+                  ? 'bg-primary-500 hover:bg-primary-600 text-dark-primary hover:shadow-lg border-primary-500 transform hover:-translate-y-0.5 active:translate-y-0'
+                  : 'bg-dark-primary text-light-primary/50 cursor-not-allowed border-dark-primary'
               }`}
             >
               Add Subject
@@ -182,7 +182,7 @@ function Settings() {
           </div>
           
           {subjects.length === 0 ? (
-            <div className="bg-gradient-to-r from-yellow-50 to-amber-50 border-l-4 border-yellow-400 text-yellow-700 p-4 rounded-md">
+            <div className="bg-dark-primary border-l-4 border-yellow-500 text-yellow-400 p-4 rounded-md">
               <div className="flex">
                 <svg className="w-5 h-5 mr-2 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
@@ -191,14 +191,14 @@ function Settings() {
               </div>
             </div>
           ) : (
-            <div className="bg-gray-50 bg-opacity-80 rounded-lg border border-gray-200 overflow-hidden">
-              <ul className="divide-y divide-gray-200">
+            <div className="bg-dark-primary bg-opacity-80 rounded-lg border border-dark-primary overflow-hidden">
+              <ul className="divide-y divide-dark-secondary">
                 {subjects.map((subject) => (
                   <li key={subject._id} className="px-4 py-3 flex flex-wrap sm:flex-nowrap justify-between items-center gap-2">
-                    <span className="font-medium text-gray-800 break-all">{subject.name}</span>
+                    <span className="font-medium text-light-primary break-all">{subject.name}</span>
                     {confirmDelete === subject._id ? (
                       <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 ml-auto">
-                        <span className="text-sm text-red-600 whitespace-nowrap">Delete?</span>
+                        <span className="text-sm text-red-400 whitespace-nowrap">Delete?</span>
                         <div className="flex gap-2">
                           <button 
                             onClick={confirmDeleteSubject}
@@ -226,8 +226,8 @@ function Settings() {
                         disabled={!currentUser}
                         className={`ml-3 p-1 rounded-full transition-colors ${
                           currentUser 
-                            ? 'text-red-500 hover:text-red-700 hover:bg-red-50'
-                            : 'text-gray-300 cursor-not-allowed'
+                            ? 'text-red-400 hover:text-red-500 hover:bg-red-500/10'
+                            : 'text-light-primary/30 cursor-not-allowed'
                         }`}
                         aria-label={`Delete ${subject.name}`}
                         title={!currentUser ? 'Login required to delete' : `Delete ${subject.name}`}
@@ -245,22 +245,22 @@ function Settings() {
         </div>
         
         {/* Reset Attendance Section */}
-        <div className="bg-white bg-opacity-80 backdrop-blur-md rounded-xl shadow-xl p-5 md:p-6 border border-gray-100 relative z-10">
-          <h2 className="text-lg md:text-xl font-semibold mb-4 text-gray-800">Reset Data</h2>
-          <p className="text-gray-600 mb-4">
+        <div className="bg-dark-secondary bg-opacity-80 backdrop-blur-md rounded-xl shadow-xl p-5 md:p-6 border border-dark-primary relative z-10">
+          <h2 className="text-lg md:text-xl font-semibold mb-4 text-light-primary">Reset Data</h2>
+          <p className="text-light-primary/80 mb-4">
             Warning: This will delete all attendance records. This action cannot be undone.
           </p>
           
           {isResetting ? (
-            <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-4 rounded-r-md">
+            <div className="bg-dark-primary border-l-4 border-red-500 p-4 mb-4 rounded-r-md">
               <div className="flex flex-col sm:flex-row">
                 <div className="flex-shrink-0 mb-2 sm:mb-0">
-                  <svg className="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="h-5 w-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                   </svg>
                 </div>
                 <div className="ml-0 sm:ml-3">
-                  <h3 className="text-sm font-medium text-red-800">
+                  <h3 className="text-sm font-medium text-red-400">
                     Are you absolutely sure?
                   </h3>
                   <div className="mt-2 flex flex-col xs:flex-row space-y-2 xs:space-y-0 xs:space-x-3">
@@ -292,8 +292,8 @@ function Settings() {
               disabled={!currentUser}
               className={`px-4 py-2.5 rounded-lg font-medium transition-all duration-200 shadow-md border transform flex items-center ${
                 currentUser
-                  ? 'bg-gradient-to-r from-red-700 to-red-800 hover:from-red-800 hover:to-red-900 text-white hover:shadow-lg border-red-800 hover:-translate-y-0.5 active:translate-y-0'
-                  : 'bg-gray-300 text-gray-500 cursor-not-allowed border-gray-300'
+                  ? 'bg-red-600 hover:bg-red-700 text-light-primary hover:shadow-lg border-red-600 hover:-translate-y-0.5 active:translate-y-0'
+                  : 'bg-dark-primary text-light-primary/50 cursor-not-allowed border-dark-primary'
               }`}
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">

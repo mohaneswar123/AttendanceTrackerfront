@@ -22,19 +22,15 @@ function Layout({ children }) {
   const showAd = showAdOnRoutes.includes(location.pathname);
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col">
-      {/* Fixed Header */}
-      <div className="fixed top-0 left-0 w-full z-50">
-        <Header />
-      </div>
-
-      {/* Spacer to prevent overlap with fixed header */}
-      <div className="h-16" /> {/* Adjust height as per your Header component */}
+    <div className="min-h-screen bg-dark-primary flex flex-col">
+      {/* Header now fixed internally with consistent height */}
+      <Header />
+      <div className="h-16" />
 
   
 
       {/* Main Content */}
-      <main className="flex-grow px-2">
+      <main className="flex-grow px-2 md:px-4">
         {children}
       </main>
 

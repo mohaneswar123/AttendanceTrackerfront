@@ -3,15 +3,15 @@ import { Link } from 'react-router-dom';
 
 function Footer() {
   return (
-    <footer className="bg-gray-800 text-white py-4">
-      <div className="container mx-auto text-center">
-        <div className="mb-2">
-          <Link to="/privacy-policy" className="mx-3 hover:underline">Privacy Policy</Link>
-          <Link to="/about-us" className="mx-3 hover:underline">About Us</Link>
-          <Link to="/contact-us" className="mx-3 hover:underline">Contact Us</Link>
-          <Link to="/terms" className="mx-3 hover:underline">T&C</Link>
+    <footer className="bg-dark-primary text-light-primary border-t border-primary-500/20">
+      <div className="container px-4 py-6 text-center">
+        <div className="mb-3 flex flex-wrap items-center justify-center gap-4 text-sm">
+          <Link to="/privacy-policy" className="hover:text-primary-500 transition-colors">Privacy Policy</Link>
+          <Link to="/about-us" className="hover:text-primary-500 transition-colors">About Us</Link>
+          <Link to="/contact-us" className="hover:text-primary-500 transition-colors">Contact Us</Link>
+          <Link to="/terms" className="hover:text-primary-500 transition-colors">T&C</Link>
         </div>
-        <p className="text-sm text-gray-400">© 2025 Attendance Register. All rights reserved.</p>
+        <p className="text-xs text-light-primary/70">© 2025 Attendance Register. All rights reserved.</p>
       </div>
     </footer>
   );

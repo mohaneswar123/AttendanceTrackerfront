@@ -37,16 +37,16 @@ function History() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-indigo-50 to-blue-50">
+    <div className="min-h-screen bg-dark-primary">
       <div className="max-w-6xl mx-auto px-4 py-6">
         {/* Header with gradient background */}
-        <div className="relative mb-6 bg-gradient-to-r from-blue-600 to-indigo-700 rounded-xl p-5 text-white shadow-lg overflow-hidden">
+        <div className="relative mb-6 bg-gradient-to-r from-dark-secondary to-primary-500 rounded-xl p-5 text-light-primary shadow-lg overflow-hidden">
           <div className="relative z-10">
             <h1 className="text-2xl md:text-3xl font-bold">Attendance History</h1>
-            <p className="text-blue-100 text-sm mt-1">View and manage your attendance records</p>
+            <p className="text-light-primary/80 text-sm mt-1">View and manage your attendance records</p>
             {!currentUser && (
-              <p className="text-yellow-200 text-xs mt-2 font-medium">
-                ⚠️ You are in guest mode. <Link to="/login" className="underline hover:text-white">Login</Link> to delete records.
+              <p className="text-yellow-400 text-xs mt-2 font-medium">
+                ⚠️ You are in guest mode. <Link to="/login" className="underline hover:text-primary-400">Login</Link> to delete records.
               </p>
             )}
           </div>
@@ -59,8 +59,8 @@ function History() {
   
         {/* Notice at top when records exist */}
         {sortedRecords.length > 0 && (
-          <div className="mb-4 bg-gradient-to-r from-indigo-50 to-blue-50 border border-indigo-100 rounded-lg p-3 text-sm text-gray-700 flex items-start">
-            <svg className="w-5 h-5 text-indigo-500 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <div className="mb-4 bg-dark-secondary border border-primary-500/30 rounded-lg p-3 text-sm text-light-primary flex items-start">
+            <svg className="w-5 h-5 text-primary-500 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
             <div>
@@ -70,22 +70,22 @@ function History() {
         )}
         
         {sortedRecords.length === 0 ? (
-          <div className="bg-white rounded-xl shadow-md p-8 text-center">
-            <svg className="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <div className="bg-dark-secondary rounded-xl shadow-md p-8 text-center">
+            <svg className="w-16 h-16 mx-auto text-light-primary/30 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
-            <p className="text-gray-500 text-lg">No attendance records yet.</p>
-            <p className="text-gray-400 text-sm mt-2">Records will appear here once you've marked attendance.</p>
+            <p className="text-light-primary text-lg">No attendance records yet.</p>
+            <p className="text-light-primary/70 text-sm mt-2">Records will appear here once you've marked attendance.</p>
           </div>
         ) : (
           <>
             {/* Mobile view - card layout */}
             <div className="block md:hidden space-y-4">
               {sortedRecords.map(record => (
-                <div key={record._id} className="bg-white rounded-xl shadow-sm border border-gray-100">
+                <div key={record._id} className="bg-dark-secondary rounded-xl shadow-sm border border-dark-primary">
                   <div className="p-4">
                     <div className="flex justify-between items-start mb-3">
-                      <h3 className="font-semibold text-lg">
+                      <h3 className="font-semibold text-lg text-light-primary">
                         {record.subject?.name || record.subject}
                       </h3>
                       <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
@@ -96,7 +96,7 @@ function History() {
                       </span>
                     </div>
                     
-                    <div className="flex flex-wrap gap-2 items-center mb-4 text-sm text-gray-600">
+                    <div className="flex flex-wrap gap-2 items-center mb-4 text-sm text-light-primary/70">
                       <div className="flex items-center">
                         <svg className="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
@@ -116,8 +116,8 @@ function History() {
                         disabled={!currentUser}
                         className={`px-3 py-2 rounded-lg text-sm font-medium flex items-center ${
                           currentUser 
-                            ? 'bg-red-700 text-white hover:bg-red-800' 
-                            : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                            ? 'bg-red-600 text-light-primary hover:bg-red-700' 
+                            : 'bg-dark-primary text-light-primary/50 cursor-not-allowed'
                         }`}
                         title={!currentUser ? 'Login required to delete' : 'Delete record'}
                       >
@@ -134,10 +134,10 @@ function History() {
             
             {/* Desktop view - table layout */}
             <div className="hidden md:block">
-              <div className="bg-white rounded-xl shadow-md overflow-hidden">
+              <div className="bg-dark-secondary rounded-xl shadow-md overflow-hidden">
                 <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gradient-to-r from-gray-800 to-gray-700 text-white">
+                  <table className="min-w-full divide-y divide-dark-primary">
+                    <thead className="bg-gradient-to-r from-dark-secondary to-primary-500 text-light-primary">
                       <tr>
                         <th className="py-3 px-4 text-left text-sm font-medium uppercase tracking-wider">Subject</th>
                         <th className="py-3 px-4 text-left text-sm font-medium uppercase tracking-wider">
@@ -149,13 +149,13 @@ function History() {
                         <th className="py-3 px-4 text-left text-sm font-medium uppercase tracking-wider">Actions</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-200">
+                    <tbody className="divide-y divide-dark-primary">
                       {sortedRecords.map(record => (
-                        <tr key={record._id} className="hover:bg-gray-50 transition-colors">
+                        <tr key={record._id} className="hover:bg-dark-primary transition-colors">
                           <td className="py-3 px-4 whitespace-nowrap">
-                            <span className="font-medium">{record.subject?.name || (subjects?.find?.(s => s._id === record.subjectId)?.name) || record.subject || '—'}</span>
+                            <span className="font-medium text-light-primary">{record.subject?.name || (subjects?.find?.(s => s._id === record.subjectId)?.name) || record.subject || '—'}</span>
                           </td>
-                          <td className="py-3 px-4 whitespace-nowrap">
+                          <td className="py-3 px-4 whitespace-nowrap text-light-primary">
                             {new Date(record.date).toLocaleDateString()}
                           </td>
                           <td className="py-3 px-4 whitespace-nowrap">
@@ -178,8 +178,8 @@ function History() {
                                 disabled={!currentUser}
                                 className={`px-3 py-1 rounded text-sm flex items-center ${
                                   currentUser 
-                                    ? 'bg-red-700 text-white hover:bg-red-800' 
-                                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                    ? 'bg-red-600 text-light-primary hover:bg-red-700' 
+                                    : 'bg-dark-primary text-light-primary/50 cursor-not-allowed'
                                 }`}
                                 title={!currentUser ? 'Login required to delete' : 'Delete record'}
                               >

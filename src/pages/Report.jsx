@@ -111,18 +111,18 @@ function Report() {
   }, [statistics]);
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-6">
+    <div className="max-w-6xl mx-auto px-4 py-6 bg-dark-primary min-h-screen">
       {/* Header with Gradient Background */}
-      <div className="relative mb-8 bg-gradient-to-r from-blue-600 to-indigo-700 rounded-xl p-6 text-white shadow-lg overflow-hidden">
+      <div className="relative mb-8 bg-gradient-to-r from-dark-secondary to-primary-500 rounded-xl p-6 text-light-primary shadow-lg overflow-hidden">
        
         <div className="relative z-10">
           <h1 className="text-2xl md:text-3xl font-bold mb-2">Attendance Report</h1>
-          <p className="text-blue-100 text-sm md:text-base">
+          <p className="text-light-primary/80 text-sm md:text-base">
             Your attendance summary and detailed statistics
           </p>
           {!currentUser && (
-            <p className="text-yellow-200 text-xs mt-2 font-medium">
-              ⚠️ You are in guest mode. <Link to="/login" className="underline hover:text-white">Login</Link> to see your personal report.
+            <p className="text-yellow-400 text-xs mt-2 font-medium">
+              ⚠️ You are in guest mode. <Link to="/login" className="underline hover:text-primary-400">Login</Link> to see your personal report.
             </p>
           )}
         </div>
@@ -134,14 +134,14 @@ function Report() {
       </div>
       
       {derivedSubjects.length === 0 ? (
-        <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 rounded-r-lg shadow-sm">
+        <div className="bg-dark-secondary border-l-4 border-yellow-500 p-4 mb-6 rounded-r-lg shadow-sm">
           <div className="flex">
-            <svg className="h-5 w-5 text-yellow-400 mr-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+            <svg className="h-5 w-5 mr-3 text-yellow-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
             </svg>
             <div>
-              <p className="text-yellow-700">No subjects or attendance records found.</p>
-              <p className="text-yellow-600 text-sm mt-1">
+              <p className="text-yellow-400">No subjects or attendance records found.</p>
+              <p className="text-light-primary/80 text-sm mt-1">
                 {currentUser ? (
                   <>Add subjects and start recording attendance in <Link to="/settings" className="underline font-semibold">Settings</Link>.</>
                 ) : (
@@ -155,16 +155,16 @@ function Report() {
         <>
           {/* Summary Cards - More Attractive for Mobile */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 mb-8">
-            <div className="bg-white rounded-xl shadow-md p-4 md:p-6 border border-gray-100 transform transition hover:shadow-lg">
+            <div className="bg-dark-secondary rounded-xl shadow-md p-4 md:p-6 border border-dark-primary transform transition hover:shadow-lg">
               <div className="flex items-center">
-                <div className="p-2 rounded-full bg-blue-100 text-blue-600 mr-3">
+                <div className="p-2 rounded-full bg-primary-500/20 text-primary-500 mr-3">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                     <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 005.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0014.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z" />
                   </svg>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500 uppercase font-semibold">Subjects</p>
-                  <p className="text-xl md:text-2xl font-bold text-blue-600">{subjects.length}</p>
+                  <p className="text-xs text-light-primary/70 uppercase font-semibold">Subjects</p>
+                  <p className="text-xl md:text-2xl font-bold text-primary-500">{subjects.length}</p>
                 </div>
               </div>
             </div>
