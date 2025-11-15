@@ -2,7 +2,6 @@ import React, { Suspense, lazy, useContext } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
 import LoadingIndicator from './components/LoadingIndicator';
-import WelcomeModal from './components/WelcomeModal';
 import { AttendanceContext, AttendanceProvider } from './contexts/AttendanceContext';
 
 // Lazy-loaded pages
@@ -33,7 +32,6 @@ function AppContent() {
   return (
     <>
       {loading && <LoadingIndicator />}
-      <WelcomeModal />
       <Router>
         <Suspense fallback={<div className="text-center p-6">Loading...</div>}>
           <Routes>
