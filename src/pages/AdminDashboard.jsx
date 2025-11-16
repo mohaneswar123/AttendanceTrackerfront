@@ -20,10 +20,22 @@ function AdminDashboard() {
       try {
         setLoading(true);
         const response = await adminService.getAllUsers();
-        setUsers(response);
+        console.log('Raw users response:', response);
+        
+        // Normalize users data to ensure _id field exists
+        const normalizedUsers = response.map(user => ({
+          ...user,
+          _id: user._id || user.id,
+          username: user.username || user.name,
+          email: user.email
+        }));
+        
+        console.log('Normalized users:', normalizedUsers);
+        setUsers(normalizedUsers);
       } catch (err) {
         setError('Failed to load users');
         console.error('Error fetching users:', err);
+        console.error('Error details:', err.response?.data);
       } finally {
         setLoading(false);
       }
@@ -43,17 +55,77 @@ function AdminDashboard() {
     const fetchUserData = async () => {
       try {
         setLoading(true);
+        setError(null);
+        
+        console.log('Fetching data for user:', selectedUser._id);
         
         // Fetch subjects for selected user
         const subjects = await adminService.getUserSubjects(selectedUser._id);
-        setUserSubjects(subjects);
+        console.log('Fetched subjects:', subjects);
+        
+        // Normalize subjects data
+        const normalizedSubjects = subjects.map(subject => ({
+          _id: subject._id || subject.id,
+          name: subject.name
+        }));
+        setUserSubjects(normalizedSubjects);
+        
+        // Create subject map for attendance normalization
+        const subjectMap = normalizedSubjects.reduce((acc, s) => { 
+          acc[s._id] = s; 
+          return acc; 
+        }, {});
         
         // Fetch attendance records for selected user
         const attendance = await adminService.getUserAttendance(selectedUser._id);
-        setUserAttendance(attendance);
+        console.log('Fetched attendance:', attendance);
+        
+        // Normalize attendance data with subject references
+        const normalizedAttendance = attendance.map(r => {
+          // Handle different subject reference formats
+          let resolvedSubject = null;
+          let subjId = null;
+          
+          if (r.subject && typeof r.subject === 'object') {
+            // Subject is already populated as an object
+            subjId = r.subject._id || r.subject.id;
+            resolvedSubject = {
+              _id: subjId,
+              name: r.subject.name
+            };
+          } else if (typeof r.subject === 'string') {
+            // Subject is just an ID string
+            subjId = r.subject;
+            resolvedSubject = subjectMap[subjId] || null;
+          } else if (r.subjectId) {
+            // Subject ID is in separate field
+            subjId = r.subjectId;
+            resolvedSubject = subjectMap[subjId] || null;
+          }
+          
+          // Fallback: try to find subject by ID in our subject map
+          if (!resolvedSubject && subjId) {
+            resolvedSubject = subjectMap[subjId] || normalizedSubjects.find(s => s._id === subjId) || null;
+          }
+          
+          return {
+            ...r,
+            _id: r._id || r.id,
+            subject: resolvedSubject,
+            subjectId: subjId,
+            date: r.date,
+            status: r.status,
+            classNumber: r.classNumber || 1
+          };
+        });
+        
+        setUserAttendance(normalizedAttendance);
+        console.log('Normalized attendance:', normalizedAttendance);
+        console.log('Subject map:', subjectMap);
       } catch (err) {
         setError('Failed to load user data');
         console.error('Error fetching user data:', err);
+        console.error('Error details:', err.response?.data);
       } finally {
         setLoading(false);
       }
@@ -63,8 +135,21 @@ function AdminDashboard() {
   }, [selectedUser]);
 
   const handleUserSelect = (userId) => {
-    const user = users.find(u => u._id === userId);
-    setSelectedUser(user || null);
+    console.log('User selected - ID:', userId);
+    console.log('Available users:', users);
+    
+    const user = users.find(u => u._id === userId || u.id === userId);
+    console.log('Found user:', user);
+    
+    if (user) {
+      setSelectedUser({
+        ...user,
+        _id: user._id || user.id
+      });
+    } else {
+      console.error('User not found with ID:', userId);
+      setSelectedUser(null);
+    }
   };
 
   const handleLogout = () => {
@@ -87,11 +172,18 @@ function AdminDashboard() {
   const subjectStatistics = useMemo(() => {
     if (!userSubjects.length || !userAttendance.length) return [];
     
+    console.log('Calculating statistics for subjects:', userSubjects);
+    console.log('Using attendance records:', userAttendance);
+    
     const statistics = userSubjects.map(subject => {
-      // Filter attendance records for this subject
-      const subjectRecords = userAttendance.filter(record => 
-        record.subject?._id === subject._id
-      );
+      // Filter attendance records for this subject - check multiple possible ID fields
+      const subjectRecords = userAttendance.filter(record => {
+        const recordSubjectId = record.subject?._id || record.subject?.id || record.subjectId;
+        const subjectId = subject._id || subject.id;
+        return recordSubjectId === subjectId;
+      });
+      
+      console.log(`Records for ${subject.name}:`, subjectRecords);
       
       // Count present, absent, and calculate hours
       let present = 0;
@@ -128,18 +220,19 @@ function AdminDashboard() {
       };
     });
     
+    console.log('Calculated statistics:', statistics);
     return statistics;
   }, [userSubjects, userAttendance]);
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-dark-primary">
       {/* Admin Header */}
-      <header className="bg-purple-700 text-white shadow-md">
+      <header className="bg-dark-secondary text-light-primary shadow-md">
         <div className="container mx-auto px-4 py-3 flex justify-between items-center">
           <h1 className="text-xl font-bold">Admin Dashboard</h1>
           <button 
             onClick={handleLogout}
-            className="bg-purple-800 hover:bg-purple-900 px-3 py-1 rounded-md text-sm"
+            className="bg-dark-primary hover:bg-primary-500 px-3 py-1 rounded-md text-sm"
           >
             Logout
           </button>
@@ -148,27 +241,27 @@ function AdminDashboard() {
 
       <main className="container mx-auto py-6 px-4">
         {error && (
-          <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6" role="alert">
+          <div className="bg-red-900 bg-opacity-50 border-l-4 border-red-500 text-light-primary p-4 mb-6" role="alert">
             <p>{error}</p>
           </div>
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           {/* User List with Search */}
-          <div className="bg-white rounded-lg shadow-md p-6 md:col-span-1">
-            <h2 className="text-xl font-semibold mb-4">Users</h2>
+          <div className="bg-dark-secondary rounded-lg shadow-md p-6 md:col-span-1">
+            <h2 className="text-xl font-semibold mb-4 text-light-primary">Users</h2>
             
             {/* Search Input */}
             <div className="mb-4">
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                  <svg className="w-4 h-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                  <svg className="w-4 h-4 text-light-primary opacity-50" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
                     <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
                   </svg>
                 </div>
                 <input 
                   type="search" 
-                  className="block w-full p-2 pl-10 text-sm border border-gray-300 rounded-lg bg-gray-50 focus:ring-purple-500 focus:border-purple-500" 
+                  className="input w-full pl-10" 
                   placeholder="Search users..." 
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -177,23 +270,23 @@ function AdminDashboard() {
             </div>
             
             {loading && !users.length ? (
-              <p className="text-gray-500">Loading users...</p>
+              <p className="text-light-primary opacity-70">Loading users...</p>
             ) : (
               <div className="max-h-[500px] overflow-y-auto">
                 <ul className="space-y-2">
                   {filteredUsers.map(user => (
-                    <li key={user._id}>
+                    <li key={user._id || user.id}>
                       <button
-                        className={`w-full text-left px-3 py-2 rounded-md ${selectedUser?._id === user._id ? 'bg-purple-100 text-purple-700' : 'hover:bg-gray-100'}`}
-                        onClick={() => handleUserSelect(user._id)}
+                        className={`w-full text-left px-3 py-2 rounded-md ${(selectedUser?._id === user._id || selectedUser?.id === user.id) ? 'bg-primary-500 text-light-primary' : 'hover:bg-dark-primary text-light-primary'}`}
+                        onClick={() => handleUserSelect(user._id || user.id)}
                       >
                         <div className="font-medium">{user.username}</div>
-                        <div className="text-sm text-gray-500">{user.email}</div>
+                        <div className="text-sm text-light-primary opacity-70">{user.email}</div>
                       </button>
                     </li>
                   ))}
                   {filteredUsers.length === 0 && (
-                    <li className="text-gray-500 text-center py-2">
+                    <li className="text-light-primary opacity-70 text-center py-2">
                       {searchQuery ? 'No matching users found' : 'No users found'}
                     </li>
                   )}
@@ -203,60 +296,60 @@ function AdminDashboard() {
           </div>
 
           {/* User Details */}
-          <div className="bg-white rounded-lg shadow-md p-6 md:col-span-3">
+          <div className="bg-dark-secondary rounded-lg shadow-md p-6 md:col-span-3">
             {selectedUser ? (
               <>
-                <h2 className="text-xl font-semibold mb-4">
+                <h2 className="text-xl font-semibold mb-4 text-light-primary">
                   {selectedUser.username}'s Data
                 </h2>
                 
                 {loading ? (
-                  <p className="text-gray-500">Loading user data...</p>
+                  <p className="text-light-primary opacity-70">Loading user data...</p>
                 ) : (
                   <div className="space-y-8">
                     {/* User Subjects with Attendance Statistics */}
                     <div>
-                      <h3 className="text-lg font-medium mb-4">Subjects and Attendance Statistics</h3>
+                      <h3 className="text-lg font-medium mb-4 text-light-primary">Subjects and Attendance Statistics</h3>
                       {subjectStatistics.length > 0 ? (
                         <div className="overflow-x-auto">
-                          <table className="min-w-full divide-y divide-gray-200">
-                            <thead className="bg-gray-50">
+                          <table className="min-w-full divide-y divide-dark-primary">
+                            <thead className="bg-dark-primary">
                               <tr>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th className="px-6 py-3 text-left text-xs font-medium text-light-primary uppercase tracking-wider">
                                   Subject
                                 </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th className="px-6 py-3 text-left text-xs font-medium text-light-primary uppercase tracking-wider">
                                   Hours Attended
                                 </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th className="px-6 py-3 text-left text-xs font-medium text-light-primary uppercase tracking-wider">
                                   Absent Classes
                                 </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th className="px-6 py-3 text-left text-xs font-medium text-light-primary uppercase tracking-wider">
                                   Total Hours
                                 </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th className="px-6 py-3 text-left text-xs font-medium text-light-primary uppercase tracking-wider">
                                   Attendance %
                                 </th>
                               </tr>
                             </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
+                            <tbody className="bg-dark-secondary divide-y divide-dark-primary">
                               {subjectStatistics.map(subject => (
                                 <tr key={subject._id}>
-                                  <td className="px-6 py-4 whitespace-nowrap font-medium">
+                                  <td className="px-6 py-4 whitespace-nowrap font-medium text-light-primary">
                                     {subject.name}
                                   </td>
-                                  <td className="px-6 py-4 whitespace-nowrap text-green-600">
+                                  <td className="px-6 py-4 whitespace-nowrap text-green-400">
                                     {subject.attendedHours}
                                   </td>
-                                  <td className="px-6 py-4 whitespace-nowrap text-red-600">
+                                  <td className="px-6 py-4 whitespace-nowrap text-red-400">
                                     {subject.absent}
                                   </td>
-                                  <td className="px-6 py-4 whitespace-nowrap">
+                                  <td className="px-6 py-4 whitespace-nowrap text-light-primary">
                                     {subject.totalHours}
                                   </td>
                                   <td className="px-6 py-4 whitespace-nowrap">
                                     <div className="flex items-center">
-                                      <div className="w-16 bg-gray-200 rounded-full h-2.5 mr-2">
+                                      <div className="w-16 bg-dark-primary rounded-full h-2.5 mr-2">
                                         <div 
                                           className={`h-2.5 rounded-full ${
                                             subject.percentage >= 75 ? 'bg-green-500' : 
@@ -267,9 +360,9 @@ function AdminDashboard() {
                                         ></div>
                                       </div>
                                       <span className={`text-xs font-medium ${
-                                        subject.percentage >= 75 ? 'text-green-700' : 
-                                        subject.percentage >= 60 ? 'text-yellow-700' : 
-                                        'text-red-700'
+                                        subject.percentage >= 75 ? 'text-green-400' : 
+                                        subject.percentage >= 60 ? 'text-yellow-400' : 
+                                        'text-red-400'
                                       }`}>
                                         {subject.percentage}%
                                       </span>
@@ -281,39 +374,39 @@ function AdminDashboard() {
                           </table>
                         </div>
                       ) : (
-                        <p className="text-gray-500">No subjects found for this user</p>
+                        <p className="text-light-primary opacity-70">No subjects found for this user</p>
                       )}
                     </div>
 
                     {/* User Attendance Records */}
                     <div>
-                      <h3 className="text-lg font-medium mb-4">Attendance Records</h3>
+                      <h3 className="text-lg font-medium mb-4 text-light-primary">Attendance Records</h3>
                       {userAttendance.length > 0 ? (
                         <div className="overflow-x-auto">
-                          <table className="min-w-full divide-y divide-gray-200">
-                            <thead className="bg-gray-50">
+                          <table className="min-w-full divide-y divide-dark-primary">
+                            <thead className="bg-dark-primary">
                               <tr>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th className="px-6 py-3 text-left text-xs font-medium text-light-primary uppercase tracking-wider">
                                   Subject
                                 </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th className="px-6 py-3 text-left text-xs font-medium text-light-primary uppercase tracking-wider">
                                   Date
                                 </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th className="px-6 py-3 text-left text-xs font-medium text-light-primary uppercase tracking-wider">
                                   Status
                                 </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th className="px-6 py-3 text-left text-xs font-medium text-light-primary uppercase tracking-wider">
                                   Hours
                                 </th>
                               </tr>
                             </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
+                            <tbody className="bg-dark-secondary divide-y divide-dark-primary">
                               {userAttendance.map(record => (
                                 <tr key={record._id}>
-                                  <td className="px-6 py-4 whitespace-nowrap">
+                                  <td className="px-6 py-4 whitespace-nowrap text-light-primary">
                                     {record.subject?.name || '—'}
                                   </td>
-                                  <td className="px-6 py-4 whitespace-nowrap">
+                                  <td className="px-6 py-4 whitespace-nowrap text-light-primary">
                                     {new Date(record.date).toLocaleDateString()}
                                   </td>
                                   <td className="px-6 py-4 whitespace-nowrap">
@@ -336,14 +429,14 @@ function AdminDashboard() {
                           </table>
                         </div>
                       ) : (
-                        <p className="text-gray-500">No attendance records found</p>
+                        <p className="text-light-primary opacity-70">No attendance records found</p>
                       )}
                     </div>
                   </div>
                 )}
               </>
             ) : (
-              <div className="flex flex-col items-center justify-center h-64 text-gray-400">
+              <div className="flex flex-col items-center justify-center h-64 text-light-primary opacity-50">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                 </svg>

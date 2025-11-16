@@ -8,10 +8,10 @@ function Terms() {
       <div className="container mx-auto px-4 py-8 max-w-3xl">
 
        
-        <h1 className="text-3xl font-bold mb-6 text-gray-800">Terms and Conditions</h1>
+        <h1 className="text-3xl font-bold mb-6 text-light-primary">Terms and Conditions</h1>
 
-        <div className="bg-white rounded-xl shadow-md p-6 mb-8 text-gray-700">
-          <p className="mb-4 text-sm text-gray-500">Last Updated: July 16, 2025</p>
+        <div className="bg-dark-secondary rounded-xl shadow-md p-6 mb-8 text-light-primary">
+          <p className="mb-4 text-sm text-light-primary opacity-70">Last Updated: July 16, 2025</p>
 
           <section className="mb-6">
             <h2 className="text-xl font-semibold mb-2">1. Using Our Service</h2>
@@ -75,7 +75,7 @@ function Terms() {
             <h2 className="text-xl font-semibold mb-2">9. Contact Us</h2>
             <p>
               Questions? Email us at{' '}
-              <a href="mailto:pvmohaneswar@gmail.com" className="text-blue-600 hover:underline">
+              <a href="mailto:pvmohaneswar@gmail.com" className="text-primary-500 hover:underline">
                 pvmohaneswar@gmail.com
               </a>
               .
