@@ -46,7 +46,7 @@ function WelcomeBanner({ currentUser }) {
                     className="inline-block animate-bounce-subtle"
                     style={{
                       animationDelay: `${i * 0.08}s`,
-                      color: '#FF2E63'
+                      color: '#ff7396ff'
                     }}
                   >
                     {char}
