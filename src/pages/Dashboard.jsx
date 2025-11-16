@@ -150,7 +150,7 @@ function Dashboard() {
 
         {existingRecord && (
           <div className="mb-6 bg-dark-secondary border border-yellow-500 rounded-lg p-4 text-yellow-400 shadow-sm">
-            ⚠️ Attendance already exists for <strong>{formData.subject}</strong> on <strong>{formData.date}</strong> (Class <strong>{formData.classNumber}</strong>) if you want need you still submit.
+            ⚠️ Attendance already exists for <strong>{formData.subject}</strong> on <strong>{formData.date}</strong> (Class <strong>{formData.classNumber}</strong>) if you need, you can still submit.
           </div>
         )}
 
