@@ -1,4 +1,4 @@
-import React, { useContext, useMemo } from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AttendanceContext } from '../contexts/AttendanceContext';
 
@@ -7,13 +7,47 @@ function History() {
   const { 
     currentUser,
     attendanceRecords, 
-    deleteAttendanceRecord
+    deleteAttendanceRecord,
+    subjects
   } = useContext(AttendanceContext);
+
+  // Filters
+  const [subjectFilter, setSubjectFilter] = useState('all');
+  const [filterDate, setFilterDate] = useState('');
+
+  const subjectOptions = useMemo(() => {
+    const names = (subjects || []).map(s => s.name).filter(Boolean);
+    return Array.from(new Set(names));
+  }, [subjects]);
   
-  // Simple date sorting - most recent records first
+  // Apply filters
+  const filteredRecords = useMemo(() => {
+    let records = [...(attendanceRecords || [])];
+
+    if (subjectFilter !== 'all') {
+      records = records.filter(r => {
+        const subjName = r.subject?.name 
+          || r.subject 
+          || (subjects?.find?.(s => s._id === r.subjectId)?.name);
+        return subjName === subjectFilter;
+      });
+    }
+
+    if (filterDate) {
+      const target = typeof filterDate === 'string' ? filterDate : new Date(filterDate).toISOString().split('T')[0];
+      records = records.filter(r => {
+        const recDate = typeof r.date === 'string' ? r.date.split('T')[0] : new Date(r.date).toISOString().split('T')[0];
+        return recDate === target;
+      });
+    }
+
+    return records;
+  }, [attendanceRecords, subjectFilter, filterDate, subjects]);
+
+  // Simple date sorting - most recent records first (applied after filtering)
   const sortedRecords = useMemo(() => {
-    return [...attendanceRecords].sort((a, b) => new Date(b.date) - new Date(a.date));
-  }, [attendanceRecords]);
+    return [...filteredRecords].sort((a, b) => new Date(b.date) - new Date(a.date));
+  }, [filteredRecords]);
 
   // Handle delete functionality
   const handleDelete = (id) => {
@@ -56,6 +90,41 @@ function History() {
             </svg>
           </div>
         </div>
+
+        {/* Filters */}
+        <div className="mb-6 bg-dark-secondary border border-dark-primary rounded-lg p-4 flex flex-col md:flex-row gap-3 md:items-end">
+          <div className="flex-1">
+            <label className="block text-xs text-light-primary/70 mb-1">Subject</label>
+            <select
+              className="input w-full"
+              value={subjectFilter}
+              onChange={(e) => setSubjectFilter(e.target.value)}
+            >
+              <option value="all">All subjects</option>
+              {subjectOptions.map(name => (
+                <option key={name} value={name}>{name}</option>
+              ))}
+            </select>
+          </div>
+          <div className="flex-1">
+            <label className="block text-xs text-light-primary/70 mb-1">Date</label>
+            <input
+              type="date"
+              className="input w-full"
+              value={filterDate}
+              onChange={(e) => setFilterDate(e.target.value)}
+            />
+          </div>
+          <div className="md:ml-auto">
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={() => { setSubjectFilter('all'); setFilterDate(''); }}
+            >
+              Clear filters
+            </button>
+          </div>
+        </div>
   
         {/* Notice at top when records exist */}
         {sortedRecords.length > 0 && (
@@ -74,8 +143,17 @@ function History() {
             <svg className="w-16 h-16 mx-auto text-light-primary/30 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
-            <p className="text-light-primary text-lg">No attendance records yet.</p>
-            <p className="text-light-primary/70 text-sm mt-2">Records will appear here once you've marked attendance.</p>
+            {attendanceRecords.length === 0 ? (
+              <>
+                <p className="text-light-primary text-lg">No attendance records yet.</p>
+                <p className="text-light-primary/70 text-sm mt-2">Records will appear here once you've marked attendance.</p>
+              </>
+            ) : (
+              <>
+                <p className="text-light-primary text-lg">No records match the selected filters.</p>
+                <p className="text-light-primary/70 text-sm mt-2">Try changing the subject or date range.</p>
+              </>
+            )}
           </div>
         ) : (
           <>

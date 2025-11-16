@@ -39,10 +39,10 @@ function Dashboard() {
     const { name, value } = e.target;
     let val = name === 'classNumber' ? Number(value) : value;
 
-    // Restrict classNumber to only 1 or 2
+    // Restrict classNumber to 1, 2, or 3
     if (name === 'classNumber') {
       if (val < 1) val = 1;
-      if (val > 2) val = 2;
+      if (val > 3) val = 3;
     }
 
     setFormData(prev => ({ ...prev, [name]: val }));
@@ -68,8 +68,8 @@ function Dashboard() {
       const selectedSubject = subjects.find(s => s.name === formData.subject);
       if (!selectedSubject) throw new Error("Subject not found");
 
-      // Final check to ensure classNumber is 1 or 2
-      const classNumberClamped = Math.min(Math.max(Number(formData.classNumber), 1), 2);
+      // Final check to ensure classNumber is 1, 2, or 3
+      const classNumberClamped = Math.min(Math.max(Number(formData.classNumber), 1), 3);
 
       const record = {
         ...formData,
@@ -84,8 +84,8 @@ function Dashboard() {
         type: 'success'
       });
 
-      // Auto increment (but only between 1 and 2)
-      const nextClass = classNumberClamped === 1 ? 2 : 1;
+      // Auto increment through 1 -> 2 -> 3 -> 1
+      const nextClass = classNumberClamped === 1 ? 2 : classNumberClamped === 2 ? 3 : 1;
       setFormData(prev => ({
         ...prev,
         status: 'Present',
@@ -220,7 +220,7 @@ function Dashboard() {
                 </select>
               </div>
 
-              {/* Class Hour (Only 1 or 2) */}
+              {/* Class Hours (1, 2, or 3) */}
               <div>
                 <label className="block text-sm font-semibold mb-1 text-light-primary">Class Hour</label>
                 <select
@@ -231,7 +231,7 @@ function Dashboard() {
                   required
                   disabled={!currentUser}
                 >
-                  {[1, 2].map(n => (
+                  {[1, 2, 3].map(n => (
                     <option key={n} value={n}>
                       {n} Hour{n > 1 ? 's' : ''}
                     </option>

@@ -164,49 +164,49 @@ function Report() {
                 </div>
                 <div>
                   <p className="text-xs text-light-primary/70 uppercase font-semibold">Subjects</p>
-                  <p className="text-xl md:text-2xl font-bold text-primary-500">{subjects.length}</p>
+                  <p className="text-xl md:text-2xl font-bold text-primary-500">{derivedSubjects.length}</p>
                 </div>
               </div>
             </div>
             
-            <div className="bg-white rounded-xl shadow-md p-4 md:p-6 border border-gray-100 transform transition hover:shadow-lg">
+            <div className="bg-dark-secondary rounded-xl shadow-md p-4 md:p-6 border border-dark-primary transform transition hover:shadow-lg">
               <div className="flex items-center">
-                <div className="p-2 rounded-full bg-green-100 text-green-600 mr-3">
+                <div className="p-2 rounded-full bg-primary-500/20 text-primary-500 mr-3">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
                   </svg>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500 uppercase font-semibold">Hours Attended</p>
-                  <p className="text-xl md:text-2xl font-bold text-green-600">{overallStats.totalAttendedHours}</p>
+                  <p className="text-xs text-light-primary/70 uppercase font-semibold">Hours Attended</p>
+                  <p className="text-xl md:text-2xl font-bold text-green-400">{overallStats.totalAttendedHours}</p>
                 </div>
               </div>
             </div>
             
-            <div className="bg-white rounded-xl shadow-md p-4 md:p-6 border border-gray-100 transform transition hover:shadow-lg">
+            <div className="bg-dark-secondary rounded-xl shadow-md p-4 md:p-6 border border-dark-primary transform transition hover:shadow-lg">
               <div className="flex items-center">
-                <div className="p-2 rounded-full bg-blue-100 text-blue-600 mr-3">
+                <div className="p-2 rounded-full bg-primary-500/20 text-primary-500 mr-3">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                     <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
                   </svg>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500 uppercase font-semibold">Total Hours</p>
-                  <p className="text-xl md:text-2xl font-bold text-blue-600">{overallStats.totalHours}</p>
+                  <p className="text-xs text-light-primary/70 uppercase font-semibold">Total Hours</p>
+                  <p className="text-xl md:text-2xl font-bold text-primary-500">{overallStats.totalHours}</p>
                 </div>
               </div>
             </div>
             
-            <div className="bg-white rounded-xl shadow-md p-4 md:p-6 border border-gray-100 transform transition hover:shadow-lg">
+            <div className="bg-dark-secondary rounded-xl shadow-md p-4 md:p-6 border border-dark-primary transform transition hover:shadow-lg">
               <div className="flex items-center">
-                <div className="p-2 rounded-full bg-purple-100 text-purple-600 mr-3">
+                <div className="p-2 rounded-full bg-primary-500/20 text-primary-500 mr-3">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
                   </svg>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500 uppercase font-semibold">Attendance</p>
-                  <p className="text-xl md:text-2xl font-bold text-purple-600">{overallStats.averagePercentage}%</p>
+                  <p className="text-xs text-light-primary/70 uppercase font-semibold">Attendance</p>
+                  <p className="text-xl md:text-2xl font-bold text-primary-500">{overallStats.averagePercentage}%</p>
                 </div>
               </div>
             </div>
@@ -217,19 +217,19 @@ function Report() {
 
           {/* Responsive Cards for Subject Stats (Mobile View) */}
           <div className="block md:hidden mb-8">
-            <h2 className="text-xl font-semibold mb-4">Subject-wise Attendance</h2>
+            <h2 className="text-xl font-semibold mb-4 text-light-primary">Subject-wise Attendance</h2>
             <div className="space-y-3">
               {derivedSubjects.map(subject => {
                 const stat = statistics[subject.name] || { present: 0, absent: 0, totalHours: 0, totalAttendedHours: 0, missedHours: 0, percentage: 0 };
                 return (
-                  <div key={subject._id || subject.name} className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 overflow-hidden">
+                  <div key={subject._id || subject.name} className="bg-dark-secondary rounded-xl shadow-sm border border-dark-primary p-4 overflow-hidden text-light-primary">
                     <div className="flex justify-between items-center mb-2">
-                      <h3 className="font-medium text-gray-800">{subject.name}</h3>
+                      <h3 className="font-medium text-light-primary">{subject.name}</h3>
                       <span 
                         className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                          stat.percentage >= 75 ? 'bg-green-100 text-green-800' :
-                          stat.percentage >= 60 ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-red-100 text-red-800'
+                          stat.percentage >= 75 ? 'bg-green-500/20 text-green-400' :
+                          stat.percentage >= 60 ? 'bg-yellow-500/20 text-yellow-400' :
+                          'bg-red-500/20 text-red-400'
                         }`}
                       >
                         {stat.percentage}%
@@ -237,7 +237,7 @@ function Report() {
                     </div>
                     
                     {/* Progress bar */}
-                    <div className="w-full bg-gray-200 rounded-full h-2.5 mb-3">
+                    <div className="w-full bg-dark-primary rounded-full h-2.5 mb-3">
                       <div 
                         className={`h-2.5 rounded-full ${
                           stat.percentage >= 75 ? 'bg-green-500' : 
@@ -250,16 +250,16 @@ function Report() {
                     
                     <div className="flex justify-between text-sm">
                       <div className="text-center">
-                        <p className="text-gray-500 text-xs">Hours Attended</p>
-                        <p className="font-semibold text-green-600">{stat.totalAttendedHours}</p>
+                        <p className="text-light-primary/70 text-xs">Hours Attended</p>
+                        <p className="font-semibold text-green-400">{stat.totalAttendedHours}</p>
                       </div>
                       <div className="text-center">
-                        <p className="text-gray-500 text-xs">Hours Missed</p> {/* Changed from Missed Classes */}
-                        <p className="font-semibold text-red-600">{stat.missedHours}</p> {/* Changed */}
+                        <p className="text-light-primary/70 text-xs">Hours Missed</p> {/* Changed from Missed Classes */}
+                        <p className="font-semibold text-red-400">{stat.missedHours}</p> {/* Changed */}
                       </div>
                       <div className="text-center">
-                        <p className="text-gray-500 text-xs">Total Hours</p>
-                        <p className="font-semibold">{stat.totalHours}</p>
+                        <p className="text-light-primary/70 text-xs">Total Hours</p>
+                        <p className="font-semibold text-light-primary">{stat.totalHours}</p>
                       </div>
                     </div>
                   </div>
@@ -269,9 +269,9 @@ function Report() {
           </div>
 
           {/* Detailed Table (Hidden on Mobile, Visible on Tablet/Desktop) */}
-          <div className="hidden md:block bg-white shadow-md rounded-xl overflow-hidden border border-gray-100 mb-8">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gradient-to-r from-gray-800 to-gray-700 text-white">
+          <div className="hidden md:block bg-dark-secondary shadow-md rounded-xl overflow-hidden border border-dark-primary mb-8">
+            <table className="min-w-full divide-y divide-dark-primary">
+              <thead className="bg-gradient-to-r from-dark-secondary to-primary-500 text-white">
                 <tr>
                   <th className="py-3 px-4 text-left">Subject</th>
                   <th className="py-3 px-4 text-center">Hours Attended</th>
@@ -280,7 +280,7 @@ function Report() {
                   <th className="py-3 px-4 text-center">Attendance %</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200">
+              <tbody className="divide-y divide-dark-primary">
                 {derivedSubjects.map(subject => {
                   const stat = statistics[subject.name] || { 
                     present: 0, 
@@ -291,14 +291,14 @@ function Report() {
                     percentage: 0 
                   };
                   return (
-                    <tr key={subject._id || subject.name} className="hover:bg-gray-50 transition-colors">
-                      <td className="py-4 px-4 font-medium">{subject.name}</td>
-                      <td className="py-4 px-4 text-center text-green-600 font-medium">{stat.totalAttendedHours}</td>
-                      <td className="py-4 px-4 text-center text-red-600 font-medium">{stat.missedHours}</td> {/* Changed */}
-                      <td className="py-4 px-4 text-center">{stat.totalHours}</td>
-                      <td className="py-4 px-4 text-center">
+                    <tr key={subject._id || subject.name} className="hover:bg-dark-primary transition-colors">
+                      <td className="py-4 px-4 font-medium text-light-primary">{subject.name}</td>
+                      <td className="py-4 px-4 text-center text-green-400 font-medium">{stat.totalAttendedHours}</td>
+                      <td className="py-4 px-4 text-center text-red-400 font-medium">{stat.missedHours}</td> {/* Changed */}
+                      <td className="py-4 px-4 text-center text-light-primary">{stat.totalHours}</td>
+                      <td className="py-4 px-4 text-center text-light-primary">
                         <div className="flex items-center justify-center">
-                          <div className="w-16 bg-gray-200 rounded-full h-2.5 mr-2">
+                          <div className="w-16 bg-dark-primary rounded-full h-2.5 mr-2">
                             <div 
                               className={`h-2.5 rounded-full ${
                                 stat.percentage >= 75 ? 'bg-green-500' : 
@@ -310,9 +310,9 @@ function Report() {
                           </div>
                           <span 
                             className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                              stat.percentage >= 75 ? 'bg-green-100 text-green-800' :
-                              stat.percentage >= 60 ? 'bg-yellow-100 text-yellow-800' :
-                              'bg-red-100 text-red-800'
+                              stat.percentage >= 75 ? 'bg-green-500/20 text-green-400' :
+                              stat.percentage >= 60 ? 'bg-yellow-500/20 text-yellow-400' :
+                              'bg-red-500/20 text-red-400'
                             }`}
                           >
                             {stat.percentage}%
@@ -330,7 +330,7 @@ function Report() {
           <div className="mt-6 flex justify-center md:justify-end">
             <button 
               onClick={() => window.print()}
-              className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-medium py-3 px-6 rounded-lg flex items-center shadow-md transform transition hover:-translate-y-0.5 active:translate-y-0 w-full md:w-auto justify-center"
+              className="bg-primary-500 hover:bg-primary-600 text-white font-medium py-3 px-6 rounded-lg flex items-center shadow-md transform transition hover:-translate-y-0.5 active:translate-y-0 w-full md:w-auto justify-center"
             >
               <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
