@@ -48,3 +48,49 @@
 		@apply bg-dark-secondary bg-opacity-70;
 	}
 }
+
+/* Print-optimized styles */
+@media print {
+	@page {
+		size: A4;
+		margin: 12mm;
+	}
+
+	html, body {
+		background: #ffffff !important;
+		color: #000000 !important;
+		-webkit-print-color-adjust: exact;
+		print-color-adjust: exact;
+		font-size: 12px;
+	}
+
+	/* Hide app chrome and any explicit no-print elements */
+	header, footer, .no-print, .print-hidden { display: none !important; }
+
+	/* Remove fixed/sticky positioning to avoid overlap in print */
+	.fixed, .sticky { position: static !important; }
+
+	/* Make content span page width */
+	.max-w-6xl, .container, .prose, .w-full { max-width: 100% !important; }
+
+	/* Flatten dark theme for clarity on paper */
+	.bg-dark-primary, .bg-dark-secondary, .bg-gradient-to-r, .backdrop-blur-md, .backdrop-blur-sm {
+		background: #ffffff !important;
+	}
+	.text-light-primary, .text-white { color: #000000 !important; }
+
+	/* Tone down decorations for crisp print */
+	.shadow, .shadow-md, .shadow-lg, .shadow-xl, .shadow-2xl, .shadow-soft, .shadow-elevated, [class*="shadow-"] {
+		box-shadow: none !important;
+	}
+	.border-dark-primary { border-color: #dcdcdc !important; }
+
+	/* Avoid awkward page breaks */
+	.card, table, tr, td, th, .rounded-xl, .rounded-lg, .rounded-md, .page-break-avoid {
+		break-inside: avoid !important;
+		page-break-inside: avoid !important;
+	}
+
+	/* Slight overall scale to fit one page when possible */
+	#report-root { zoom: 0.9; }
+}

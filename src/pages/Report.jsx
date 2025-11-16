@@ -111,7 +111,7 @@ function Report() {
   }, [statistics]);
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-6 bg-dark-primary min-h-screen">
+    <div id="report-root" className="max-w-6xl mx-auto px-4 py-6 bg-dark-primary min-h-screen">
       {/* Header with Gradient Background */}
       <div className="relative mb-8 bg-gradient-to-r from-dark-secondary to-primary-500 rounded-xl p-6 text-light-primary shadow-lg overflow-hidden">
        
@@ -326,8 +326,8 @@ function Report() {
             </table>
           </div>
 
-          {/* Print Button with enhanced styling */}
-          <div className="mt-6 flex justify-center md:justify-end">
+          {/* Print Button with enhanced styling (hidden on print) */}
+          <div className="mt-6 flex justify-center md:justify-end print-hidden">
             <button 
               onClick={() => window.print()}
               className="bg-primary-500 hover:bg-primary-600 text-white font-medium py-3 px-6 rounded-lg flex items-center shadow-md transform transition hover:-translate-y-0.5 active:translate-y-0 w-full md:w-auto justify-center"
