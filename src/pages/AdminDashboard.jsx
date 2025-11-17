@@ -12,6 +12,9 @@ function AdminDashboard() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  // Filters for attendance records (like History page)
+  const [subjectFilter, setSubjectFilter] = useState('all');
+  const [filterDate, setFilterDate] = useState('');
   const navigate = useNavigate();
 
   // Fetch all users on component mount
@@ -49,6 +52,8 @@ function AdminDashboard() {
     if (!selectedUser) {
       setUserSubjects([]);
       setUserAttendance([]);
+      setSubjectFilter('all');
+      setFilterDate('');
       return;
     }
     
@@ -133,6 +138,12 @@ function AdminDashboard() {
 
     fetchUserData();
   }, [selectedUser]);
+
+  // Reset filters when subject list changes (new user selected)
+  useEffect(() => {
+    setSubjectFilter('all');
+    setFilterDate('');
+  }, [selectedUser?._id]);
 
   const handleUserSelect = (userId) => {
     console.log('User selected - ID:', userId);
@@ -223,6 +234,39 @@ function AdminDashboard() {
     console.log('Calculated statistics:', statistics);
     return statistics;
   }, [userSubjects, userAttendance]);
+
+  // Subject options for filter (from selected user's subjects)
+  const subjectOptions = useMemo(() => {
+    const names = (userSubjects || []).map(s => s.name).filter(Boolean);
+    return Array.from(new Set(names));
+  }, [userSubjects]);
+
+  // Apply filters to attendance records (same rules as History page)
+  const filteredAttendance = useMemo(() => {
+    let records = [...(userAttendance || [])];
+
+    if (subjectFilter !== 'all') {
+      records = records.filter(r => {
+        const subjName = r.subject?.name;
+        return subjName === subjectFilter;
+      });
+    }
+
+    if (filterDate) {
+      const target = typeof filterDate === 'string' ? filterDate : new Date(filterDate).toISOString().split('T')[0];
+      records = records.filter(r => {
+        const recDate = typeof r.date === 'string' ? r.date.split('T')[0] : new Date(r.date).toISOString().split('T')[0];
+        return recDate === target;
+      });
+    }
+
+    return records;
+  }, [userAttendance, subjectFilter, filterDate]);
+
+  // Sort by most recent date first (after filtering)
+  const sortedFilteredAttendance = useMemo(() => {
+    return [...filteredAttendance].sort((a, b) => new Date(b.date) - new Date(a.date));
+  }, [filteredAttendance]);
 
   return (
     <div className="min-h-screen bg-dark-primary">
@@ -378,10 +422,57 @@ function AdminDashboard() {
                       )}
                     </div>
 
-                    {/* User Attendance Records */}
+                    {/* User Attendance Records */
+                    }
                     <div>
                       <h3 className="text-lg font-medium mb-4 text-light-primary">Attendance Records</h3>
-                      {userAttendance.length > 0 ? (
+                      {/* Filters (mirroring History page) */}
+                      <div className="mb-4 bg-dark-primary border border-dark-primary rounded-lg p-4 flex flex-col md:flex-row gap-3 md:items-end">
+                        <div className="flex-1">
+                          <label className="block text-xs text-light-primary/70 mb-1">Subject</label>
+                          <select
+                            className="input w-full"
+                            value={subjectFilter}
+                            onChange={(e) => setSubjectFilter(e.target.value)}
+                            disabled={!userSubjects.length}
+                          >
+                            <option value="all">All subjects</option>
+                            {subjectOptions.map(name => (
+                              <option key={name} value={name}>{name}</option>
+                            ))}
+                          </select>
+                        </div>
+                        <div className="flex-1">
+                          <label className="block text-xs text-light-primary/70 mb-1">Date</label>
+                          <input
+                            type="date"
+                            className="input w-full"
+                            value={filterDate}
+                            onChange={(e) => setFilterDate(e.target.value)}
+                          />
+                        </div>
+                        <div className="md:ml-auto">
+                          <button
+                            type="button"
+                            className="btn btn-primary"
+                            onClick={() => { setSubjectFilter('all'); setFilterDate(''); }}
+                          >
+                            Clear filters
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Hint */}
+                      {sortedFilteredAttendance.length > 0 && (
+                        <div className="mb-3 bg-dark-primary border border-primary-500/30 rounded-lg p-2 text-xs text-light-primary flex items-start">
+                          <svg className="w-4 h-4 text-primary-500 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                          </svg>
+                          <span>Most recent date records appear at the top</span>
+                        </div>
+                      )}
+
+                      {sortedFilteredAttendance.length > 0 ? (
                         <div className="overflow-x-auto">
                           <table className="min-w-full divide-y divide-dark-primary">
                             <thead className="bg-dark-primary">
@@ -401,7 +492,7 @@ function AdminDashboard() {
                               </tr>
                             </thead>
                             <tbody className="bg-dark-secondary divide-y divide-dark-primary">
-                              {userAttendance.map(record => (
+                              {sortedFilteredAttendance.map(record => (
                                 <tr key={record._id}>
                                   <td className="px-6 py-4 whitespace-nowrap text-light-primary">
                                     {record.subject?.name || '—'}
