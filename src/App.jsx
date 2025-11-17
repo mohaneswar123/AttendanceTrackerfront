@@ -2,6 +2,7 @@ import React, { Suspense, lazy, useContext } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
 import LoadingIndicator from './components/LoadingIndicator';
+import ProtectedRoute from './components/ProtectedRoute';
 import { AttendanceContext, AttendanceProvider } from './contexts/AttendanceContext';
 
 // Lazy-loaded pages
@@ -18,6 +19,7 @@ const AboutUs = lazy(() => import('./pages/AboutUs'));
 const ContactUs = lazy(() => import('./pages/ContactUs'));
 const Terms = lazy(() => import('./pages/Terms'));
 const NotFound = lazy(() => import('./pages/NotFound'));
+const InactivePage = lazy(() => import('./pages/InactivePage'));
 
 // No longer need ProtectedRoute - all pages are accessible without login
 // Admin route still requires authentication
@@ -39,6 +41,7 @@ function AppContent() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/admin/login" element={<AdminLogin />} />
+            <Route path="/inactive" element={<InactivePage />} />
 
             {/* Footer pages */}
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
@@ -53,18 +56,31 @@ function AppContent() {
               </AdminRoute>
             } />
 
-            {/* User routes - now accessible without login */}
+            {/* User routes - protected by subscription */}
             <Route path="/" element={
-              <Layout><Dashboard /></Layout>
+              <ProtectedRoute>
+                <Layout><Dashboard /></Layout>
+              </ProtectedRoute>
+            } />
+            <Route path="/home" element={
+              <ProtectedRoute>
+                <Layout><Dashboard /></Layout>
+              </ProtectedRoute>
             } />
             <Route path="/history" element={
-              <Layout><History /></Layout>
+              <ProtectedRoute>
+                <Layout><History /></Layout>
+              </ProtectedRoute>
             } />
             <Route path="/settings" element={
-              <Layout><Settings /></Layout>
+              <ProtectedRoute>
+                <Layout><Settings /></Layout>
+              </ProtectedRoute>
             } />
             <Route path="/reports" element={
-              <Layout><Report /></Layout>
+              <ProtectedRoute>
+                <Layout><Report /></Layout>
+              </ProtectedRoute>
             } />
 
             {/* 404 */}

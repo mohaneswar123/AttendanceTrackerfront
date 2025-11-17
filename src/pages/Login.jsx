@@ -1,6 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AttendanceContext } from '../contexts/AttendanceContext';
+import { isUserActive } from '../utils/auth';
 
 
 
@@ -9,14 +10,14 @@ function Login() {
     email: '',
     password: ''
   });
-  const [error, setError] = useState('');
+  
   const navigate = useNavigate();
   const { currentUser, login, loading } = useContext(AttendanceContext);
 
-  // Redirect if already logged in
+  // Redirect active users away from login, but allow inactive users to access this page
   useEffect(() => {
-    if (currentUser) {
-      navigate('/');
+    if (currentUser && isUserActive()) {
+      navigate('/home');
     }
   }, [currentUser, navigate]);
 
@@ -28,28 +29,45 @@ function Login() {
     }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    
-    try {
-      // Directly pass email and password to login function
-      const result = await login(credentials.email, credentials.password);
-      
-      // If we get here, login was successful (otherwise it would throw an error)
-      navigate('/');
-    } catch (err) {
-      // Handle specific error responses from the API
-      if (err.response?.status === 401) {
-        setError('Invalid email or password');
-      } else if (err.response?.data?.message) {
-        setError(err.response.data.message);
-      } else {
-        setError('Login failed. Please try again.');
-      }
-      console.error('Login error:', err);
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  try {
+    const user = await login(credentials.email, credentials.password);
+
+    // Save user
+    localStorage.setItem("loggedUser", JSON.stringify(user));
+
+    // If user is active → go home
+    if (user.active === true) {
+      navigate("/home");
+      return;
     }
-  };
+
+    // If inactive or expired → go to inactive page
+    navigate("/inactive");
+
+  } catch (err) {
+  
+
+  const raw = err?.response?.data;
+  const msg = (typeof raw === "string" ? raw : JSON.stringify(raw || "")).toString();
+
+
+  // inactive / expired
+  if (msg.includes("not active") || msg.includes("expired")) {
+    navigate("/inactive");
+    return;
+  }
+
+  alert("Invalid email or password");
+}
+
+};
+
+
+
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-dark-primary py-12 px-4 sm:px-6 lg:px-8">
@@ -60,11 +78,7 @@ function Login() {
           </h2>
         </div>
         
-        {error && (
-          <div className="bg-dark-secondary border border-red-500 text-red-400 px-4 py-3 rounded relative" role="alert">
-            <span className="block sm:inline">{error}</span>
-          </div>
-        )}
+        {/* Error UI removed: focusing only on redirecting inactive users */}
         
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="rounded-md shadow-sm -space-y-px">

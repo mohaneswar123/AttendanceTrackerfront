@@ -12,6 +12,8 @@ function AdminDashboard() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [daysToActivate, setDaysToActivate] = useState(30);
+  const [actionLoading, setActionLoading] = useState(false);
   // Filters for attendance records (like History page)
   const [subjectFilter, setSubjectFilter] = useState('all');
   const [filterDate, setFilterDate] = useState('');
@@ -30,7 +32,9 @@ function AdminDashboard() {
           ...user,
           _id: user._id || user.id,
           username: user.username || user.name,
-          email: user.email
+          email: user.email,
+          active: user.active,
+          paidTill: user.paidTill
         }));
         
         console.log('Normalized users:', normalizedUsers);
@@ -166,6 +170,47 @@ function AdminDashboard() {
   const handleLogout = () => {
     logout(); // Use the existing logout function
     navigate('/admin/login');
+  };
+
+  // Activate selected user
+  const handleActivate = async () => {
+    if (!selectedUser) return;
+    try {
+      const confirm1 = window.confirm(`Activate ${selectedUser.username || 'this user'} for ${daysToActivate || 30} days?`);
+      if (!confirm1) return;
+      const confirm2 = window.confirm('Please confirm activation. Proceed?');
+      if (!confirm2) return;
+      setActionLoading(true);
+      const updated = await adminService.activateUser(selectedUser._id, daysToActivate || 30);
+      // reflect changes in users list and selectedUser
+      const normalized = { ...updated, _id: updated._id || updated.id };
+      setUsers(prev => prev.map(u => (u._id === normalized._id ? { ...u, ...normalized } : u)));
+      setSelectedUser(prev => ({ ...(prev || {}), ...normalized }));
+    } catch (e) {
+      alert(e?.response?.data?.message || 'Failed to activate user');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  // Deactivate selected user
+  const handleDeactivate = async () => {
+    if (!selectedUser) return;
+    try {
+      const confirm1 = window.confirm(`Deactivate ${selectedUser.username || 'this user'}?`);
+      if (!confirm1) return;
+      const confirm2 = window.confirm('This will immediately revoke access. Proceed?');
+      if (!confirm2) return;
+      setActionLoading(true);
+      const updated = await adminService.deactivateUser(selectedUser._id);
+      const normalized = { ...updated, _id: updated._id || updated.id };
+      setUsers(prev => prev.map(u => (u._id === normalized._id ? { ...u, ...normalized } : u)));
+      setSelectedUser(prev => ({ ...(prev || {}), ...normalized }));
+    } catch (e) {
+      alert(e?.response?.data?.message || 'Failed to deactivate user');
+    } finally {
+      setActionLoading(false);
+    }
   };
 
   // Filter users based on search query
@@ -343,9 +388,48 @@ function AdminDashboard() {
           <div className="bg-dark-secondary rounded-lg shadow-md p-6 md:col-span-3">
             {selectedUser ? (
               <>
-                <h2 className="text-xl font-semibold mb-4 text-light-primary">
-                  {selectedUser.username}'s Data
-                </h2>
+                <h2 className="text-xl font-semibold mb-4 text-light-primary">{selectedUser.username}'s Data</h2>
+                {/* Activation controls */}
+                <div className="mb-6 bg-dark-primary border border-dark-primary rounded-lg p-4">
+                  <div className="flex flex-col md:flex-row md:items-end gap-4">
+                    <div className="flex-1">
+                      <p className="text-sm text-light-primary/80">Status</p>
+                      <div className="mt-1 inline-flex items-center gap-2">
+                        <span className={`h-2 w-2 rounded-full ${selectedUser.active ? 'bg-green-500' : 'bg-red-500'}`}></span>
+                        <span className="font-medium">{selectedUser.active ? 'Active' : 'Inactive'}</span>
+                        {selectedUser.paidTill && (
+                          <span className="text-xs text-light-primary/70">Paid till: {new Date(selectedUser.paidTill).toLocaleDateString()}</span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex-1">
+                      <label className="block text-xs text-light-primary/70 mb-1">Activate for (days)</label>
+                      <input
+                        type="number"
+                        min={1}
+                        className="input w-full"
+                        value={daysToActivate}
+                        onChange={(e) => setDaysToActivate(Number(e.target.value))}
+                      />
+                    </div>
+                    <div className="flex gap-2 md:ml-auto">
+                      <button
+                        onClick={handleActivate}
+                        disabled={actionLoading}
+                        className={`btn btn-primary ${actionLoading ? 'opacity-60 cursor-not-allowed' : ''}`}
+                      >
+                        Activate
+                      </button>
+                      <button
+                        onClick={handleDeactivate}
+                        disabled={actionLoading}
+                        className={`btn btn-danger ${actionLoading ? 'opacity-60 cursor-not-allowed' : ''}`}
+                      >
+                        Deactivate
+                      </button>
+                    </div>
+                  </div>
+                </div>
                 
                 {loading ? (
                   <p className="text-light-primary opacity-70">Loading user data...</p>

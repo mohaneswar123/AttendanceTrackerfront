@@ -1,6 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AttendanceContext } from '../contexts/AttendanceContext';
+import { isUserActive } from '../utils/auth';
 
 
 
@@ -15,11 +16,9 @@ function Register() {
   const navigate = useNavigate();
   const { currentUser, register, loading } = useContext(AttendanceContext);
 
-  // Redirect if already logged in
+  // Redirect only if already logged in AND active; otherwise keep Register accessible
   useEffect(() => {
-    if (currentUser) {
-      navigate('/');
-    }
+    if (currentUser && isUserActive()) navigate('/');
   }, [currentUser, navigate]);
 
   const handleChange = (e) => {

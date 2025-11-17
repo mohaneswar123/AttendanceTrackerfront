@@ -22,6 +22,10 @@ export const authService = {
   login: async (email, password) => {
     const response = await apiClient.post('/users/login', { email, password });
     return response.data;
+  },
+  getUserById: async (userId) => {
+    const response = await apiClient.get(`/users/${userId}`);
+    return response.data;
   }
 };
 
@@ -29,6 +33,17 @@ export const authService = {
 export const adminService = {
   login: async (email, password) => {
     const response = await apiClient.post('/admin/login', { email, password });
+    return response.data;
+  },
+  
+  // Activate a user for a number of days
+  activateUser: async (userId, days) => {
+    const response = await apiClient.put(`/users/admin/activate/${userId}?days=${days}`);
+    return response.data;
+  },
+  // Deactivate a user
+  deactivateUser: async (userId) => {
+    const response = await apiClient.put(`/users/admin/deactivate/${userId}`);
     return response.data;
   },
   
