@@ -24,6 +24,14 @@ function InactivePage() {
 
 
         <div className="flex flex-col gap-3 mb-4">
+
+          <a
+            href="upi://pay?pa=pvmohaneswar@oksbi&pn=Mohan%20Eswar&am=10&cu=INR&tn=Attendance%20Subscription"
+            className="btn btn-primary w-full"
+          >
+            Pay Now
+          </a>
+
           <a
             href="mailto:pvmohaneswar@gmail.com?subject=Subscription%20Renewal&body=Hi,%20I%20have%20made%20the%20payment.%20Please%20find%20the%20screenshot%20attached.%20My%20username%20is%20____."
             className="btn btn-primary w-full"
