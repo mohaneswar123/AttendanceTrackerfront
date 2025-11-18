@@ -49,7 +49,7 @@ function Register() {
       const result = await register(userData);
       
       if (result.success) {
-        navigate('/');
+        navigate('/login');
       } else {
         setError(result.message || 'Registration failed');
       }
