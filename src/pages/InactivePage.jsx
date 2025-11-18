@@ -12,7 +12,7 @@ function InactivePage() {
 
         <ol className="list-decimal list-inside space-y-2 text-sm text-light-primary/90 mb-6 font-semibold">
           <li>
-            Use the UPI QR below to pay <span className="font-bold">₹10</span>.
+            Use the UPI QR below to pay <span className="font-bold">₹10</span> per month.
           </li>
           <li>
             After successful payment, send the <span className="font-bold">screenshot</span> and your <span className="font-bold">[username or registered mail]</span> to 

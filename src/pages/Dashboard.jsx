@@ -109,6 +109,16 @@ function Dashboard() {
 
         <WelcomeBanner currentUser={currentUser} />
 
+        {/* Subscription Paid Till Info */}
+        {currentUser?.paidTill && (
+          <div className="mb-6 bg-dark-secondary border border-primary-500/40 rounded-lg p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between shadow-sm">
+            <div>
+              <p className="text-xs uppercase tracking-wide text-light-primary/50">Subscription</p>
+              <p className="text-light-primary mt-1 font-medium">Paid upto: {new Date(currentUser.paidTill).toLocaleDateString()}</p>
+            </div>
+          </div>
+        )}
+
         {/* Login Alert for Non-logged in Users */}
         {!currentUser && (
           <div className="bg-dark-secondary border-l-4 border-primary-500 p-4 rounded-r-lg shadow-sm">
