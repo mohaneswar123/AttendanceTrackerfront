@@ -10,22 +10,36 @@ function InactivePage() {
           <p className="text-light-primary/80 mt-2 text-sm">Please renew to continue using Attendance Register.</p>
         </div>
 
-        <ul className="list-disc list-inside space-y-1 text-sm text-light-primary/90 mb-6 font-bold">
-          <li>Use the UPI QR below to pay 10 rupees.</li>
-          <li>After successful payment, you have send screenshot to mobile number : 7416549717.</li>
+        <ol className="list-decimal list-inside space-y-2 text-sm text-light-primary/90 mb-6 font-semibold">
+          <li>
+            Use the UPI QR below to pay <span className="font-bold">₹10</span>.
+          </li>
+          <li>
+            After successful payment, send the <span className="font-bold">screenshot</span> and your <span className="font-bold">username</span> to 
+            <span className="font-bold text-light-primary"> pvmohaneswar@gmail.com</span>.
+          </li>
           <li>Screenshots are verified within a few minutes.</li>
-          
-        </ul>
+        </ol>
+
+
+
+        <div className="flex flex-col gap-3 mb-4">
+          <a
+            href="https://mail.google.com/mail/?view=cm&fs=1&to=pvmohaneswar@gmail.com&su=Subscription%20Renewal&body=Hi,%20I%20have%20made%20the%20payment.%20Please%20find%20the%20screenshot%20attached.%20My%20username%20is%20____."
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-primary w-full"
+          >
+            Send Email
+          </a>
+
+          <Link to="/login" className="btn btn-outline w-full">Go to Login</Link>
+        </div>
 
         <div className="bg-dark-primary rounded-xl p-4 flex flex-col items-center gap-3 mb-6">
           <img src="/image.png" alt="UPI QR" className="w-[300px] h-[300px] object-contain" />
         </div>
 
-
-
-        <div className="flex justify-between gap-3 text-sm">
-          <Link to="/login" className="btn btn-outline w-full">Go to Login</Link>
-        </div>
       </div>
     </div>
   );
