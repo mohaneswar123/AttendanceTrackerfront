@@ -17,6 +17,10 @@ function AdminDashboard() {
   const [refreshing, setRefreshing] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [userPassword, setUserPassword] = useState('');
+  // New: user status filter & email export panel
+  const [userStatusFilter, setUserStatusFilter] = useState('all'); // 'all' | 'active' | 'inactive'
+  const [emailsPanelOpen, setEmailsPanelOpen] = useState(false);
+  const [emailsText, setEmailsText] = useState('');
   // Filters for attendance records (like History page)
   const [subjectFilter, setSubjectFilter] = useState('all');
   const [filterDate, setFilterDate] = useState('');
@@ -205,6 +209,9 @@ function AdminDashboard() {
     navigate('/admin/login');
   };
 
+  // (Moved below filteredUsers declaration for access) Placeholder; real implementation added later.
+  let handleCopyAllEmails = () => {};
+
   // When selected user changes, seed password from user data (no extra API)
   useEffect(() => {
     if (selectedUser) {
@@ -259,14 +266,43 @@ function AdminDashboard() {
 
   // Filter users based on search query
   const filteredUsers = useMemo(() => {
-    if (!searchQuery.trim()) return users;
-    
-    const lowerQuery = searchQuery.toLowerCase();
-    return users.filter(user => 
-      user.username?.toLowerCase().includes(lowerQuery) || 
-      user.email?.toLowerCase().includes(lowerQuery)
-    );
-  }, [users, searchQuery]);
+    let data = [...users];
+    // Status filtering
+    if (userStatusFilter === 'active') {
+      data = data.filter(u => u.active);
+    } else if (userStatusFilter === 'inactive') {
+      data = data.filter(u => !u.active);
+    }
+    // Search filtering
+    if (searchQuery.trim()) {
+      const lowerQuery = searchQuery.toLowerCase();
+      data = data.filter(user =>
+        user.username?.toLowerCase().includes(lowerQuery) ||
+        user.email?.toLowerCase().includes(lowerQuery)
+      );
+    }
+    return data;
+  }, [users, searchQuery, userStatusFilter]);
+
+  // Copy & show filtered user emails (unique)
+  handleCopyAllEmails = () => {
+    const emailsArr = Array.from(new Set(filteredUsers.map(u => u.email).filter(Boolean)));
+    const emails = emailsArr.join(',');
+    if (!emails) {
+      alert('No filtered user emails available');
+      return;
+    }
+    setEmailsText(emails);
+    setEmailsPanelOpen(true);
+    (async () => {
+      try {
+        await navigator.clipboard.writeText(emails);
+        alert(`Copied ${emailsArr.length} filtered emails to clipboard`);
+      } catch (e) {
+        window.prompt('Copy filtered emails (Ctrl+C):', emails);
+      }
+    })();
+  };
 
   // Calculate attendance statistics for each subject of the selected user
   const subjectStatistics = useMemo(() => {
@@ -372,6 +408,13 @@ function AdminDashboard() {
             >
               {refreshing ? 'Refreshing…' : 'Refresh'}
             </button>
+            <button
+              onClick={handleCopyAllEmails}
+              className="bg-dark-primary hover:bg-primary-500 px-3 py-1 rounded-md text-sm"
+              title="Copy filtered user emails"
+            >
+              Copy Filtered Emails
+            </button>
             <button 
               onClick={handleLogout}
               className="bg-dark-primary hover:bg-primary-500 px-3 py-1 rounded-md text-sm"
@@ -392,7 +435,28 @@ function AdminDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           {/* User List with Search */}
           <div className="bg-dark-secondary rounded-lg shadow-md p-6 md:col-span-1">
-            <h2 className="text-xl font-semibold mb-4 text-light-primary">Users</h2>
+            <h2 className="text-xl font-semibold mb-4 text-light-primary flex items-center justify-between">
+              <span>Users</span>
+              <span
+                title="Filtered users count"
+                className="text-sm font-semibold bg-primary-500 text-dark-primary rounded-full px-2.5 py-0.5 shadow-sm"
+              >
+                {filteredUsers.length}
+              </span>
+            </h2>
+            {/* Status Filter */}
+            <div className="mb-4">
+              <label className="text-xs text-light-primary/60 block mb-1">Filter by status</label>
+              <select
+                className="input w-full max-w-[220px]"
+                value={userStatusFilter}
+                onChange={(e) => setUserStatusFilter(e.target.value)}
+              >
+                <option value="all">All Users</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+              </select>
+            </div>
             
             {/* Search Input */}
             <div className="mb-4">
@@ -435,7 +499,7 @@ function AdminDashboard() {
                   )}
                 </ul>
               </div>
-            )}
+            )}            
           </div>
 
           {/* Right column: Sectioned content */}
