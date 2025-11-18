@@ -15,7 +15,7 @@ function InactivePage() {
             Use the UPI QR below to pay <span className="font-bold">₹10</span>.
           </li>
           <li>
-            After successful payment, send the <span className="font-bold">screenshot</span> and your <span className="font-bold">username</span> to 
+            After successful payment, send the <span className="font-bold">screenshot</span> and your <span className="font-bold">[username or registered mail]</span> to 
             <span className="font-bold text-light-primary"> pvmohaneswar@gmail.com</span>.
           </li>
           <li>Screenshots are verified within a few minutes.</li>
