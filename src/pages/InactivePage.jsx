@@ -10,19 +10,18 @@ function InactivePage() {
           <p className="text-light-primary/80 mt-2 text-sm">Please renew to continue using Attendance Register.</p>
         </div>
 
-        <ul className="list-disc list-inside space-y-1 text-sm text-light-primary/90 mb-6">
-          <li>Payments are verified within a few minutes.</li>
-          <li>Use the UPI QR below or send to the UPI ID.</li>
-          <li>After payment, re-login to refresh your access.</li>
+        <ul className="list-disc list-inside space-y-1 text-sm text-light-primary/90 mb-6 font-bold">
+          <li>Use the UPI QR below to pay 10 rupees.</li>
+          <li>After successful payment, you have send screenshot to mobile number : 7416549717.</li>
+          <li>Screenshots are verified within a few minutes.</li>
+          
         </ul>
 
         <div className="bg-dark-primary rounded-xl p-4 flex flex-col items-center gap-3 mb-6">
-          <img src="/qr.png" alt="UPI QR" className="w-48 h-48 object-contain" />
-          <div className="text-center">
-            <p className="text-sm opacity-80">Pay using UPI to</p>
-            <p className="text-lg font-semibold text-primary-500 select-all">your-upi-id@upi</p>
-          </div>
+          <img src="/image.png" alt="UPI QR" className="w-[300px] h-[300px] object-contain" />
         </div>
+
+
 
         <div className="flex justify-between gap-3 text-sm">
           <Link to="/login" className="btn btn-outline w-full">Go to Login</Link>
