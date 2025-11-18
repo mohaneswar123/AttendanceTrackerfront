@@ -33,7 +33,7 @@ function InactivePage() {
           </a>
 
           <a
-            href="mailto:pvmohaneswar@gmail.com?subject=Subscription%20Renewal&body=Hi,%20I%20have%20made%20the%20payment.%20Please%20find%20the%20screenshot%20attached.%20My%20username%20is%20____."
+            href="mailto:pvmohaneswar@gmail.com?subject=Subscription%20Renewal&body=Hi,%20I%20have%20made%20the%20payment.%20Please%20find%20the%20screenshot%20attached.%20My%20username%20or%20registered%20mail%20is%20____."
             className="btn btn-primary w-full"
           >
             Send Email
