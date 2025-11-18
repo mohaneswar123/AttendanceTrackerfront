@@ -52,6 +52,12 @@ export const adminService = {
     return response.data;
   },
   
+  // Permanently delete a user (expects 204 No Content)
+  deleteUser: async (userId) => {
+    const response = await apiClient.delete(`/users/${userId}`);
+    return response.data;
+  },
+  
   getUserSubjects: async (userId) => {
     const response = await apiClient.get(`/subjects/user/${userId}`);
     return response.data;

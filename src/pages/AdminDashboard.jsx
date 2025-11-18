@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AttendanceContext } from '../contexts/AttendanceContext';
-import { adminService } from '../services/api';
+import { adminService, resetService } from '../services/api';
 
 function AdminDashboard() {
   const { logout } = useContext(AttendanceContext);
@@ -259,6 +259,29 @@ function AdminDashboard() {
       setSelectedUser(prev => ({ ...(prev || {}), ...normalized }));
     } catch (e) {
       alert(e?.response?.data?.message || 'Failed to deactivate user');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  // Delete selected user completely (reset data first, then delete user)
+  const handleDeleteUser = async () => {
+    if (!selectedUser) return;
+    try {
+      const confirm1 = window.confirm(`Permanently delete ${selectedUser.username || 'this user'} and all their data?`);
+      if (!confirm1) return;
+      const confirm2 = window.prompt("Type DELETE to confirm permanent removal of the user's subjects and attendance.");
+      if (confirm2 !== 'DELETE') return;
+      setActionLoading(true);
+      // Reset all data (attendance, subjects, etc.) then delete account
+      await resetService.resetUserData(selectedUser._id);
+      await adminService.deleteUser(selectedUser._id);
+      // Remove from local state
+      setUsers(prev => prev.filter(u => u._id !== selectedUser._id && u.id !== selectedUser._id));
+      setSelectedUser(null);
+      alert('User and all related data have been deleted.');
+    } catch (e) {
+      alert(e?.response?.data?.message || 'Failed to delete user');
     } finally {
       setActionLoading(false);
     }
@@ -576,6 +599,13 @@ function AdminDashboard() {
                           className={`btn btn-danger ${actionLoading ? 'opacity-60 cursor-not-allowed' : ''}`}
                         >
                           Deactivate
+                        </button>
+                        <button
+                          onClick={handleDeleteUser}
+                          disabled={actionLoading}
+                          className={`btn bg-red-700 hover:bg-red-600 text-white ${actionLoading ? 'opacity-60 cursor-not-allowed' : ''}`}
+                        >
+                          Delete
                         </button>
                       </div>
                     </div>
