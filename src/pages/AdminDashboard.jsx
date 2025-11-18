@@ -14,6 +14,9 @@ function AdminDashboard() {
   const [searchQuery, setSearchQuery] = useState('');
   const [daysToActivate, setDaysToActivate] = useState(30);
   const [actionLoading, setActionLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [userPassword, setUserPassword] = useState('');
   // Filters for attendance records (like History page)
   const [subjectFilter, setSubjectFilter] = useState('all');
   const [filterDate, setFilterDate] = useState('');
@@ -33,6 +36,7 @@ function AdminDashboard() {
           _id: user._id || user.id,
           username: user.username || user.name,
           email: user.email,
+          password: user.password,
           active: user.active,
           paidTill: user.paidTill
         }));
@@ -50,6 +54,35 @@ function AdminDashboard() {
 
     fetchUsers();
   }, []);
+
+  const handleRefreshUsers = async () => {
+    try {
+      setRefreshing(true);
+      setError(null);
+      const response = await adminService.getAllUsers();
+      const normalizedUsers = response.map(user => ({
+        ...user,
+        _id: user._id || user.id,
+        username: user.username || user.name,
+        email: user.email,
+        password: user.password,
+        active: user.active,
+        paidTill: user.paidTill
+      }));
+      setUsers(normalizedUsers);
+      // if selected user exists, update it with latest data
+      if (selectedUser) {
+        const updatedSel = normalizedUsers.find(u => u._id === (selectedUser._id || selectedUser.id));
+        if (updatedSel) setSelectedUser(updatedSel);
+      }
+    } catch (err) {
+      setError('Failed to refresh users');
+      console.error('Error refreshing users:', err);
+      console.error('Error details:', err.response?.data);
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   // Fetch user data when a user is selected
   useEffect(() => {
@@ -171,6 +204,17 @@ function AdminDashboard() {
     logout(); // Use the existing logout function
     navigate('/admin/login');
   };
+
+  // When selected user changes, seed password from user data (no extra API)
+  useEffect(() => {
+    if (selectedUser) {
+      setUserPassword(selectedUser.password || '');
+      setShowPassword(false);
+    } else {
+      setUserPassword('');
+      setShowPassword(false);
+    }
+  }, [selectedUser?._id, selectedUser?.password]);
 
   // Activate selected user
   const handleActivate = async () => {
@@ -319,12 +363,22 @@ function AdminDashboard() {
       <header className="bg-dark-secondary text-light-primary shadow-md">
         <div className="container mx-auto px-4 py-3 flex justify-between items-center">
           <h1 className="text-xl font-bold">Admin Dashboard</h1>
-          <button 
-            onClick={handleLogout}
-            className="bg-dark-primary hover:bg-primary-500 px-3 py-1 rounded-md text-sm"
-          >
-            Logout
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleRefreshUsers}
+              disabled={refreshing}
+              className={`bg-dark-primary hover:bg-primary-500 px-3 py-1 rounded-md text-sm ${refreshing ? 'opacity-60 cursor-not-allowed' : ''}`}
+              title="Refresh users"
+            >
+              {refreshing ? 'Refreshing…' : 'Refresh'}
+            </button>
+            <button 
+              onClick={handleLogout}
+              className="bg-dark-primary hover:bg-primary-500 px-3 py-1 rounded-md text-sm"
+            >
+              Logout
+            </button>
+          </div>
         </div>
       </header>
 
@@ -384,234 +438,262 @@ function AdminDashboard() {
             )}
           </div>
 
-          {/* User Details */}
-          <div className="bg-dark-secondary rounded-lg shadow-md p-6 md:col-span-3">
+          {/* Right column: Sectioned content */}
+          <div className="md:col-span-3 space-y-6">
             {selectedUser ? (
               <>
-                <h2 className="text-xl font-semibold mb-4 text-light-primary">{selectedUser.username}'s Data</h2>
-                {/* Activation controls */}
-                <div className="mb-6 bg-dark-primary border border-dark-primary rounded-lg p-4">
-                  <div className="flex flex-col md:flex-row md:items-end gap-4">
-                    <div className="flex-1">
-                      <p className="text-sm text-light-primary/80">Status</p>
-                      <div className="mt-1 inline-flex items-center gap-2">
-                        <span className={`h-2 w-2 rounded-full ${selectedUser.active ? 'bg-green-500' : 'bg-red-500'}`}></span>
-                        <span className="font-medium">{selectedUser.active ? 'Active' : 'Inactive'}</span>
-                        {selectedUser.paidTill && (
-                          <span className="text-xs text-light-primary/70">Paid till: {new Date(selectedUser.paidTill).toLocaleDateString()}</span>
-                        )}
+                {/* 1️⃣ User Data Section */}
+                <section className="bg-dark-secondary rounded-lg shadow-md p-6">
+                  <h2 className="text-xl font-semibold mb-4 text-light-primary">User Data</h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-xs text-light-primary/70">Name</p>
+                      <p className="text-light-primary font-medium">{selectedUser.username || '—'}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-light-primary/70">Email</p>
+                      <p className="text-light-primary font-medium">{selectedUser.email || '—'}</p>
+                    </div>
+                    <div className="md:col-span-2">
+                      <p className="text-xs text-light-primary/70 mb-1">Password</p>
+                      <div className="flex gap-2">
+                        <input
+                          type={showPassword ? 'text' : 'password'}
+                          value={userPassword || ''}
+                          disabled
+                          className="input w-full"
+                          placeholder={userPassword ? undefined : 'Password not available'}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(v => !v)}
+                          className="btn bg-dark-primary hover:bg-primary-500 whitespace-nowrap"
+                          disabled={!userPassword}
+                        >
+                          {showPassword ? 'Hide' : 'Show'}
+                        </button>
+                      </div>
+                      <p className="text-[11px] text-light-primary/60 mt-1">Admin-only view. Ensure appropriate use.</p>
+                    </div>
+                  </div>
+                  <div className="mt-6 bg-dark-primary border border-dark-primary rounded-lg p-4">
+                    <div className="flex flex-col md:flex-row md:items-end gap-4">
+                      <div className="flex-1">
+                        <p className="text-sm text-light-primary/80">Status</p>
+                        <div className="mt-1 inline-flex items-center gap-2">
+                          <span className={`h-2 w-2 rounded-full ${selectedUser.active ? 'bg-green-500' : 'bg-red-500'}`}></span>
+                          <span className="font-medium">{selectedUser.active ? 'Active' : 'Inactive'}</span>
+                          {selectedUser.paidTill && (
+                            <span className="text-xs text-light-primary/70">Paid till: {new Date(selectedUser.paidTill).toLocaleDateString()}</span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex-1">
+                        <label className="block text-xs text-light-primary/70 mb-1">Activate for (days)</label>
+                        <input
+                          type="number"
+                          min={1}
+                          className="input w-full"
+                          value={daysToActivate}
+                          onChange={(e) => setDaysToActivate(Number(e.target.value))}
+                        />
+                      </div>
+                      <div className="flex gap-2 md:ml-auto">
+                        <button
+                          onClick={handleActivate}
+                          disabled={actionLoading}
+                          className={`btn btn-primary ${actionLoading ? 'opacity-60 cursor-not-allowed' : ''}`}
+                        >
+                          Activate
+                        </button>
+                        <button
+                          onClick={handleDeactivate}
+                          disabled={actionLoading}
+                          className={`btn btn-danger ${actionLoading ? 'opacity-60 cursor-not-allowed' : ''}`}
+                        >
+                          Deactivate
+                        </button>
                       </div>
                     </div>
+                  </div>
+                </section>
+
+                {/* 2️⃣ User Subjects Section */}
+                <section className="bg-dark-secondary rounded-lg shadow-md p-6">
+                  <h2 className="text-xl font-semibold mb-4 text-light-primary">User Subjects</h2>
+                  {loading ? (
+                    <p className="text-light-primary opacity-70">Loading user data...</p>
+                  ) : subjectStatistics.length > 0 ? (
+                    <div className="overflow-x-auto">
+                      <table className="min-w-full divide-y divide-dark-primary">
+                        <thead className="bg-dark-primary">
+                          <tr>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-light-primary uppercase tracking-wider">
+                              Subject
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-light-primary uppercase tracking-wider">
+                              Hours Attended
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-light-primary uppercase tracking-wider">
+                              Absent Classes
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-light-primary uppercase tracking-wider">
+                              Total Hours
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-light-primary uppercase tracking-wider">
+                              Attendance %
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody className="bg-dark-secondary divide-y divide-dark-primary">
+                          {subjectStatistics.map(subject => (
+                            <tr key={subject._id}>
+                              <td className="px-6 py-4 whitespace-nowrap font-medium text-light-primary">
+                                {subject.name}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-green-400">
+                                {subject.attendedHours}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-red-400">
+                                {subject.absent}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-light-primary">
+                                {subject.totalHours}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <div className="flex items-center">
+                                  <div className="w-16 bg-dark-primary rounded-full h-2.5 mr-2">
+                                    <div 
+                                      className={`h-2.5 rounded-full ${
+                                        subject.percentage >= 75 ? 'bg-green-500' : 
+                                        subject.percentage >= 60 ? 'bg-yellow-500' : 
+                                        'bg-red-500'
+                                      }`} 
+                                      style={{ width: `${subject.percentage}%` }}
+                                    ></div>
+                                  </div>
+                                  <span className={`text-xs font-medium ${
+                                    subject.percentage >= 75 ? 'text-green-400' : 
+                                    subject.percentage >= 60 ? 'text-yellow-400' : 
+                                    'text-red-400'
+                                  }`}>
+                                    {subject.percentage}%
+                                  </span>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : (
+                    <p className="text-light-primary opacity-70">No subjects found for this user</p>
+                  )}
+                </section>
+
+                {/* 3️⃣ User Attendance Section */}
+                <section className="bg-dark-secondary rounded-lg shadow-md p-6">
+                  <h2 className="text-xl font-semibold mb-4 text-light-primary">User Attendance</h2>
+                  {/* Filters (mirroring History page) */}
+                  <div className="mb-4 bg-dark-primary border border-dark-primary rounded-lg p-4 flex flex-col md:flex-row gap-3 md:items-end">
                     <div className="flex-1">
-                      <label className="block text-xs text-light-primary/70 mb-1">Activate for (days)</label>
-                      <input
-                        type="number"
-                        min={1}
+                      <label className="block text-xs text-light-primary/70 mb-1">Subject</label>
+                      <select
                         className="input w-full"
-                        value={daysToActivate}
-                        onChange={(e) => setDaysToActivate(Number(e.target.value))}
+                        value={subjectFilter}
+                        onChange={(e) => setSubjectFilter(e.target.value)}
+                        disabled={!userSubjects.length}
+                      >
+                        <option value="all">All subjects</option>
+                        {subjectOptions.map(name => (
+                          <option key={name} value={name}>{name}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="flex-1">
+                      <label className="block text-xs text-light-primary/70 mb-1">Date</label>
+                      <input
+                        type="date"
+                        className="input w-full"
+                        value={filterDate}
+                        onChange={(e) => setFilterDate(e.target.value)}
                       />
                     </div>
-                    <div className="flex gap-2 md:ml-auto">
+                    <div className="md:ml-auto">
                       <button
-                        onClick={handleActivate}
-                        disabled={actionLoading}
-                        className={`btn btn-primary ${actionLoading ? 'opacity-60 cursor-not-allowed' : ''}`}
+                        type="button"
+                        className="btn btn-primary"
+                        onClick={() => { setSubjectFilter('all'); setFilterDate(''); }}
                       >
-                        Activate
-                      </button>
-                      <button
-                        onClick={handleDeactivate}
-                        disabled={actionLoading}
-                        className={`btn btn-danger ${actionLoading ? 'opacity-60 cursor-not-allowed' : ''}`}
-                      >
-                        Deactivate
+                        Clear filters
                       </button>
                     </div>
                   </div>
-                </div>
-                
-                {loading ? (
-                  <p className="text-light-primary opacity-70">Loading user data...</p>
-                ) : (
-                  <div className="space-y-8">
-                    {/* User Subjects with Attendance Statistics */}
-                    <div>
-                      <h3 className="text-lg font-medium mb-4 text-light-primary">Subjects and Attendance Statistics</h3>
-                      {subjectStatistics.length > 0 ? (
-                        <div className="overflow-x-auto">
-                          <table className="min-w-full divide-y divide-dark-primary">
-                            <thead className="bg-dark-primary">
-                              <tr>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-light-primary uppercase tracking-wider">
-                                  Subject
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-light-primary uppercase tracking-wider">
-                                  Hours Attended
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-light-primary uppercase tracking-wider">
-                                  Absent Classes
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-light-primary uppercase tracking-wider">
-                                  Total Hours
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-light-primary uppercase tracking-wider">
-                                  Attendance %
-                                </th>
-                              </tr>
-                            </thead>
-                            <tbody className="bg-dark-secondary divide-y divide-dark-primary">
-                              {subjectStatistics.map(subject => (
-                                <tr key={subject._id}>
-                                  <td className="px-6 py-4 whitespace-nowrap font-medium text-light-primary">
-                                    {subject.name}
-                                  </td>
-                                  <td className="px-6 py-4 whitespace-nowrap text-green-400">
-                                    {subject.attendedHours}
-                                  </td>
-                                  <td className="px-6 py-4 whitespace-nowrap text-red-400">
-                                    {subject.absent}
-                                  </td>
-                                  <td className="px-6 py-4 whitespace-nowrap text-light-primary">
-                                    {subject.totalHours}
-                                  </td>
-                                  <td className="px-6 py-4 whitespace-nowrap">
-                                    <div className="flex items-center">
-                                      <div className="w-16 bg-dark-primary rounded-full h-2.5 mr-2">
-                                        <div 
-                                          className={`h-2.5 rounded-full ${
-                                            subject.percentage >= 75 ? 'bg-green-500' : 
-                                            subject.percentage >= 60 ? 'bg-yellow-500' : 
-                                            'bg-red-500'
-                                          }`} 
-                                          style={{ width: `${subject.percentage}%` }}
-                                        ></div>
-                                      </div>
-                                      <span className={`text-xs font-medium ${
-                                        subject.percentage >= 75 ? 'text-green-400' : 
-                                        subject.percentage >= 60 ? 'text-yellow-400' : 
-                                        'text-red-400'
-                                      }`}>
-                                        {subject.percentage}%
-                                      </span>
-                                    </div>
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      ) : (
-                        <p className="text-light-primary opacity-70">No subjects found for this user</p>
-                      )}
+
+                  {/* Hint */}
+                  {sortedFilteredAttendance.length > 0 && (
+                    <div className="mb-3 bg-dark-primary border border-primary-500/30 rounded-lg p-2 text-xs text-light-primary flex items-start">
+                      <svg className="w-4 h-4 text-primary-500 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                      </svg>
+                      <span>Most recent date records appear at the top</span>
                     </div>
+                  )}
 
-                    {/* User Attendance Records */
-                    }
-                    <div>
-                      <h3 className="text-lg font-medium mb-4 text-light-primary">Attendance Records</h3>
-                      {/* Filters (mirroring History page) */}
-                      <div className="mb-4 bg-dark-primary border border-dark-primary rounded-lg p-4 flex flex-col md:flex-row gap-3 md:items-end">
-                        <div className="flex-1">
-                          <label className="block text-xs text-light-primary/70 mb-1">Subject</label>
-                          <select
-                            className="input w-full"
-                            value={subjectFilter}
-                            onChange={(e) => setSubjectFilter(e.target.value)}
-                            disabled={!userSubjects.length}
-                          >
-                            <option value="all">All subjects</option>
-                            {subjectOptions.map(name => (
-                              <option key={name} value={name}>{name}</option>
-                            ))}
-                          </select>
-                        </div>
-                        <div className="flex-1">
-                          <label className="block text-xs text-light-primary/70 mb-1">Date</label>
-                          <input
-                            type="date"
-                            className="input w-full"
-                            value={filterDate}
-                            onChange={(e) => setFilterDate(e.target.value)}
-                          />
-                        </div>
-                        <div className="md:ml-auto">
-                          <button
-                            type="button"
-                            className="btn btn-primary"
-                            onClick={() => { setSubjectFilter('all'); setFilterDate(''); }}
-                          >
-                            Clear filters
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* Hint */}
-                      {sortedFilteredAttendance.length > 0 && (
-                        <div className="mb-3 bg-dark-primary border border-primary-500/30 rounded-lg p-2 text-xs text-light-primary flex items-start">
-                          <svg className="w-4 h-4 text-primary-500 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                          </svg>
-                          <span>Most recent date records appear at the top</span>
-                        </div>
-                      )}
-
-                      {sortedFilteredAttendance.length > 0 ? (
-                        <div className="overflow-x-auto">
-                          <table className="min-w-full divide-y divide-dark-primary">
-                            <thead className="bg-dark-primary">
-                              <tr>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-light-primary uppercase tracking-wider">
-                                  Subject
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-light-primary uppercase tracking-wider">
-                                  Date
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-light-primary uppercase tracking-wider">
-                                  Status
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-light-primary uppercase tracking-wider">
-                                  Hours
-                                </th>
-                              </tr>
-                            </thead>
-                            <tbody className="bg-dark-secondary divide-y divide-dark-primary">
-                              {sortedFilteredAttendance.map(record => (
-                                <tr key={record._id}>
-                                  <td className="px-6 py-4 whitespace-nowrap text-light-primary">
-                                    {record.subject?.name || '—'}
-                                  </td>
-                                  <td className="px-6 py-4 whitespace-nowrap text-light-primary">
-                                    {new Date(record.date).toLocaleDateString()}
-                                  </td>
-                                  <td className="px-6 py-4 whitespace-nowrap">
-                                    <span className={`px-2 py-1 text-xs rounded-full ${
-                                      record.status === 'Present' ? 'bg-green-100 text-green-800' : 
-                                      record.status === 'Absent' ? 'bg-red-100 text-red-800' : 
-                                      'bg-gray-100 text-gray-800'
-                                    }`}>
-                                      {record.status}
-                                    </span>
-                                  </td>
-                                  <td className="px-6 py-4 whitespace-nowrap">
-                                    <span className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
-                                      {record.classNumber || 1} hour{record.classNumber > 1 ? 's' : ''}
-                                    </span>
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      ) : (
-                        <p className="text-light-primary opacity-70">No attendance records found</p>
-                      )}
+                  {sortedFilteredAttendance.length > 0 ? (
+                    <div className="overflow-x-auto">
+                      <table className="min-w-full divide-y divide-dark-primary">
+                        <thead className="bg-dark-primary">
+                          <tr>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-light-primary uppercase tracking-wider">
+                              Subject
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-light-primary uppercase tracking-wider">
+                              Date
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-light-primary uppercase tracking-wider">
+                              Status
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-light-primary uppercase tracking-wider">
+                              Hours
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody className="bg-dark-secondary divide-y divide-dark-primary">
+                          {sortedFilteredAttendance.map(record => (
+                            <tr key={record._id}>
+                              <td className="px-6 py-4 whitespace-nowrap text-light-primary">
+                                {record.subject?.name || '—'}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-light-primary">
+                                {new Date(record.date).toLocaleDateString()}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <span className={`px-2 py-1 text-xs rounded-full ${
+                                  record.status === 'Present' ? 'bg-green-100 text-green-800' : 
+                                  record.status === 'Absent' ? 'bg-red-100 text-red-800' : 
+                                  'bg-gray-100 text-gray-800'
+                                }`}>
+                                  {record.status}
+                                </span>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <span className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
+                                  {record.classNumber || 1} hour{record.classNumber > 1 ? 's' : ''}
+                                </span>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
-                  </div>
-                )}
+                  ) : (
+                    <p className="text-light-primary opacity-70">No attendance records found</p>
+                  )}
+                </section>
               </>
             ) : (
-              <div className="flex flex-col items-center justify-center h-64 text-light-primary opacity-50">
+              <div className="bg-dark-secondary rounded-lg shadow-md p-6 flex flex-col items-center justify-center h-64 text-light-primary opacity-70">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                 </svg>
