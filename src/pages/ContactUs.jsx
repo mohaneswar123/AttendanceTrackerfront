@@ -27,7 +27,7 @@ function ContactUs() {
                 <div>
                   <h3 className="text-lg font-medium text-light-primary">Email</h3>
                   <p className="text-light-primary">
-                    <a href="mailto:pvmohaneswar@gmail.com" className="text-primary-500 hover:underline">pvmohaneswar@gmail.com</a>
+                    <a href="mailto:attendanceinhand@gmail.com" className="text-primary-500 hover:underline">attendanceinhand@gmail.com</a>
                   </p>
                 </div>
               </div>

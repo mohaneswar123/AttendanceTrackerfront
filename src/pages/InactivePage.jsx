@@ -16,7 +16,7 @@ function InactivePage() {
           </li>
           <li>
             After successful payment, send the <span className="font-bold">screenshot</span> and your <span className="font-bold">[username or registered mail]</span> to 
-            <span className="font-bold text-light-primary"> pvmohaneswar@gmail.com</span>.
+            <span className="font-bold text-light-primary"> attendanceinhand@gmail.com</span>.
           </li>
           <li>Screenshots are verified within a few minutes.</li>
         </ol>
@@ -33,7 +33,7 @@ function InactivePage() {
           </a> */}
 
           <a
-            href="mailto:pvmohaneswar@gmail.com?subject=Subscription%20Renewal&body=Hi,%20I%20have%20made%20the%20payment.%20Please%20find%20the%20screenshot%20attached.%20My%20username%20or%20registered%20mail%20is%20____."
+            href="mailto:attendanceinhand@gmail.com?subject=Subscription%20Renewal&body=Hi,%20I%20have%20made%20the%20payment.%20Please%20find%20the%20screenshot%20attached.%20My%20username%20or%20registered%20mail%20is%20____."
             className="btn btn-primary w-full"
           >
             Send Email

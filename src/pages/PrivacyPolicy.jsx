@@ -68,8 +68,8 @@ function PrivacyPolicy() {
             <h2 className="text-xl font-semibold mb-2">Contact Us</h2>
             <p>
               For any questions, email us at{' '}
-              <a href="mailto:pvmohaneswar@gmail.com" className="text-primary-500 hover:underline">
-                pvmohaneswar@gmail.com
+              <a href="mailto:attendanceinhand@gmail.com" className="text-primary-500 hover:underline">
+                attendanceinhand@gmail.com
               </a>
               .
             </p>
