@@ -14,11 +14,13 @@ function ProtectedRoute({ children }) {
       try {
         const local = getLoggedUser();
         const localId = local?.id || local?._id;
+
+        // 👉 If guest user → allow page (no checks)
         if (!localId) return;
 
+        // Fetch fresh user
         const fresh = await authService.getUserById(localId);
 
-        // If backend deleted user → log them out
         if (!fresh) {
           localStorage.removeItem('loggedUser');
           if (!cancelled) setForceInactive(true);
@@ -26,18 +28,16 @@ function ProtectedRoute({ children }) {
           return;
         }
 
-        // Update local user
+        // Sync updated user
         localStorage.setItem('loggedUser', JSON.stringify(fresh));
 
-        // Validate active + paidTill
+        // Active + paid check
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
         const paid = fresh.paidTill ? new Date(fresh.paidTill) : null;
-
         const activeNow = fresh.active === true && paid && paid >= today;
 
-        // Force inactive if status changed
         if (!activeNow && !cancelled) {
           setForceInactive(true);
           clearInterval(intervalId);
@@ -57,12 +57,13 @@ function ProtectedRoute({ children }) {
     };
   }, []);
 
-  // Synchronous check
   const user = getLoggedUser();
-  if (!user) return <Navigate to="/login" replace />;
 
-  const active = isUserActive();
-  if (!active || forceInactive) return <Navigate to="/inactive" replace />;
+  // ❌ Only logged-in inactive users → go inactive
+  // ✔ Guest user → allowed
+  if (user && (!isUserActive() || forceInactive)) {
+    return <Navigate to="/inactive" replace />;
+  }
 
   return children;
 }
