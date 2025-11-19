@@ -17,7 +17,7 @@ function Login() {
   // Redirect active users away from login, but allow inactive users to access this page
   useEffect(() => {
     if (currentUser && isUserActive()) {
-      navigate('/home');
+      navigate('/');
     }
   }, [currentUser, navigate]);
 
@@ -40,7 +40,7 @@ function Login() {
 
     // If user is active → go home
     if (user.active === true) {
-      navigate("/home");
+      navigate("/");
       return;
     }
 

@@ -56,28 +56,33 @@ function AppContent() {
               </AdminRoute>
             } />
 
-            {/* Public root dashboard: personalized if logged-in, guest view otherwise */}
-            <Route path="/" element={<Layout><Dashboard /></Layout>} />
-            <Route path="/home" element={
-              <ProtectedRoute>
-                <Layout><Dashboard /></Layout>
-              </ProtectedRoute>
-            } />
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute>
+                  <Layout><Dashboard /></Layout>
+                </ProtectedRoute>
+              }
+            />
+
             <Route path="/history" element={
               <ProtectedRoute>
                 <Layout><History /></Layout>
               </ProtectedRoute>
             } />
-            <Route path="/settings" element={
-              <ProtectedRoute>
-                <Layout><Settings /></Layout>
-              </ProtectedRoute>
-            } />
+
             <Route path="/reports" element={
               <ProtectedRoute>
                 <Layout><Report /></Layout>
               </ProtectedRoute>
             } />
+
+            <Route path="/settings" element={
+              <ProtectedRoute>
+                <Layout><Settings /></Layout>
+              </ProtectedRoute>
+            } />
+
 
             {/* 404 */}
             <Route path="*" element={<NotFound />} />

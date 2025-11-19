@@ -1,71 +1,91 @@
-import React, { useEffect, useState } from 'react';
-import { Navigate } from 'react-router-dom';
-import { isUserActive, getLoggedUser } from '../utils/auth';
+import React, { useEffect, useState, useContext } from 'react';
+import { AttendanceContext } from '../contexts/AttendanceContext';
+import { getLoggedUser } from '../utils/auth';
 import { authService } from '../services/api';
 
 function ProtectedRoute({ children }) {
-  const [forceInactive, setForceInactive] = useState(false);
+  const { logout } = useContext(AttendanceContext);
+  const [initialized, setInitialized] = useState(false);
 
+  // BLOCK BACK BUTTON CACHE
   useEffect(() => {
-    let cancelled = false;
-    let intervalId;
-
-    const check = async () => {
-      try {
-        const local = getLoggedUser();
-        const localId = local?.id || local?._id;
-
-        // Guest → allow (skip)
-        if (!localId) return;
-
-        // Fetch fresh user
-        const fresh = await authService.getUserById(localId);
-
-        // If backend deleted user → remove & redirect
-        if (!fresh) {
-          localStorage.removeItem('loggedUser');
-          if (!cancelled) setForceInactive(true);
-          clearInterval(intervalId);
-          return;
-        }
-
-        // Save updated user data
-        localStorage.setItem('loggedUser', JSON.stringify(fresh));
-
-        // Check active + paidTill
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-
-        const paid = fresh.paidTill ? new Date(fresh.paidTill) : null;
-        const activeNow = fresh.active === true && paid && paid >= today;
-
-        // ❌ USER IS INACTIVE — REMOVE FROM LOCALSTORAGE INSTANTLY
-        if (!activeNow && !cancelled) {
-          localStorage.removeItem('loggedUser');   // <--- IMPORTANT
-          setForceInactive(true);
-          clearInterval(intervalId);
-        }
-
-      } catch (err) {
-        console.error("Background user check failed:", err);
-      }
-    };
-
-    check();
-    intervalId = setInterval(check, 5000);
-
-    return () => {
-      cancelled = true;
-      clearInterval(intervalId);
-    };
+    const block = () => window.history.pushState(null, "", window.location.href);
+    block();
+    window.addEventListener("popstate", block);
+    return () => window.removeEventListener("popstate", block);
   }, []);
 
-  const user = getLoggedUser();
+  // MASTER CHECK FUNCTION (used for initial + 5-sec checks)
+  const validateUser = async () => {
+    const local = getLoggedUser();
+    const localId = local?.id || local?._id;
 
-  // Logged-in inactive user → go inactive
-  if (forceInactive) {
-    return <Navigate to="/inactive" replace />;
-  }
+    // Guest → always allowed
+    if (!localId) return { status: "guest" };
+
+    try {
+      const fresh = await authService.getUserById(localId);
+
+      // Backend removed user
+      if (!fresh) {
+        localStorage.removeItem("loggedUser");
+        logout();
+        return { status: "inactive" };
+      }
+
+      // Update local user
+      localStorage.setItem("loggedUser", JSON.stringify(fresh));
+
+      // Check active
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const paid = fresh.paidTill ? new Date(fresh.paidTill) : null;
+      const activeNow = fresh.active === true && paid && paid >= today;
+
+      if (!activeNow) {
+        localStorage.removeItem("loggedUser");
+        logout();
+        return { status: "inactive" };
+      }
+
+      return { status: "active" };
+
+    } catch (e) {
+      console.error("Validation failed:", e);
+      localStorage.removeItem("loggedUser");
+      logout();
+      return { status: "inactive" };
+    }
+  };
+
+  // INITIAL CHECK before render
+  useEffect(() => {
+    validateUser().then(result => {
+      if (result.status === "inactive") {
+        window.location.replace("/inactive");
+      } else {
+        setInitialized(true);
+      }
+    });
+  }, []);
+
+  // BACKGROUND CHECK EVERY 5 SECONDS
+  useEffect(() => {
+    if (!initialized) return;
+
+    const interval = setInterval(async () => {
+      const result = await validateUser();
+      if (result.status === "inactive") {
+        window.location.replace("/inactive");
+      }
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [initialized]);
+
+  // WAIT UNTIL INITIAL CHECK COMPLETES
+  if (!initialized) return null;
 
   return children;
 }

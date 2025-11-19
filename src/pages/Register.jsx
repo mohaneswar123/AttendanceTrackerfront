@@ -13,6 +13,7 @@ function Register() {
     confirmPassword: ''
   });
   const [error, setError] = useState('');
+  const [emailExists, setEmailExists] = useState(false);
   const navigate = useNavigate();
   const { currentUser, register, loading } = useContext(AttendanceContext);
 
@@ -27,6 +28,10 @@ function Register() {
       ...prev,
       [name]: value
     }));
+    if (name === 'email') {
+      // Clear duplicate warning when user edits email
+      setEmailExists(false);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -51,7 +56,11 @@ function Register() {
       if (result.success) {
         navigate('/login');
       } else {
-        setError(result.message || 'Registration failed');
+        const msg = result.message || 'Registration failed';
+        setError(msg);
+        if (/email/i.test(msg) && /(exist|already)/i.test(msg)) {
+          setEmailExists(true);
+        }
       }
     } catch (err) {
       setError('Registration failed. Please try again.');
@@ -100,12 +109,20 @@ function Register() {
                 type="email"
                 autoComplete="email"
                 required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-dark-secondary placeholder-light-primary/50 text-light-primary bg-dark-secondary focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
+                className={`appearance-none rounded-none relative block w-full px-3 py-2 border placeholder-light-primary/50 text-light-primary bg-dark-secondary focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm ${emailExists ? 'border-red-500' : 'border-dark-secondary'}`}
                 placeholder="Email address"
                 value={formData.email}
                 onChange={handleChange}
                 disabled={loading}
               />
+              {emailExists && (
+                <p className="mt-2 text-xs text-red-400 flex flex-col gap-1">
+                  <span>⚠️ This email is already registered.</span>
+                  <span>
+                    <Link to="/login" className="underline font-semibold text-primary-400 hover:text-primary-300">Login</Link> or use a different email.
+                  </span>
+                </p>
+              )}
             </div>
             <div>
               <label htmlFor="password" className="sr-only">Password</label>
