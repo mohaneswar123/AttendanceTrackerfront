@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import Header from './Header';
 import Footer from './Footer';
@@ -20,6 +20,18 @@ function Layout({ children }) {
     '/terms'
   ];
   const showAd = showAdOnRoutes.includes(location.pathname);
+
+  // Route-based robots control: index homepage, noindex others
+  useEffect(() => {
+    let robots = document.querySelector('meta[name="robots"]');
+    if (!robots) {
+      robots = document.createElement('meta');
+      robots.setAttribute('name', 'robots');
+      document.head.appendChild(robots);
+    }
+    const value = location.pathname === '/' ? 'index, follow' : 'noindex, nofollow';
+    robots.setAttribute('content', value);
+  }, [location.pathname]);
 
   return (
     <div className="min-h-screen bg-dark-primary flex flex-col">

@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 
 // Beautiful animated gradient welcome banner with floating particles
 function WelcomeBanner({ currentUser }) {
-  const userName = currentUser?.username || currentUser?.name;
+  const isLoggedIn = !!currentUser;
+  const displayName = currentUser?.username || currentUser?.name || 'User';
   return (
     <div className="relative overflow-hidden rounded-3xl shadow-elevated mb-6">
       {/* Modern gradient background with animation */}
@@ -23,7 +24,7 @@ function WelcomeBanner({ currentUser }) {
       
       {/* Content */}
       <div className="relative z-10 px-5 py-4 flex flex-wrap items-baseline gap-2 justify-between">
-        {userName ? (
+        {isLoggedIn ? (
           <>
             <div className="animate-fade-in flex flex-wrap items-baseline gap-2">
               <h2 className="text-lg md:text-xl font-bold">
@@ -40,7 +41,7 @@ function WelcomeBanner({ currentUser }) {
                 ))}
               </h2>
               <h3 className="text-xl md:text-2xl font-extrabold">
-                {`${userName}!`.split('').map((char, i) => (
+                {`${displayName}!`.split('').map((char, i) => (
                   <span 
                     key={i} 
                     className="inline-block animate-bounce-subtle"

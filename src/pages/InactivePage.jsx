@@ -44,7 +44,7 @@ function InactivePage() {
         </div>
 
         <div className="bg-dark-primary rounded-xl p-4 flex flex-col items-center gap-3 mb-6">
-          <img src="/image.png" alt="UPI QR" className="w-[300px] h-[300px] object-contain" />
+          <img src="/payment.png" alt="UPI QR" className="w-[300px] h-[300px] object-contain" />
         </div>
 
       </div>

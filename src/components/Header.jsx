@@ -27,6 +27,7 @@ function Header() {
   ];
 
   const isActive = (path) => location.pathname === path;
+  const isPublicRoot = location.pathname === '/';
 
   return (
     <header className="fixed top-0 inset-x-0 z-50 h-16 bg-dark-secondary shadow-elevated backdrop-blur-sm border-b border-dark-primary">
@@ -58,8 +59,16 @@ function Header() {
             ))}
           </nav>
           
-          {/* User section */}
-          {currentUser ? (
+          {/* User/Login section */}
+          {isPublicRoot ? (
+            // Always show Login on public home, even if session exists
+            <button
+              onClick={handleLogin}
+              className="px-5 py-2 rounded-xl bg-primary-500 hover:bg-primary-600 text-dark-primary font-semibold shadow-soft transition-all duration-300 transform hover:scale-105"
+            >
+              Login
+            </button>
+          ) : currentUser ? (
             <div className="flex items-center gap-3">
               <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 bg-dark-primary rounded-full">
                 <div className="w-2 h-2 bg-primary-500 rounded-full animate-pulse" />

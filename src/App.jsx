@@ -56,12 +56,8 @@ function AppContent() {
               </AdminRoute>
             } />
 
-            {/* User routes - protected by subscription */}
-            <Route path="/" element={
-              <ProtectedRoute>
-                <Layout><Dashboard /></Layout>
-              </ProtectedRoute>
-            } />
+            {/* Public root dashboard: personalized if logged-in, guest view otherwise */}
+            <Route path="/" element={<Layout><Dashboard /></Layout>} />
             <Route path="/home" element={
               <ProtectedRoute>
                 <Layout><Dashboard /></Layout>
