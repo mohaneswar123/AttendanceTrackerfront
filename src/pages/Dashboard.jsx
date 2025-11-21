@@ -115,6 +115,19 @@ function Dashboard() {
             <div>
               <p className="text-xs uppercase tracking-wide text-light-primary/50">Subscription</p>
               <p className="text-light-primary mt-1 font-medium">Paid upto: {new Date(currentUser.paidTill).toLocaleDateString()}</p>
+              <p class="text-yellow-300 bg-yellow-500/10 border-l-4 border-yellow-400 p-3 rounded-md text-sm leading-relaxed">
+                <span class="font-bold text-yellow-400 underline">Important:</span>
+                Please verify that your email
+                is valid to receive daily attendance reminders. You can check or update your email on the 
+                <span 
+                  class="font-semibold text-primary-400 underline cursor-pointer hover:text-primary-300 transition"
+                  onClick={() => navigate('/settings')}
+                >
+                  Settings page
+                </span>.
+              </p>
+
+
             </div>
           </div>
         )}
