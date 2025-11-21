@@ -531,7 +531,7 @@ function AdminDashboard() {
               <>
                 {/* 1️⃣ User Data Section */}
                 <section className="bg-dark-secondary rounded-lg shadow-md p-6">
-                  <h2 className="text-xl font-semibold mb-4 text-light-primary">User Data</h2>
+                  <h2 className="text-xl font-semibold mb-4 text-light-primary">{selectedUser.username || '—'} Data</h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <p className="text-xs text-light-primary/70">Name</p>
