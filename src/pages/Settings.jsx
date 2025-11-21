@@ -5,7 +5,7 @@ import { AttendanceContext } from '../contexts/AttendanceContext';
 
 
 function Settings() {
-  const { currentUser, subjects, addSubject, removeSubject, resetAllData } = useContext(AttendanceContext);
+  const { currentUser, subjects, addSubject, removeSubject, resetAllData, updateEmail, changePassword } = useContext(AttendanceContext);
   const [newSubject, setNewSubject] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [isResetting, setIsResetting] = useState(false);
@@ -104,6 +104,84 @@ function Settings() {
 
   const cancelReset = () => {
     setIsResetting(false);
+  };
+
+  // Account update states
+  const [newEmail, setNewEmail] = useState('');
+  const [emailLoading, setEmailLoading] = useState(false);
+  const [emailMessage, setEmailMessage] = useState({ text: '', type: '' });
+
+  const [oldPassword, setOldPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPasswordField, setConfirmPasswordField] = useState('');
+  const [passwordLoading, setPasswordLoading] = useState(false);
+  const [passwordMessage, setPasswordMessage] = useState({ text: '', type: '' });
+  // Password visibility toggles
+  const [showOldPassword, setShowOldPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const handleEmailUpdate = async () => {
+    if (!currentUser) {
+      setEmailMessage({ text: 'Please login to update email.', type: 'error' });
+      setTimeout(() => setEmailMessage({ text: '', type: '' }), 3000);
+      return;
+    }
+    if (!newEmail || !newEmail.includes('@')) {
+      setEmailMessage({ text: 'Please enter a valid email address.', type: 'error' });
+      setTimeout(() => setEmailMessage({ text: '', type: '' }), 3000);
+      return;
+    }
+    setEmailLoading(true);
+    try {
+      const res = await updateEmail(currentUser._id, newEmail.trim());
+      if (res.success) {
+        setEmailMessage({ text: 'Email updated successfully.', type: 'success' });
+        setNewEmail('');
+      } else {
+        setEmailMessage({ text: res.message || 'Failed to update email.', type: 'error' });
+      }
+    } catch (err) {
+      setEmailMessage({ text: 'Failed to update email. Try again.', type: 'error' });
+    } finally {
+      setEmailLoading(false);
+      setTimeout(() => setEmailMessage({ text: '', type: '' }), 3500);
+    }
+  };
+
+  const handleChangePassword = async () => {
+    if (!currentUser) {
+      setPasswordMessage({ text: 'Please login to change password.', type: 'error' });
+      setTimeout(() => setPasswordMessage({ text: '', type: '' }), 3000);
+      return;
+    }
+    if (!oldPassword || !newPassword) {
+      setPasswordMessage({ text: 'Please fill all password fields.', type: 'error' });
+      setTimeout(() => setPasswordMessage({ text: '', type: '' }), 3000);
+      return;
+    }
+    if (newPassword !== confirmPasswordField) {
+      setPasswordMessage({ text: 'New passwords do not match.', type: 'error' });
+      setTimeout(() => setPasswordMessage({ text: '', type: '' }), 3000);
+      return;
+    }
+    setPasswordLoading(true);
+    try {
+      const res = await changePassword(currentUser.email, oldPassword, newPassword);
+      if (res.success) {
+        setPasswordMessage({ text: res.message || 'Password updated successfully.', type: 'success' });
+        setOldPassword('');
+        setNewPassword('');
+        setConfirmPasswordField('');
+      } else {
+        setPasswordMessage({ text: res.message || 'Failed to change password.', type: 'error' });
+      }
+    } catch (err) {
+      setPasswordMessage({ text: 'Failed to change password. Try again.', type: 'error' });
+    } finally {
+      setPasswordLoading(false);
+      setTimeout(() => setPasswordMessage({ text: '', type: '' }), 4000);
+    }
   };
 
   return (
@@ -244,8 +322,121 @@ function Settings() {
           )}
         </div>
         
+        
+
+        {/* Account: Update Email & Password */}
+        <div className="bg-dark-secondary bg-opacity-80 backdrop-blur-md rounded-xl shadow-xl p-5 md:p-6 border border-dark-primary relative z-10 mt-6">
+          <h2 className="text-lg md:text-xl font-semibold mb-4 text-light-primary">Account</h2>
+
+          {/* Update Email */}
+          <div className="mb-6">
+            <h3 className="text-sm font-medium text-light-primary/90 mb-2">Update Email</h3>
+            <div className="flex gap-2 flex-col md:flex-row">
+              <input
+                type="email"
+                value={newEmail}
+                onChange={(e) => setNewEmail(e.target.value)}
+                placeholder={currentUser?.email || 'New email address'}
+                className="flex-grow min-w-0 w-full border border-dark-primary rounded-lg px-4 py-2.5 bg-dark-primary text-light-primary"
+                disabled={!currentUser || emailLoading}
+              />
+              <button
+                onClick={handleEmailUpdate}
+                disabled={!currentUser || emailLoading}
+                className={`h-10 px-4 py-2 rounded-lg font-medium transition-all duration-200 shadow-md ${currentUser ? 'bg-primary-500 hover:bg-primary-600 text-dark-primary' : 'bg-dark-primary text-light-primary/50 cursor-not-allowed'}`}
+              >
+                {emailLoading ? 'Updating…' : 'Update Email'}
+              </button>
+            </div>
+            {emailMessage.text && (
+              <div className={`mt-3 text-sm ${emailMessage.type === 'success' ? 'text-green-400' : 'text-red-400'}`}>{emailMessage.text}</div>
+            )}
+          </div>
+
+          {/* Change Password */}
+          <div>
+            <h3 className="text-sm font-medium text-light-primary/90 mb-2">Change Password</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div className="col-span-1 min-w-0 flex items-center gap-3">
+                <input
+                  type={showOldPassword ? 'text' : 'password'}
+                  value={oldPassword}
+                  onChange={(e) => setOldPassword(e.target.value)}
+                  placeholder="Current password"
+                  className="flex-1 min-w-0 w-full border border-dark-primary rounded-lg px-4 py-2.5 bg-dark-primary text-light-primary"
+                  disabled={!currentUser || passwordLoading}
+                  aria-label="Current password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowOldPassword(s => !s)}
+                  className="h-10 min-w-[56px] flex items-center justify-center text-sm px-2 rounded bg-primary-500/10 text-primary-300 hover:bg-primary-500/20 border border-primary-500/10"
+                  aria-pressed={showOldPassword}
+                  aria-label={showOldPassword ? 'Hide current password' : 'Show current password'}
+                >
+                  {showOldPassword ? 'Hide' : 'Show'}
+                </button>
+              </div>
+
+              <div className="col-span-1 min-w-0 flex items-center gap-3">
+                <input
+                  type={showNewPassword ? 'text' : 'password'}
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="New password"
+                  className="flex-1 min-w-0 w-full border border-dark-primary rounded-lg px-4 py-2.5 bg-dark-primary text-light-primary"
+                  disabled={!currentUser || passwordLoading}
+                  aria-label="New password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowNewPassword(s => !s)}
+                  className="h-10 min-w-[56px] flex items-center justify-center text-sm px-2 rounded bg-primary-500/10 text-primary-300 hover:bg-primary-500/20 border border-primary-500/10"
+                  aria-pressed={showNewPassword}
+                  aria-label={showNewPassword ? 'Hide new password' : 'Show new password'}
+                >
+                  {showNewPassword ? 'Hide' : 'Show'}
+                </button>
+              </div>
+
+              <div className="col-span-1 min-w-0 flex items-center gap-3">
+                <input
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  value={confirmPasswordField}
+                  onChange={(e) => setConfirmPasswordField(e.target.value)}
+                  placeholder="Confirm new password"
+                  className="flex-1 min-w-0 w-full border border-dark-primary rounded-lg px-4 py-2.5 bg-dark-primary text-light-primary"
+                  disabled={!currentUser || passwordLoading}
+                  aria-label="Confirm new password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(s => !s)}
+                  className="h-10 min-w-[56px] flex items-center justify-center text-sm px-2 rounded bg-primary-500/10 text-primary-300 hover:bg-primary-500/20 border border-primary-500/10"
+                  aria-pressed={showConfirmPassword}
+                  aria-label={showConfirmPassword ? 'Hide confirm password' : 'Show confirm password'}
+                >
+                  {showConfirmPassword ? 'Hide' : 'Show'}
+                </button>
+              </div>
+            </div>
+            <div className="mt-3">
+              <button
+                onClick={handleChangePassword}
+                disabled={!currentUser || passwordLoading}
+                className={`px-4 py-2.5 rounded-lg font-medium transition-all duration-200 shadow-md ${currentUser ? 'bg-primary-500 hover:bg-primary-600 text-dark-primary' : 'bg-dark-primary text-light-primary/50 cursor-not-allowed'}`}
+              >
+                {passwordLoading ? 'Saving…' : 'Change Password'}
+              </button>
+            </div>
+            {passwordMessage.text && (
+              <div className={`mt-3 text-sm ${passwordMessage.type === 'success' ? 'text-green-400' : 'text-red-400'}`}>{passwordMessage.text}</div>
+            )}
+          </div>
+        </div>
+
         {/* Reset Attendance Section */}
-        <div className="bg-dark-secondary bg-opacity-80 backdrop-blur-md rounded-xl shadow-xl p-5 md:p-6 border border-dark-primary relative z-10">
+        <div className="bg-dark-secondary bg-opacity-80 backdrop-blur-md rounded-xl shadow-xl p-5 md:p-6 border border-dark-primary relative z-10 mt-6">
           <h2 className="text-lg md:text-xl font-semibold mb-4 text-light-primary">Reset Data</h2>
           <p className="text-light-primary/80 mb-4">
             Warning: This will delete all attendance records. This action cannot be undone.
@@ -303,6 +494,9 @@ function Settings() {
             </button>
           )}
         </div>
+
+
+
       </div>
     </div>
   );

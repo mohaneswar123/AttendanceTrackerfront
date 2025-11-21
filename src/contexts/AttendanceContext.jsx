@@ -118,6 +118,38 @@ export const AttendanceProvider = ({ children }) => {
     }
   };
 
+  // Update email for the user
+  const updateEmail = async (userId, newEmail) => {
+    setLoading(true);
+    try {
+      const updated = await authService.updateEmail(userId, newEmail);
+      const normalized = { ...currentUser, email: updated.email || newEmail };
+      setCurrentUser(normalized);
+      localStorage.setItem('currentUser', JSON.stringify(normalized));
+      return { success: true, user: normalized };
+    } catch (err) {
+      console.error('Error updating email:', err);
+      return { success: false, message: err.response?.data || err.message || 'Failed to update email' };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Change password for the user
+  const changePassword = async (email, oldPassword, newPassword) => {
+    setLoading(true);
+    try {
+      const result = await authService.changePassword(email, oldPassword, newPassword);
+      // backend returns a message string on success; forward it
+      return { success: true, message: result };
+    } catch (err) {
+      console.error('Error changing password:', err);
+      return { success: false, message: err.response?.data || err.message || 'Failed to change password' };
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const logout = () => {
     setCurrentUser(null);
     localStorage.removeItem('currentUser');
@@ -293,6 +325,8 @@ export const AttendanceProvider = ({ children }) => {
     register,
     login,
     adminLogin, // Add this
+    updateEmail,
+    changePassword,
     logout,
     addAttendanceRecord,
     updateAttendanceRecord,

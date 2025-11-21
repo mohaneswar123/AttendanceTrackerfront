@@ -29,6 +29,17 @@ export const authService = {
   }
 };
 
+// Add update email and change password endpoints to authService
+authService.updateEmail = async (userId, newEmail) => {
+  const response = await apiClient.put(`/users/${userId}/email`, { email: newEmail });
+  return response.data;
+};
+
+authService.changePassword = async (email, oldPassword, newPassword) => {
+  const response = await apiClient.post('/users/change-password', { email, oldPassword, newPassword });
+  return response.data;
+};
+
 // Admin Services
 export const adminService = {
   login: async (email, password) => {
