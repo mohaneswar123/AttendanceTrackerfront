@@ -76,6 +76,9 @@ function Register() {
           <h2 className="mt-6 text-center text-3xl font-extrabold text-light-primary">
             Create a new account
           </h2>
+          <p className="mt-2 text-center text-light-primary/60 text-sm">
+            Give your working email for daily reminders and further help if needed
+          </p>
         </div>
         
         {error && (
