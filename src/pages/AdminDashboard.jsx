@@ -579,7 +579,7 @@ function AdminDashboard() {
                         <label className="block text-xs text-light-primary/70 mb-1">Activate for (days)</label>
                         <input
                           type="number"
-                          min={1}
+                          min={0}
                           className="input w-full"
                           value={daysToActivate}
                           onChange={(e) => setDaysToActivate(Number(e.target.value))}
