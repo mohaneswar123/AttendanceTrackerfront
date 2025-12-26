@@ -1,100 +1,98 @@
+/* Import Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Import modern, legible font */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-
 @layer base {
-	html {
-		-webkit-tap-highlight-color: transparent;
-	}
-	body {
-		@apply font-sans text-light-primary bg-dark-primary min-h-screen antialiased;
-	}
-	h1 { @apply text-2xl md:text-3xl font-bold text-light-primary; }
-	h2 { @apply text-xl md:text-2xl font-semibold text-light-primary; }
-	h3 { @apply text-lg md:text-xl font-semibold text-light-primary; }
-	p { @apply leading-relaxed; }
-	input[type="date"]::-webkit-calendar-picker-indicator {
-		filter: invert(1);
-		opacity: 0.9;
-	}
-	/* Removed unsupported underline-offset-2; using hover:underline for compatibility */
-	a { @apply text-primary-500 hover:text-primary-400 hover:underline; }
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply font-sans text-slate-100 bg-background min-h-screen antialiased selection:bg-primary-500/30 overflow-x-hidden;
+    background-image:
+      radial-gradient(circle at 15% 50%, rgba(139, 92, 246, 0.15), transparent 25%),
+      radial-gradient(circle at 85% 30%, rgba(6, 182, 212, 0.15), transparent 25%);
+    background-attachment: fixed;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-display tracking-tight text-white;
+  }
 }
 
 @layer components {
-	.card {
-		@apply bg-dark-secondary rounded-xl shadow-soft border border-dark-primary;
-	}
-	.card-body { @apply p-4 md:p-6; }
 
-	.btn { @apply inline-flex items-center justify-center px-4 py-2 rounded-lg font-medium transition-colors duration-200; }
-	.btn-primary { @apply bg-primary-500 text-dark-primary hover:bg-primary-600 shadow-md; }
-	.btn-outline { @apply border border-primary-500 text-primary-500 hover:bg-primary-500 hover:text-dark-primary; }
-	.btn-danger { @apply bg-red-600 text-light-primary hover:bg-red-700; }
-	.btn-muted { @apply bg-dark-secondary text-light-primary hover:bg-dark-primary; }
+  /* Glassmorphism Utilities */
+  .glass-panel {
+    @apply bg-background-paper/60 backdrop-blur-md border border-white/10 shadow-glass;
+  }
 
-	.input { @apply w-full px-3 py-2 rounded-lg border border-dark-secondary focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-dark-primary text-light-primary; }
-	.select { @apply input; }
-	.label { @apply block text-sm font-medium text-light-primary mb-1; }
+  .glass-card {
+    @apply bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-md border border-white/10 rounded-2xl shadow-glass transition-all duration-300 hover:border-white/20 hover:shadow-neon-primary;
+  }
 
-	.badge { @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold; }
-	.badge-success { @apply bg-green-600 text-light-primary; }
-	.badge-danger { @apply bg-red-600 text-light-primary; }
-	.badge-neutral { @apply bg-dark-secondary text-light-primary; }
+  /* Buttons */
+  .btn {
+    @apply inline-flex items-center justify-center px-6 py-2.5 rounded-lg font-medium transition-all duration-300 transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-primary {
+    @apply bg-gradient-to-r from-primary-600 to-primary-500 text-white shadow-lg hover:shadow-xl hover:-translate-y-0.5 border border-transparent;
+  }
+
+  .btn-secondary {
+    @apply bg-background-surface text-primary-300 hover:text-white hover:bg-background-surface/80 border border-white/10 backdrop-blur-sm transition-colors;
+  }
+
+  .btn-outline {
+    @apply bg-transparent border border-primary-500/50 text-primary-400 hover:bg-primary-500/10 hover:border-primary-500 hover:text-primary-300;
+  }
+
+  /* Inputs */
+  .input {
+    @apply w-full bg-background-surface/50 border border-white/10 rounded-xl px-4 py-3 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-primary-500/50 focus:ring-2 focus:ring-primary-500/20 transition-all duration-200 backdrop-blur-sm;
+  }
+
+  .label {
+    @apply block text-sm font-medium text-slate-400 mb-1.5 ml-1;
+  }
+
+  /* Badges */
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border;
+  }
+
+  .badge-success {
+    @apply bg-emerald-500/10 text-emerald-400 border-emerald-500/20;
+  }
+
+  .badge-warning {
+    @apply bg-amber-500/10 text-amber-400 border-amber-500/20;
+  }
+
+  .badge-danger {
+    @apply bg-red-500/10 text-red-400 border-red-500/20;
+  }
+
+  .badge-info {
+    @apply bg-cyan-500/10 text-cyan-400 border-cyan-500/20;
+  }
 }
 
 @layer utilities {
-	.glass {
-		/* Fallback without backdrop utilities (ensure Tailwind v2 compatibility) */
-		@apply bg-dark-secondary bg-opacity-70;
-	}
-}
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary-400 to-secondary-400;
+  }
 
-/* Print-optimized styles */
-@media print {
-	@page {
-		size: A4;
-		margin: 12mm;
-	}
-
-	html, body {
-		background: #ffffff !important;
-		color: #000000 !important;
-		-webkit-print-color-adjust: exact;
-		print-color-adjust: exact;
-		font-size: 12px;
-	}
-
-	/* Hide app chrome and any explicit no-print elements */
-	header, footer, .no-print, .print-hidden { display: none !important; }
-
-	/* Remove fixed/sticky positioning to avoid overlap in print */
-	.fixed, .sticky { position: static !important; }
-
-	/* Make content span page width */
-	.max-w-6xl, .container, .prose, .w-full { max-width: 100% !important; }
-
-	/* Flatten dark theme for clarity on paper */
-	.bg-dark-primary, .bg-dark-secondary, .bg-gradient-to-r, .backdrop-blur-md, .backdrop-blur-sm {
-		background: #ffffff !important;
-	}
-	.text-light-primary, .text-white { color: #000000 !important; }
-
-	/* Tone down decorations for crisp print */
-	.shadow, .shadow-md, .shadow-lg, .shadow-xl, .shadow-2xl, .shadow-soft, .shadow-elevated, [class*="shadow-"] {
-		box-shadow: none !important;
-	}
-	.border-dark-primary { border-color: #dcdcdc !important; }
-
-	/* Avoid awkward page breaks */
-	.card, table, tr, td, th, .rounded-xl, .rounded-lg, .rounded-md, .page-break-avoid {
-		break-inside: avoid !important;
-		page-break-inside: avoid !important;
-	}
-
-	/* Slight overall scale to fit one page when possible */
-	#report-root { zoom: 0.9; }
+  .text-shadow {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  }
 }

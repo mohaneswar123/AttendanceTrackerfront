@@ -1,25 +1,12 @@
 import React, { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import Header from './Header';
+import Sidebar from './Sidebar';
+import MobileBottomNav from './MobileBottomNav';
 import Footer from './Footer';
-import AdBanner from './AdBanner'; // Ensure correct path
 
 function Layout({ children }) {
   const location = useLocation();
-
-  // List of routes where you want to show ads
-  const showAdOnRoutes = [
-    '/', 
-    '/dashboard', 
-    '/history',
-    '/reports',
-    '/settings',
-    '/privacy-policy',
-    '/about-us',
-    '/contact-us',
-    '/terms'
-  ];
-  const showAd = showAdOnRoutes.includes(location.pathname);
 
   // Route-based robots control: index homepage, noindex others
   useEffect(() => {
@@ -34,30 +21,39 @@ function Layout({ children }) {
   }, [location.pathname]);
 
   return (
-    <div className="min-h-screen bg-dark-primary flex flex-col">
-      {/* Header now fixed internally with consistent height */}
-      <Header />
-      <div className="h-16" />
+    <div className="min-h-screen bg-background text-slate-100 font-sans selection:bg-primary-500/30">
+      <div className="flex h-screen overflow-hidden">
+        {/* Sidebar for Desktop */}
+        <Sidebar />
 
-  
+        {/* content area */}
+        <div className="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden md:ml-64 transition-all duration-300">
 
-      {/* Main Content */}
-      <main className="flex-grow px-2 md:px-4">
-        {children}
-      </main>
-
-      {/* Conditionally show Ad Banner */}
-      {/* {showAd && (
-        <div className="w-full bg-transparent px-4 py-2 border-b border-gray-200 shadow">
-          <div className="max-w-6xl mx-auto">
-            <AdBanner />
-            <p className="text-black-990 text-sm">for ads</p>
+          {/* Header for Mobile only (Top Bar) */}
+          <div className="md:hidden">
+            <Header />
           </div>
+
+          <main className="w-full flex-grow p-4 md:p-8 pt-20 md:pt-8 bg-transparent pb-24 md:pb-8">
+            {/* Background Gradients for Main Content Area */}
+            <div className="fixed inset-0 z-[-1] pointer-events-none">
+              <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] rounded-full bg-primary-500/10 blur-[120px]" />
+              <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-secondary-500/10 blur-[120px]" />
+            </div>
+
+            <div className="max-w-7xl mx-auto">
+              {children}
+            </div>
+          </main>
+
+          <div className="hidden md:block">
+            <Footer />
+          </div>
+
+          {/* Mobile Bottom Nav */}
+          <MobileBottomNav />
         </div>
-      )} */}
-      
-      {/* Footer */}
-      <Footer />
+      </div>
     </div>
   );
 }

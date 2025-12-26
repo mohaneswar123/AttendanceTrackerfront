@@ -3,8 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { AttendanceContext } from '../contexts/AttendanceContext';
 import { isUserActive } from '../utils/auth';
 
-
-
 function Register() {
   const [formData, setFormData] = useState({
     name: '',
@@ -17,7 +15,6 @@ function Register() {
   const navigate = useNavigate();
   const { currentUser, register, loading } = useContext(AttendanceContext);
 
-  // Redirect only if already logged in AND active; otherwise keep Register accessible
   useEffect(() => {
     if (currentUser && isUserActive()) navigate('/');
   }, [currentUser, navigate]);
@@ -29,7 +26,6 @@ function Register() {
       [name]: value
     }));
     if (name === 'email') {
-      // Clear duplicate warning when user edits email
       setEmailExists(false);
     }
   };
@@ -37,22 +33,21 @@ function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    
-    // Basic validation
+
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
       return;
     }
-    
+
     try {
       const userData = {
         username: formData.name,
         email: formData.email,
         password: formData.password
       };
-      
+
       const result = await register(userData);
-      
+
       if (result.success) {
         navigate('/login');
       } else {
@@ -69,89 +64,90 @@ function Register() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-dark-primary py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        
+    <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      {/* Background decorations */}
+      <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-primary-500/20 rounded-full blur-[100px] -z-10 animate-pulse-glow" />
+      <div className="absolute bottom-1/4 left-1/4 w-96 h-96 bg-secondary-500/20 rounded-full blur-[100px] -z-10 animate-float" />
+
+      <div className="max-w-md w-full space-y-8 glass-card p-8 md:p-10 relative z-10">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-light-primary">
-            Create a new account
+          <h2 className="mt-2 text-center text-3xl font-display font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-secondary-400 drop-shadow-sm">
+            Create Account
           </h2>
-          <p className="mt-2 text-center text-light-primary/60 text-sm">
-            Give your working email for daily reminders and further help if needed
+          <p className="mt-2 text-center text-sm text-slate-400">
+            Join now to track your attendance seamlessly
           </p>
         </div>
-        
+
         {error && (
-          <div className="bg-dark-secondary border border-red-500 text-red-400 px-4 py-3 rounded relative" role="alert">
-            <span className="block sm:inline">{error}</span>
+          <div className="bg-rose-500/10 border border-rose-500/30 text-rose-300 px-4 py-3 rounded-lg text-sm flex items-start gap-2 animate-fade-in" role="alert">
+            <span className="text-lg">⚠️</span>
+            <span className="block sm:inline mt-0.5">{error}</span>
           </div>
         )}
-        
+
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="rounded-md shadow-sm -space-y-px">
+          <div className="space-y-4">
             <div>
-              <label htmlFor="name" className="sr-only">Full Name</label>
+              <label htmlFor="name" className="label">Full Name</label>
               <input
                 id="name"
                 name="name"
                 type="text"
                 autoComplete="name"
                 required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-dark-secondary placeholder-light-primary/50 text-light-primary bg-dark-secondary rounded-t-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
-                placeholder="Full name"
+                className="input"
+                placeholder="Enter your full name"
                 value={formData.name}
                 onChange={handleChange}
                 disabled={loading}
               />
             </div>
             <div>
-              <label htmlFor="email-address" className="sr-only">Email address</label>
+              <label htmlFor="email-address" className="label">Email address</label>
               <input
                 id="email-address"
                 name="email"
                 type="email"
                 autoComplete="email"
                 required
-                className={`appearance-none rounded-none relative block w-full px-3 py-2 border placeholder-light-primary/50 text-light-primary bg-dark-secondary focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm ${emailExists ? 'border-red-500' : 'border-dark-secondary'}`}
-                placeholder="Email address"
+                className={`input ${emailExists ? 'border-rose-500 focus:border-rose-500 focus:ring-rose-500/20' : ''}`}
+                placeholder="Enter your email"
                 value={formData.email}
                 onChange={handleChange}
                 disabled={loading}
               />
               {emailExists && (
-                <p className="mt-2 text-xs text-red-400 flex flex-col gap-1">
-                  <span>⚠️ This email is already registered.</span>
-                  <span>
-                    <Link to="/login" className="underline font-semibold text-primary-400 hover:text-primary-300">Login</Link> or use a different email.
-                  </span>
+                <p className="mt-2 text-xs text-rose-400 flex flex-col gap-1 pl-1">
+                  <span>This email is already registered. <Link to="/login" className="underline font-semibold hover:text-rose-300">Login here</Link></span>
                 </p>
               )}
             </div>
             <div>
-              <label htmlFor="password" className="sr-only">Password</label>
+              <label htmlFor="password" className="label">Password</label>
               <input
                 id="password"
                 name="password"
                 type="password"
                 autoComplete="new-password"
                 required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-dark-secondary placeholder-light-primary/50 text-light-primary bg-dark-secondary focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
-                placeholder="Password"
+                className="input"
+                placeholder="Create a password"
                 value={formData.password}
                 onChange={handleChange}
                 disabled={loading}
               />
             </div>
             <div>
-              <label htmlFor="confirmPassword" className="sr-only">Confirm Password</label>
+              <label htmlFor="confirmPassword" className="label">Confirm Password</label>
               <input
                 id="confirmPassword"
                 name="confirmPassword"
                 type="password"
                 autoComplete="new-password"
                 required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-dark-secondary placeholder-light-primary/50 text-light-primary bg-dark-secondary rounded-b-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
-                placeholder="Confirm password"
+                className="input"
+                placeholder="Confirm your password"
                 value={formData.confirmPassword}
                 onChange={handleChange}
                 disabled={loading}
@@ -162,16 +158,19 @@ function Register() {
           <div>
             <button
               type="submit"
-              className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md ${loading ? 'bg-primary-400 cursor-not-allowed text-dark-primary/50' : 'bg-primary-500 hover:bg-primary-600 text-dark-primary'} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500`}
+              className={`w-full flex justify-center py-3 px-4 rounded-xl text-sm font-semibold text-white shadow-lg transition-all duration-300 ${loading
+                  ? 'bg-slate-700 cursor-not-allowed opacity-70'
+                  : 'bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-500 hover:to-primary-400 hover:shadow-neon-primary hover:-translate-y-0.5'
+                }`}
               disabled={loading}
             >
-              {loading ? 'Creating account...' : 'Register'}
+              {loading ? 'Creating account...' : 'Reigster'}
             </button>
           </div>
-          
-          <div className="text-sm text-center">
-            <Link to="/login" className="font-medium text-primary-500 hover:text-primary-400">
-              Already have an account? Sign in
+
+          <div className="text-sm text-center mt-6">
+            <Link to="/login" className="font-medium text-slate-400 hover:text-white transition-colors">
+              Already have an account? <span className="text-primary-400 hover:text-primary-300">Sign in</span>
             </Link>
           </div>
         </form>

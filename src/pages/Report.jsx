@@ -2,63 +2,38 @@ import React, { useContext, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { AttendanceContext } from '../contexts/AttendanceContext';
 
-
-
 function Report() {
   const { currentUser, subjects, attendanceRecords } = useContext(AttendanceContext);
 
-  // Derive subjects from attendance records if subjects list is empty or missing
+  // Derive subjects from records if empty
   const derivedSubjects = useMemo(() => {
     if (subjects && subjects.length > 0) return subjects;
     const unique = new Map();
     attendanceRecords.forEach(record => {
-      const subjObj = record.subject; // may be object or string
+      const subjObj = record.subject;
       if (typeof subjObj === 'object' && subjObj !== null) {
-        if (!unique.has(subjObj.name)) {
-          unique.set(subjObj.name, { _id: subjObj._id || subjObj.id || subjObj.name, name: subjObj.name });
-        }
+        if (!unique.has(subjObj.name)) unique.set(subjObj.name, { _id: subjObj._id || subjObj.id || subjObj.name, name: subjObj.name });
       } else if (typeof subjObj === 'string' && subjObj.trim() !== '') {
-        if (!unique.has(subjObj)) {
-          unique.set(subjObj, { _id: subjObj, name: subjObj });
-        }
+        if (!unique.has(subjObj)) unique.set(subjObj, { _id: subjObj, name: subjObj });
       }
     });
     return Array.from(unique.values());
   }, [subjects, attendanceRecords]);
 
-  // Calculate attendance statistics for each subject
+  // Calculate stats
   const statistics = useMemo(() => {
     const stats = {};
-    // Initialize from either actual subjects or derived subjects
     derivedSubjects.forEach(subject => {
-      stats[subject.name] = {
-        present: 0,
-        absent: 0,
-        noClass: 0,
-        totalHours: 0,
-        totalAttendedHours: 0,
-        missedHours: 0,
-        percentage: 0
-      };
+      stats[subject.name] = { present: 0, absent: 0, noClass: 0, totalHours: 0, totalAttendedHours: 0, missedHours: 0, percentage: 0 };
     });
 
     attendanceRecords.forEach(record => {
-      // Determine subject name via linked subject object or subjectId mapping
       const subjectName = record.subject?.name || record.subject || (subjects.find(s => s._id === record.subjectId)?.name);
       if (!subjectName) return;
+
       const hours = Number(record.classNumber) || 1;
-      if (!stats[subjectName]) {
-        // Handle case where a record exists for a subject not initialized yet
-        stats[subjectName] = {
-          present: 0,
-          absent: 0,
-          noClass: 0,
-          totalHours: 0,
-          totalAttendedHours: 0,
-          missedHours: 0,
-          percentage: 0
-        };
-      }
+      if (!stats[subjectName]) stats[subjectName] = { present: 0, absent: 0, noClass: 0, totalHours: 0, totalAttendedHours: 0, missedHours: 0, percentage: 0 };
+
       if (record.status === 'Present') {
         stats[subjectName].present += 1;
         stats[subjectName].totalAttendedHours += hours;
@@ -68,275 +43,127 @@ function Report() {
       } else if (record.status === 'No Class') {
         stats[subjectName].noClass += 1;
       }
+
       if (record.status !== 'No Class') {
         stats[subjectName].totalHours += hours;
       }
     });
 
-    Object.keys(stats).forEach(subjectName => {
-      const { totalAttendedHours, totalHours } = stats[subjectName];
-      stats[subjectName].percentage = totalHours > 0 ? Math.round((totalAttendedHours / totalHours) * 100) : 0;
+    Object.keys(stats).forEach(name => {
+      const s = stats[name];
+      s.percentage = s.totalHours > 0 ? Math.round((s.totalAttendedHours / s.totalHours) * 100) : 0;
     });
     return stats;
   }, [derivedSubjects, attendanceRecords]);
 
-  // Calculate overall statistics
+  // Overall stats
   const overallStats = useMemo(() => {
-    let totalAttendedHours = 0;
-    let totalHours = 0;
-    let totalMissedHours = 0; // NEW: Track total missed hours
-    let totalClassesAttended = 0;
-    let totalClassesHeld = 0;
-    
+    let totalAttended = 0, totalHours = 0, totalMissed = 0;
     Object.values(statistics).forEach(stat => {
-      totalAttendedHours += stat.totalAttendedHours;
-      totalMissedHours += stat.missedHours; // NEW: Add missed hours
+      totalAttended += stat.totalAttendedHours;
+      totalMissed += stat.missedHours;
       totalHours += stat.totalHours;
-      totalClassesAttended += stat.present;
-      totalClassesHeld += (stat.present + stat.absent);
     });
-    
-    const averagePercentage = totalHours > 0 
-      ? Math.round((totalAttendedHours / totalHours) * 100) 
-      : 0;
-      
-    return {
-      totalAttendedHours,
-      totalMissedHours,
-      totalHours,
-      totalClassesAttended,
-      totalClassesHeld,
-      averagePercentage
-    };
+    const avg = totalHours > 0 ? Math.round((totalAttended / totalHours) * 100) : 0;
+    return { totalAttended, totalMissed, totalHours, avg };
   }, [statistics]);
 
+  const getStatusColor = (pct) => {
+    if (pct >= 75) return 'text-emerald-400';
+    if (pct >= 60) return 'text-amber-400';
+    return 'text-rose-400';
+  };
+
+  const getStatusBg = (pct) => {
+    if (pct >= 75) return 'bg-emerald-500';
+    if (pct >= 60) return 'bg-amber-500';
+    return 'bg-rose-500';
+  };
+
   return (
-    <div id="report-root" className="max-w-6xl mx-auto px-4 py-6 bg-dark-primary min-h-screen">
-      {/* Header with Gradient Background */}
-      <div className="relative mb-8 bg-gradient-to-r from-dark-secondary to-primary-500 rounded-xl p-6 text-light-primary shadow-lg overflow-hidden">
-       
-        <div className="relative z-10">
-          <h1 className="text-2xl md:text-3xl font-bold mb-2">Attendance Report</h1>
-          <p className="text-light-primary/80 text-sm md:text-base">
-            Your attendance summary and detailed statistics
-          </p>
-          {!currentUser && (
-            <p className="text-yellow-400 text-xs mt-2 font-medium">
-              ⚠️ You are in guest mode. <Link to="/login" className="underline hover:text-primary-400">Login</Link> to see your personal report.
-            </p>
-          )}
+    <div className="space-y-8 pb-20 md:pb-0">
+      {/* Header */}
+      <div className="flex justify-between items-end">
+        <div>
+          <h1 className="text-3xl font-display font-bold text-white tracking-tight">Analytics</h1>
+          <p className="text-slate-400">Detailed performance report.</p>
         </div>
-        <div className="absolute right-0 top-0 h-full w-64 opacity-20">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" className="h-full w-full" strokeWidth="0.5">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-          </svg>
-        </div>
+        <button onClick={() => window.print()} className="hidden md:flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-300 transition-colors">
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
+          Print
+        </button>
       </div>
-      
+
       {derivedSubjects.length === 0 ? (
-        <div className="bg-dark-secondary border-l-4 border-yellow-500 p-4 mb-6 rounded-r-lg shadow-sm">
-          <div className="flex">
-            <svg className="h-5 w-5 mr-3 text-yellow-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-            </svg>
-            <div>
-              <p className="text-yellow-400">No subjects or attendance records found.</p>
-              <p className="text-light-primary/80 text-sm mt-1">
-                {currentUser ? (
-                  <>Add subjects and start recording attendance in <Link to="/settings" className="underline font-semibold">Settings</Link>.</>
-                ) : (
-                  <>Please <Link to="/login" className="underline font-semibold">login</Link> to begin tracking attendance.</>
-                )}
-              </p>
-            </div>
-          </div>
+        <div className="p-8 rounded-3xl bg-slate-800/30 border border-white/5 text-center">
+          <h3 className="text-xl text-white font-bold mb-2">No Data Available</h3>
+          <p className="text-slate-400">Add subjects or start recording attendance to see reports.</p>
         </div>
       ) : (
         <>
-          {/* Summary Cards - More Attractive for Mobile */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 mb-8">
-            <div className="bg-dark-secondary rounded-xl shadow-md p-4 md:p-6 border border-dark-primary transform transition hover:shadow-lg">
-              <div className="flex items-center">
-                <div className="p-2 rounded-full bg-primary-500/20 text-primary-500 mr-3">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 005.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0014.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z" />
+          {/* Main Stats Row */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Circular Progress Card */}
+            <div className="glass-panel p-8 rounded-3xl flex flex-col items-center justify-center relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-primary-500/10 to-transparent pointer-events-none" />
+              <div className="relative z-10 text-center">
+                <div className="w-48 h-48 relative flex items-center justify-center mb-4">
+                  <svg className="w-full h-full transform -rotate-90">
+                    <circle cx="96" cy="96" r="88" stroke="currentColor" strokeWidth="12" fill="transparent" className="text-slate-800" />
+                    <circle cx="96" cy="96" r="88" stroke="currentColor" strokeWidth="12" fill="transparent"
+                      strokeDasharray={2 * Math.PI * 88}
+                      strokeDashoffset={2 * Math.PI * 88 * (1 - overallStats.avg / 100)}
+                      className={`${getStatusColor(overallStats.avg)} transition-all duration-1000 ease-out`}
+                      style={{ strokeLinecap: 'round' }}
+                    />
                   </svg>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <span className={`text-5xl font-bold ${getStatusColor(overallStats.avg)}`}>{overallStats.avg}%</span>
+                    <span className="text-slate-400 text-sm font-medium uppercase tracking-wider mt-1">Overall</span>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-xs text-light-primary/70 uppercase font-semibold">Subjects</p>
-                  <p className="text-xl md:text-2xl font-bold text-primary-500">{derivedSubjects.length}</p>
+                <div className="flex gap-8 justify-center">
+                  <div>
+                    <div className="text-2xl font-bold text-white">{overallStats.totalAttended}</div>
+                    <div className="text-xs text-slate-500 uppercase font-bold">Hours Present</div>
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-slate-400">{overallStats.totalHours}</div>
+                    <div className="text-xs text-slate-600 uppercase font-bold">Total Hours</div>
+                  </div>
                 </div>
               </div>
             </div>
-            
-            <div className="bg-dark-secondary rounded-xl shadow-md p-4 md:p-6 border border-dark-primary transform transition hover:shadow-lg">
-              <div className="flex items-center">
-                <div className="p-2 rounded-full bg-primary-500/20 text-primary-500 mr-3">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <div>
-                  <p className="text-xs text-light-primary/70 uppercase font-semibold">Hours Attended</p>
-                  <p className="text-xl md:text-2xl font-bold text-green-400">{overallStats.totalAttendedHours}</p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-dark-secondary rounded-xl shadow-md p-4 md:p-6 border border-dark-primary transform transition hover:shadow-lg">
-              <div className="flex items-center">
-                <div className="p-2 rounded-full bg-primary-500/20 text-primary-500 mr-3">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <div>
-                  <p className="text-xs text-light-primary/70 uppercase font-semibold">Total Hours</p>
-                  <p className="text-xl md:text-2xl font-bold text-primary-500">{overallStats.totalHours}</p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-dark-secondary rounded-xl shadow-md p-4 md:p-6 border border-dark-primary transform transition hover:shadow-lg">
-              <div className="flex items-center">
-                <div className="p-2 rounded-full bg-primary-500/20 text-primary-500 mr-3">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <div>
-                  <p className="text-xs text-light-primary/70 uppercase font-semibold">Attendance</p>
-                  <p className="text-xl md:text-2xl font-bold text-primary-500">{overallStats.averagePercentage}%</p>
-                </div>
-              </div>
-            </div>
-          </div>
 
-          {/* Progress Circle for Mobile with Enhanced Visibility */}
-          
-
-          {/* Responsive Cards for Subject Stats (Mobile View) */}
-          <div className="block md:hidden mb-8">
-            <h2 className="text-xl font-semibold mb-4 text-light-primary">Subject-wise Attendance</h2>
-            <div className="space-y-3">
+            {/* Grid of Subject Cards */}
+            <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
               {derivedSubjects.map(subject => {
-                const stat = statistics[subject.name] || { present: 0, absent: 0, totalHours: 0, totalAttendedHours: 0, missedHours: 0, percentage: 0 };
+                const stat = statistics[subject.name] || { percentage: 0 };
                 return (
-                  <div key={subject._id || subject.name} className="bg-dark-secondary rounded-xl shadow-sm border border-dark-primary p-4 overflow-hidden text-light-primary">
-                    <div className="flex justify-between items-center mb-2">
-                      <h3 className="font-medium text-light-primary">{subject.name}</h3>
-                      <span 
-                        className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                          stat.percentage >= 75 ? 'bg-green-500/20 text-green-400' :
-                          stat.percentage >= 60 ? 'bg-yellow-500/20 text-yellow-400' :
-                          'bg-red-500/20 text-red-400'
-                        }`}
-                      >
+                  <div key={subject.name} className="glass-card p-5 rounded-2xl flex flex-col justify-between group hover:-translate-y-1 transition-transform duration-300">
+                    <div className="flex justify-between items-start mb-4">
+                      <div>
+                        <h3 className="font-bold text-white text-lg truncate w-32 md:w-40">{subject.name}</h3>
+                        <p className="text-xs text-slate-400 mt-1">{stat.totalAttendedHours} / {stat.totalHours} Hours</p>
+                      </div>
+                      <div className={`text-xl font-bold ${getStatusColor(stat.percentage)}`}>
                         {stat.percentage}%
-                      </span>
+                      </div>
                     </div>
-                    
-                    {/* Progress bar */}
-                    <div className="w-full bg-dark-primary rounded-full h-2.5 mb-3">
-                      <div 
-                        className={`h-2.5 rounded-full ${
-                          stat.percentage >= 75 ? 'bg-green-500' : 
-                          stat.percentage >= 60 ? 'bg-yellow-500' : 
-                          'bg-red-500'
-                        }`} 
-                        style={{ width: `${stat.percentage}%` }}
-                      ></div>
+
+                    {/* Mini Bar */}
+                    <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                      <div className={`h-full rounded-full ${getStatusBg(stat.percentage)}`} style={{ width: `${stat.percentage}%` }} />
                     </div>
-                    
-                    <div className="flex justify-between text-sm">
-                      <div className="text-center">
-                        <p className="text-light-primary/70 text-xs">Hours Attended</p>
-                        <p className="font-semibold text-green-400">{stat.totalAttendedHours}</p>
-                      </div>
-                      <div className="text-center">
-                        <p className="text-light-primary/70 text-xs">Hours Missed</p> {/* Changed from Missed Classes */}
-                        <p className="font-semibold text-red-400">{stat.missedHours}</p> {/* Changed */}
-                      </div>
-                      <div className="text-center">
-                        <p className="text-light-primary/70 text-xs">Total Hours</p>
-                        <p className="font-semibold text-light-primary">{stat.totalHours}</p>
-                      </div>
+
+                    <div className="mt-4 flex justify-between text-xs font-semibold">
+                      <span className="text-emerald-400">{stat.present} Present</span>
+                      <span className="text-rose-400">{stat.absent} Absent</span>
                     </div>
                   </div>
                 );
               })}
             </div>
-          </div>
-
-          {/* Detailed Table (Hidden on Mobile, Visible on Tablet/Desktop) */}
-          <div className="hidden md:block bg-dark-secondary shadow-md rounded-xl overflow-hidden border border-dark-primary mb-8">
-            <table className="min-w-full divide-y divide-dark-primary">
-              <thead className="bg-gradient-to-r from-dark-secondary to-primary-500 text-white">
-                <tr>
-                  <th className="py-3 px-4 text-left">Subject</th>
-                  <th className="py-3 px-4 text-center">Hours Attended</th>
-                  <th className="py-3 px-4 text-center">Hours Missed</th> {/* Changed from Classes Missed */}
-                  <th className="py-3 px-4 text-center">Total Hours</th>
-                  <th className="py-3 px-4 text-center">Attendance %</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-dark-primary">
-                {derivedSubjects.map(subject => {
-                  const stat = statistics[subject.name] || { 
-                    present: 0, 
-                    absent: 0, 
-                    totalHours: 0, 
-                    totalAttendedHours: 0,
-                    missedHours: 0, 
-                    percentage: 0 
-                  };
-                  return (
-                    <tr key={subject._id || subject.name} className="hover:bg-dark-primary transition-colors">
-                      <td className="py-4 px-4 font-medium text-light-primary">{subject.name}</td>
-                      <td className="py-4 px-4 text-center text-green-400 font-medium">{stat.totalAttendedHours}</td>
-                      <td className="py-4 px-4 text-center text-red-400 font-medium">{stat.missedHours}</td> {/* Changed */}
-                      <td className="py-4 px-4 text-center text-light-primary">{stat.totalHours}</td>
-                      <td className="py-4 px-4 text-center text-light-primary">
-                        <div className="flex items-center justify-center">
-                          <div className="w-16 bg-dark-primary rounded-full h-2.5 mr-2">
-                            <div 
-                              className={`h-2.5 rounded-full ${
-                                stat.percentage >= 75 ? 'bg-green-500' : 
-                                stat.percentage >= 60 ? 'bg-yellow-500' : 
-                                'bg-red-500'
-                              }`} 
-                              style={{ width: `${stat.percentage}%` }}
-                            ></div>
-                          </div>
-                          <span 
-                            className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                              stat.percentage >= 75 ? 'bg-green-500/20 text-green-400' :
-                              stat.percentage >= 60 ? 'bg-yellow-500/20 text-yellow-400' :
-                              'bg-red-500/20 text-red-400'
-                            }`}
-                          >
-                            {stat.percentage}%
-                          </span>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Print Button with enhanced styling (hidden on print) */}
-          <div className="mt-6 flex justify-center md:justify-end print-hidden">
-            <button 
-              onClick={() => window.print()}
-              className="bg-primary-500 hover:bg-primary-600 text-white font-medium py-3 px-6 rounded-lg flex items-center shadow-md transform transition hover:-translate-y-0.5 active:translate-y-0 w-full md:w-auto justify-center"
-            >
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-              </svg>
-              Print Report
-            </button>
           </div>
         </>
       )}

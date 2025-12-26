@@ -2,8 +2,6 @@ import React, { useState, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { AttendanceContext } from '../contexts/AttendanceContext';
 
-
-
 function Settings() {
   const { currentUser, subjects, addSubject, removeSubject, resetAllData, updateEmail, changePassword } = useContext(AttendanceContext);
   const [newSubject, setNewSubject] = useState('');
@@ -11,492 +9,191 @@ function Settings() {
   const [isResetting, setIsResetting] = useState(false);
   const [message, setMessage] = useState({ text: '', type: '' });
 
-  const handleAddSubject = () => {
-    if (!currentUser) {
-      setMessage({ 
-        text: 'Please login to add subjects!', 
-        type: 'error' 
-      });
-      setTimeout(() => setMessage({ text: '', type: '' }), 3000);
-      return;
-    }
-    
-    if (newSubject.trim()) {
-      // Check if subject already exists - now checking against subject names
-      const subjectExists = subjects.some(subject => 
-        subject.name && subject.name.toLowerCase() === newSubject.trim().toLowerCase()
-      );
-      
-      if (subjectExists) {
-        setMessage({ 
-          text: 'This subject already exists!', 
-          type: 'error' 
-        });
-        setTimeout(() => setMessage({ text: '', type: '' }), 3000);
-        return;
-      }
-      
-      addSubject(newSubject.trim());
-      setNewSubject('');
-      setMessage({
-        text: 'Subject added successfully!',
-        type: 'success'
-      });
-      setTimeout(() => setMessage({ text: '', type: '' }), 3000);
-    }
-  };
-
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      handleAddSubject();
-    }
-  };
-
-  const initiateDelete = (subjectId) => {
-    if (!currentUser) {
-      setMessage({ 
-        text: 'Please login to delete subjects!', 
-        type: 'error' 
-      });
-      setTimeout(() => setMessage({ text: '', type: '' }), 3000);
-      return;
-    }
-    setConfirmDelete(subjectId);
-  };
-
-  const cancelDelete = () => {
-    setConfirmDelete(null);
-  };
-
-  const confirmDeleteSubject = () => {
-    if (confirmDelete) {
-      removeSubject(confirmDelete);
-      setConfirmDelete(null);
-      setMessage({
-        text: 'Subject deleted successfully!',
-        type: 'success'
-      });
-      setTimeout(() => setMessage({ text: '', type: '' }), 3000);
-    }
-  };
-
-  const initiateReset = () => {
-    if (!currentUser) {
-      setMessage({ 
-        text: 'Please login to reset data!', 
-        type: 'error' 
-      });
-      setTimeout(() => setMessage({ text: '', type: '' }), 3000);
-      return;
-    }
-    setIsResetting(true);
-  };
-
-  const confirmReset = () => {
-    resetAllData();
-    setIsResetting(false);
-    setMessage({
-      text: 'All attendance records have been reset.',
-      type: 'success'
-    });
-    setTimeout(() => setMessage({ text: '', type: '' }), 3000);
-  };
-
-  const cancelReset = () => {
-    setIsResetting(false);
-  };
-
-  // Account update states
+  // Password / Email states
   const [newEmail, setNewEmail] = useState('');
-  const [emailLoading, setEmailLoading] = useState(false);
-  const [emailMessage, setEmailMessage] = useState({ text: '', type: '' });
-
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPasswordField, setConfirmPasswordField] = useState('');
-  const [passwordLoading, setPasswordLoading] = useState(false);
-  const [passwordMessage, setPasswordMessage] = useState({ text: '', type: '' });
-  // Password visibility toggles
-  const [showOldPassword, setShowOldPassword] = useState(false);
-  const [showNewPassword, setShowNewPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleEmailUpdate = async () => {
-    if (!currentUser) {
-      setEmailMessage({ text: 'Please login to update email.', type: 'error' });
-      setTimeout(() => setEmailMessage({ text: '', type: '' }), 3000);
-      return;
-    }
-    if (!newEmail || !newEmail.includes('@')) {
-      setEmailMessage({ text: 'Please enter a valid email address.', type: 'error' });
-      setTimeout(() => setEmailMessage({ text: '', type: '' }), 3000);
-      return;
-    }
-    setEmailLoading(true);
-    try {
-      const res = await updateEmail(currentUser._id, newEmail.trim());
-      if (res.success) {
-        setEmailMessage({ text: 'Email updated successfully.', type: 'success' });
-        setNewEmail('');
-      } else {
-        setEmailMessage({ text: res.message || 'Failed to update email.', type: 'error' });
-      }
-    } catch (err) {
-      setEmailMessage({ text: 'Failed to update email. Try again.', type: 'error' });
-    } finally {
-      setEmailLoading(false);
-      setTimeout(() => setEmailMessage({ text: '', type: '' }), 3500);
-    }
+  // Helper to show messages
+  const showMessage = (text, type = 'success') => {
+    setMessage({ text, type });
+    setTimeout(() => setMessage({ text: '', type: '' }), 3000);
   };
 
-  const handleChangePassword = async () => {
-    if (!currentUser) {
-      setPasswordMessage({ text: 'Please login to change password.', type: 'error' });
-      setTimeout(() => setPasswordMessage({ text: '', type: '' }), 3000);
-      return;
+  const handleAddSubject = () => {
+    if (!currentUser) return showMessage('Guest mode active', 'error');
+    if (!newSubject.trim()) return;
+
+    if (subjects.some(s => s.name?.toLowerCase() === newSubject.trim().toLowerCase())) {
+      return showMessage('Subject already exists', 'error');
     }
-    if (!oldPassword || !newPassword) {
-      setPasswordMessage({ text: 'Please fill all password fields.', type: 'error' });
-      setTimeout(() => setPasswordMessage({ text: '', type: '' }), 3000);
-      return;
-    }
-    if (newPassword !== confirmPasswordField) {
-      setPasswordMessage({ text: 'New passwords do not match.', type: 'error' });
-      setTimeout(() => setPasswordMessage({ text: '', type: '' }), 3000);
-      return;
-    }
-    setPasswordLoading(true);
+    addSubject(newSubject.trim());
+    setNewSubject('');
+    showMessage('Subject added');
+  };
+
+  const handleUpdateProfile = async (type) => {
+    if (!currentUser) return showMessage('Guest mode active', 'error');
+    setLoading(true);
     try {
-      const res = await changePassword(currentUser.email, oldPassword, newPassword);
-      if (res.success) {
-        setPasswordMessage({ text: res.message || 'Password updated successfully.', type: 'success' });
-        setOldPassword('');
-        setNewPassword('');
-        setConfirmPasswordField('');
+      let res;
+      if (type === 'email') {
+        if (!newEmail.includes('@')) throw new Error('Invalid email');
+        res = await updateEmail(currentUser._id, newEmail);
       } else {
-        setPasswordMessage({ text: res.message || 'Failed to change password.', type: 'error' });
+        if (newPassword !== confirmPasswordField) throw new Error('Passwords do not match');
+        res = await changePassword(currentUser.email, oldPassword, newPassword);
+      }
+
+      if (res.success) {
+        showMessage(res.message || 'Updated successfully');
+        if (type === 'email') setNewEmail('');
+        else { setOldPassword(''); setNewPassword(''); setConfirmPasswordField(''); }
+      } else {
+        showMessage(res.message || 'Update failed', 'error');
       }
     } catch (err) {
-      setPasswordMessage({ text: 'Failed to change password. Try again.', type: 'error' });
+      showMessage(err.message || 'Operation failed', 'error');
     } finally {
-      setPasswordLoading(false);
-      setTimeout(() => setPasswordMessage({ text: '', type: '' }), 4000);
+      setLoading(false);
     }
   };
 
   return (
-    <div className="bg-dark-primary min-h-screen">
-      <div className="container mx-auto px-4 py-6 max-w-3xl relative">
-        {/* Background decorative elements */}
-        <div className="absolute top-20 right-10 w-32 h-32 bg-gradient-to-br from-primary-500 to-primary-400 rounded-full opacity-10 blur-xl animate-pulse-slow"></div>
-        <div className="absolute bottom-20 left-5 w-28 h-28 bg-gradient-to-br from-primary-600 to-primary-500 rounded-full opacity-10 blur-xl"></div>
-        
-        <h1 className="text-2xl md:text-3xl font-bold mb-6 text-light-primary relative z-10">Settings</h1>
-        
-        {/* Login Notice for Guest Users */}
-        {!currentUser && (
-          <div className="mb-6 bg-dark-secondary border-l-4 border-primary-500 p-4 rounded-r-lg shadow-md">
-            <div className="flex items-start">
-              <svg className="w-6 h-6 text-primary-500 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-              </svg>
-              <div>
-                <p className="text-light-primary font-medium">You are viewing in guest mode</p>
-                <p className="text-light-primary/80 text-sm mt-1">
-                  Please <Link to="/login" className="underline font-semibold hover:text-primary-500">login</Link> to manage subjects and settings.
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-        
-        {/* Success/Error Messages */}
-        {message.text && (
-          <div className={`mb-6 p-4 rounded-lg shadow-md border-l-4 transition-all duration-300 ease-in-out ${
-            message.type === 'success' 
-              ? 'bg-dark-secondary text-green-400 border-green-500' 
-              : 'bg-dark-secondary text-red-400 border-red-500'
+    <div className="space-y-8 pb-20 md:pb-0">
+      <div className="flex flex-col gap-1">
+        <h1 className="text-3xl font-display font-bold text-white tracking-tight">Settings</h1>
+        <p className="text-slate-400">Manage your subjects and account preferences.</p>
+      </div>
+
+      {/* Global Message Toast */}
+      {message.text && (
+        <div className={`fixed top-6 right-6 z-50 px-6 py-3 rounded-xl shadow-2xl backdrop-blur-xl border flex items-center gap-3 animate-slide-in ${message.type === 'error' ? 'bg-rose-500/20 border-rose-500/50 text-rose-200' : 'bg-emerald-500/20 border-emerald-500/50 text-emerald-200'
           }`}>
-            <div className="flex items-center">
-              {message.type === 'success' ? (
-                <svg className="w-5 h-5 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-                </svg>
-              ) : (
-                <svg className="w-5 h-5 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-              )}
-              {message.text}
-            </div>
-          </div>
-        )}
-        
-        {/* Manage Subjects Section */}
-        <div className="bg-dark-secondary bg-opacity-80 backdrop-blur-md rounded-xl shadow-xl p-5 md:p-6 mb-6 border border-dark-primary relative z-10">
-          <h2 className="text-lg md:text-xl font-semibold mb-4 text-light-primary">Manage Subjects</h2>
-          
-          <div className="flex flex-col sm:flex-row mb-4 gap-2">
+          {message.type === 'error' ? '⚠️' : '✅'} {message.text}
+        </div>
+      )}
+
+      {/* Profile Card */}
+      <div className="glass-panel p-6 rounded-3xl flex items-center gap-6">
+        <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary-500 to-secondary-500 flex items-center justify-center text-3xl font-bold text-white shadow-lg shadow-primary-500/30">
+          {currentUser ? currentUser.email[0].toUpperCase() : 'G'}
+        </div>
+        <div>
+          <h2 className="text-xl font-bold text-white mb-1">{currentUser ? 'Student Account' : 'Guest User'}</h2>
+          <p className="text-slate-400 text-sm">{currentUser ? currentUser.email : 'Local usage only'}</p>
+          {!currentUser && <Link to="/login" className="text-primary-400 text-xs font-bold uppercase mt-2 block tracking-wider">Login to Sync</Link>}
+        </div>
+      </div>
+
+      {/* Main Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+        {/* Subject Management */}
+        <div className="glass-panel p-6 rounded-3xl space-y-6">
+          <h3 className="text-lg font-bold text-white flex items-center gap-2">
+            <span className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center text-blue-400">📚</span>
+            Subjects
+          </h3>
+
+          <div className="flex gap-2">
             <input
-              type="text"
               value={newSubject}
               onChange={(e) => setNewSubject(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="Add new subject"
-              className="flex-grow border border-dark-primary rounded-lg sm:rounded-r-none px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-dark-primary text-light-primary bg-opacity-90"
-              disabled={!currentUser}
+              placeholder="Enter subject name (e.g. Mathematics)"
+              className="flex-1 bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-primary-500 outline-none transition-all placeholder:text-slate-600"
+              onKeyDown={(e) => e.key === 'Enter' && handleAddSubject()}
             />
-            <button 
-              onClick={handleAddSubject} 
-              disabled={!currentUser}
-              className={`px-4 py-2.5 rounded-lg sm:rounded-l-none font-medium transition-all duration-200 shadow-md border whitespace-nowrap ${
-                currentUser 
-                  ? 'bg-primary-500 hover:bg-primary-600 text-dark-primary hover:shadow-lg border-primary-500 transform hover:-translate-y-0.5 active:translate-y-0'
-                  : 'bg-dark-primary text-light-primary/50 cursor-not-allowed border-dark-primary'
-              }`}
+            <button
+              onClick={handleAddSubject}
+              className="bg-primary-500 hover:bg-primary-600 text-white p-3 rounded-xl shadow-lg shadow-primary-500/20 transition-all hover:scale-105 active:scale-95"
             >
-              Add Subject
+              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>
             </button>
           </div>
-          
-          {subjects.length === 0 ? (
-            <div className="bg-dark-primary border-l-4 border-yellow-500 text-yellow-400 p-4 rounded-md">
-              <div className="flex">
-                <svg className="w-5 h-5 mr-2 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                </svg>
-                <span>No subjects added yet. Add your first subject above.</span>
-              </div>
-            </div>
-          ) : (
-            <div className="bg-dark-primary bg-opacity-80 rounded-lg border border-dark-primary overflow-hidden">
-              <ul className="divide-y divide-dark-secondary">
-                {subjects.map((subject) => (
-                  <li key={subject._id} className="px-4 py-3 flex flex-wrap sm:flex-nowrap justify-between items-center gap-2">
-                    <span className="font-medium text-light-primary break-all">{subject.name}</span>
-                    {confirmDelete === subject._id ? (
-                      <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 ml-auto">
-                        <span className="text-sm text-red-400 whitespace-nowrap">Delete?</span>
-                        <div className="flex gap-2">
-                          <button 
-                            onClick={confirmDeleteSubject}
-                            className="bg-red-500 hover:bg-red-600 text-white text-sm px-3 py-1.5 rounded-md flex items-center"
-                          >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                            </svg>
-                            Yes
-                          </button>
-                          <button 
-                            onClick={cancelDelete}
-                            className="bg-gray-400 hover:bg-gray-500 text-white text-sm px-3 py-1.5 rounded-md flex items-center"
-                          >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                            No
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <button 
-                        onClick={() => initiateDelete(subject._id)}
-                        disabled={!currentUser}
-                        className={`ml-3 p-1 rounded-full transition-colors ${
-                          currentUser 
-                            ? 'text-red-400 hover:text-red-500 hover:bg-red-500/10'
-                            : 'text-light-primary/30 cursor-not-allowed'
-                        }`}
-                        aria-label={`Delete ${subject.name}`}
-                        title={!currentUser ? 'Login required to delete' : `Delete ${subject.name}`}
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                      </button>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
-        
-        
 
-        {/* Account: Update Email & Password */}
-        <div className="bg-dark-secondary bg-opacity-80 backdrop-blur-md rounded-xl shadow-xl p-5 md:p-6 border border-dark-primary relative z-10 mt-6">
-          <h2 className="text-lg md:text-xl font-semibold mb-4 text-light-primary">Account</h2>
-
-          {/* Update Email */}
-          <div className="mb-6">
-            <h3 className="text-sm font-medium text-light-primary/90 mb-2">Update Email</h3>
-            <div className="flex gap-2 flex-col md:flex-row">
-              <input
-                type="email"
-                value={newEmail}
-                onChange={(e) => setNewEmail(e.target.value)}
-                placeholder={currentUser?.email || 'New email address'}
-                className="flex-grow min-w-0 w-full border border-dark-primary rounded-lg px-4 py-2.5 bg-dark-primary text-light-primary"
-                disabled={!currentUser || emailLoading}
-              />
-              <button
-                onClick={handleEmailUpdate}
-                disabled={!currentUser || emailLoading}
-                className={`h-10 px-4 py-2 rounded-lg font-medium transition-all duration-200 shadow-md ${currentUser ? 'bg-primary-500 hover:bg-primary-600 text-dark-primary' : 'bg-dark-primary text-light-primary/50 cursor-not-allowed'}`}
-              >
-                {emailLoading ? 'Updating…' : 'Update Email'}
-              </button>
-            </div>
-            {emailMessage.text && (
-              <div className={`mt-3 text-sm ${emailMessage.type === 'success' ? 'text-green-400' : 'text-red-400'}`}>{emailMessage.text}</div>
-            )}
-          </div>
-
-          {/* Change Password */}
-          <div>
-            <h3 className="text-sm font-medium text-light-primary/90 mb-2">Change Password</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <div className="col-span-1 min-w-0 flex items-center gap-3">
-                <input
-                  type={showOldPassword ? 'text' : 'password'}
-                  value={oldPassword}
-                  onChange={(e) => setOldPassword(e.target.value)}
-                  placeholder="Current password"
-                  className="flex-1 min-w-0 w-full border border-dark-primary rounded-lg px-4 py-2.5 bg-dark-primary text-light-primary"
-                  disabled={!currentUser || passwordLoading}
-                  aria-label="Current password"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowOldPassword(s => !s)}
-                  className="h-10 min-w-[56px] flex items-center justify-center text-sm px-2 rounded bg-primary-500/10 text-primary-300 hover:bg-primary-500/20 border border-primary-500/10"
-                  aria-pressed={showOldPassword}
-                  aria-label={showOldPassword ? 'Hide current password' : 'Show current password'}
-                >
-                  {showOldPassword ? 'Hide' : 'Show'}
-                </button>
-              </div>
-
-              <div className="col-span-1 min-w-0 flex items-center gap-3">
-                <input
-                  type={showNewPassword ? 'text' : 'password'}
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="New password"
-                  className="flex-1 min-w-0 w-full border border-dark-primary rounded-lg px-4 py-2.5 bg-dark-primary text-light-primary"
-                  disabled={!currentUser || passwordLoading}
-                  aria-label="New password"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowNewPassword(s => !s)}
-                  className="h-10 min-w-[56px] flex items-center justify-center text-sm px-2 rounded bg-primary-500/10 text-primary-300 hover:bg-primary-500/20 border border-primary-500/10"
-                  aria-pressed={showNewPassword}
-                  aria-label={showNewPassword ? 'Hide new password' : 'Show new password'}
-                >
-                  {showNewPassword ? 'Hide' : 'Show'}
-                </button>
-              </div>
-
-              <div className="col-span-1 min-w-0 flex items-center gap-3">
-                <input
-                  type={showConfirmPassword ? 'text' : 'password'}
-                  value={confirmPasswordField}
-                  onChange={(e) => setConfirmPasswordField(e.target.value)}
-                  placeholder="Confirm new password"
-                  className="flex-1 min-w-0 w-full border border-dark-primary rounded-lg px-4 py-2.5 bg-dark-primary text-light-primary"
-                  disabled={!currentUser || passwordLoading}
-                  aria-label="Confirm new password"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(s => !s)}
-                  className="h-10 min-w-[56px] flex items-center justify-center text-sm px-2 rounded bg-primary-500/10 text-primary-300 hover:bg-primary-500/20 border border-primary-500/10"
-                  aria-pressed={showConfirmPassword}
-                  aria-label={showConfirmPassword ? 'Hide confirm password' : 'Show confirm password'}
-                >
-                  {showConfirmPassword ? 'Hide' : 'Show'}
-                </button>
-              </div>
-            </div>
-            <div className="mt-3">
-              <button
-                onClick={handleChangePassword}
-                disabled={!currentUser || passwordLoading}
-                className={`px-4 py-2.5 rounded-lg font-medium transition-all duration-200 shadow-md ${currentUser ? 'bg-primary-500 hover:bg-primary-600 text-dark-primary' : 'bg-dark-primary text-light-primary/50 cursor-not-allowed'}`}
-              >
-                {passwordLoading ? 'Saving…' : 'Change Password'}
-              </button>
-            </div>
-            {passwordMessage.text && (
-              <div className={`mt-3 text-sm ${passwordMessage.type === 'success' ? 'text-green-400' : 'text-red-400'}`}>{passwordMessage.text}</div>
-            )}
-          </div>
-        </div>
-
-        {/* Reset Attendance Section */}
-        <div className="bg-dark-secondary bg-opacity-80 backdrop-blur-md rounded-xl shadow-xl p-5 md:p-6 border border-dark-primary relative z-10 mt-6">
-          <h2 className="text-lg md:text-xl font-semibold mb-4 text-light-primary">Reset Data</h2>
-          <p className="text-light-primary/80 mb-4">
-            Warning: This will delete all attendance records. This action cannot be undone.
-          </p>
-          
-          {isResetting ? (
-            <div className="bg-dark-primary border-l-4 border-red-500 p-4 mb-4 rounded-r-md">
-              <div className="flex flex-col sm:flex-row">
-                <div className="flex-shrink-0 mb-2 sm:mb-0">
-                  <svg className="h-5 w-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                  </svg>
-                </div>
-                <div className="ml-0 sm:ml-3">
-                  <h3 className="text-sm font-medium text-red-400">
-                    Are you absolutely sure?
-                  </h3>
-                  <div className="mt-2 flex flex-col xs:flex-row space-y-2 xs:space-y-0 xs:space-x-3">
-                    <button
-                      onClick={confirmReset}
-                      className="bg-red-600 hover:bg-red-700 text-white text-sm px-4 py-2 rounded-md font-medium shadow-sm flex items-center justify-center"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                      </svg>
-                      Yes, delete everything
-                    </button>
-                    <button
-                      onClick={cancelReset}
-                      className="bg-gray-500 hover:bg-gray-600 text-white text-sm px-4 py-2 rounded-md font-medium shadow-sm flex items-center justify-center"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                      Cancel
-                    </button>
+          <div className="flex flex-wrap gap-3 max-h-[300px] overflow-y-auto custom-scrollbar p-1">
+            {subjects.length === 0 && <p className="text-slate-500 text-sm italic w-full text-center py-4">No subjects added yet.</p>}
+            {subjects.map(sub => (
+              <div key={sub._id} className="group flex items-center gap-2 px-4 py-2 bg-slate-800/50 hover:bg-slate-800 border border-white/5 hover:border-white/10 rounded-2xl transition-all">
+                <span className="text-slate-200 font-medium">{sub.name}</span>
+                {confirmDelete === sub._id ? (
+                  <div className="flex items-center gap-2 animate-fade-in">
+                    <button onClick={() => { removeSubject(sub._id); setConfirmDelete(null); }} className="text-rose-400 hover:text-rose-300 font-bold text-xs">CONFIRM</button>
+                    <button onClick={() => setConfirmDelete(null)} className="text-slate-500 hover:text-slate-400">✕</button>
                   </div>
-                </div>
+                ) : (
+                  <button
+                    onClick={() => currentUser ? setConfirmDelete(sub._id) : showMessage('Login required', 'error')}
+                    className="text-slate-500 hover:text-rose-400 transition-colors opacity-0 group-hover:opacity-100"
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                  </button>
+                )}
               </div>
-            </div>
-          ) : (
-            <button 
-              onClick={initiateReset} 
-              disabled={!currentUser}
-              className={`px-4 py-2.5 rounded-lg font-medium transition-all duration-200 shadow-md border transform flex items-center ${
-                currentUser
-                  ? 'bg-red-600 hover:bg-red-700 text-light-primary hover:shadow-lg border-red-600 hover:-translate-y-0.5 active:translate-y-0'
-                  : 'bg-dark-primary text-light-primary/50 cursor-not-allowed border-dark-primary'
-              }`}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-              </svg>
-              Reset All Attendance Records
-            </button>
-          )}
+            ))}
+          </div>
         </div>
 
+        {/* Security & Danger Zone */}
+        <div className="space-y-6">
 
+          {/* Account Security */}
+          <div className="glass-panel p-6 rounded-3xl space-y-6">
+            <h3 className="text-lg font-bold text-white flex items-center gap-2">
+              <span className="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center text-emerald-400">🔐</span>
+              Security
+            </h3>
 
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Update Email</label>
+                <div className="flex gap-2">
+                  <input
+                    value={newEmail} onChange={e => setNewEmail(e.target.value)} placeholder="New Email Address"
+                    className="flex-1 bg-slate-900/50 border border-white/10 rounded-xl px-4 py-2 text-white text-sm focus:border-emerald-500 outline-none"
+                  />
+                  <button onClick={() => handleUpdateProfile('email')} disabled={loading} className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-sm font-medium transition-colors">Update</button>
+                </div>
+              </div>
+
+              <div className="space-y-2 pt-2 border-t border-white/5">
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Change Password</label>
+                <input type="password" value={oldPassword} onChange={e => setOldPassword(e.target.value)} placeholder="Current Password"
+                  className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-2 text-white text-sm focus:border-emerald-500 outline-none mb-2" />
+                <div className="grid grid-cols-2 gap-2">
+                  <input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder="New Password"
+                    className="bg-slate-900/50 border border-white/10 rounded-xl px-4 py-2 text-white text-sm focus:border-emerald-500 outline-none" />
+                  <input type="password" value={confirmPasswordField} onChange={e => setConfirmPasswordField(e.target.value)} placeholder="Confirm"
+                    className="bg-slate-900/50 border border-white/10 rounded-xl px-4 py-2 text-white text-sm focus:border-emerald-500 outline-none" />
+                </div>
+                <button onClick={() => handleUpdateProfile('password')} disabled={loading} className="w-full py-2 mt-2 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 rounded-xl text-sm font-medium transition-colors">
+                  {loading ? 'Processing...' : 'Change Password'}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Danger Area */}
+          <div className="glass-panel p-6 rounded-3xl border border-rose-500/20 bg-rose-500/5">
+            <h3 className="text-lg font-bold text-rose-400 mb-2">Danger Zone</h3>
+            <p className="text-slate-400 text-sm mb-4">Irreversible action. All attendance data will be wiped.</p>
+
+            {isResetting ? (
+              <div className="flex gap-3 animate-fade-in">
+                <button onClick={() => { resetAllData(); setIsResetting(false); showMessage('All data reset'); }} className="flex-1 py-2 bg-rose-600 text-white rounded-xl font-bold text-sm shadow-lg shadow-rose-900/50 hover:bg-rose-700">CONFIRM WIPE</button>
+                <button onClick={() => setIsResetting(false)} className="px-4 py-2 bg-slate-800 text-slate-300 rounded-xl text-sm font-medium hover:bg-slate-700">Cancel</button>
+              </div>
+            ) : (
+              <button onClick={() => currentUser ? setIsResetting(true) : showMessage('Login required', 'error')} className="w-full py-2 border border-rose-500/30 text-rose-400 rounded-xl text-sm font-medium hover:bg-rose-500/10 transition-colors">
+                Reset All Data
+              </button>
+            )}
+          </div>
+
+        </div>
       </div>
     </div>
   );

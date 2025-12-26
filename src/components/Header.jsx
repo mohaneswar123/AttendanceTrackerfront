@@ -84,7 +84,7 @@ function Header() {
           )}
           
           {/* Mobile menu button */}
-          <button
+          {/* <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="md:hidden p-2 rounded-lg hover:bg-dark-primary transition-colors"
           >
@@ -95,7 +95,7 @@ function Header() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               )}
             </svg>
-          </button>
+          </button> */}
         </div>
       </div>
       
