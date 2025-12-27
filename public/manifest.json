@@ -1,7 +1,8 @@
 {
-  "name": "Your App Name",
-  "short_name": "App",
-  "start_url": ".",
+  "name": "Attendance Tracker",
+  "short_name": "Attendance",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#000000",
   "theme_color": "#000000",
