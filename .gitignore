@@ -1,0 +1,69 @@
+# =========================
+# Node / React / Vite
+# =========================
+node_modules/
+dist/
+build/
+.temp/
+.cache/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+vite.svg
+
+# Coverage
+coverage/
+
+# Editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+
+# =========================
+# Spring Boot / Maven / Gradle
+# =========================
+target/
+out/
+build/
+bin/
+logs/
+
+# Maven
+.mvn/wrapper/maven-wrapper.jar
+.mvn/wrapper/maven-wrapper.properties
+.mvn/wrapper/maven-wrapper-downloader.jar
+
+# Gradle
+.gradle/
+gradle-app.setting
+gradle/
+gradlew
+gradlew.bat
+
+# IntelliJ
+*.iml
+
+# =========================
+# System Files
+# =========================
+*.class
+*.log
+*.tmp
+*.bak
+
+# =========================
+# OS files
+# =========================
+ehthumbs.db
+Icon?
+Desktop.ini
