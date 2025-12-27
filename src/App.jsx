@@ -5,7 +5,7 @@ import LoadingIndicator from './components/LoadingIndicator';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AttendanceContext, AttendanceProvider } from './contexts/AttendanceContext';
 
-// Lazy-loaded pages
+// Lazy-loaded page
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const History = lazy(() => import('./pages/History'));
 const Settings = lazy(() => import('./pages/Settings'));
