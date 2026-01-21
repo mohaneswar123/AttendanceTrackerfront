@@ -10,6 +10,8 @@ function Settings() {
   const [message, setMessage] = useState({ text: '', type: '' });
   const [confirmText, setConfirmText] = useState('');
   const [resetConfirmText, setResetConfirmText] = useState('');
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
   // Password / Email states
   const [newEmail, setNewEmail] = useState('');
@@ -121,44 +123,52 @@ function Settings() {
             {subjects.map(sub => (
               <div key={sub._id} className="group flex items-center gap-2 px-4 py-2 bg-slate-800/50 hover:bg-slate-800 border border-white/5 hover:border-white/10 rounded-2xl transition-all">
                 <span className="text-slate-200 font-medium">{sub.name}</span>
-                {confirmDelete === sub._id ? (
-                  <div className="flex items-center gap-2 animate-fade-in">
-                    <input
-                      value={confirmText}
-                      onChange={(e) => setConfirmText(e.target.value)}
-                      placeholder="Type subject name to confirm"
-                      className="bg-slate-900/60 border border-white/10 rounded-lg px-2 py-1 text-xs text-white placeholder:text-slate-500"
-                    />
-                    <button
-                      onClick={() => {
-                        const typed = (confirmText || '').trim().toLowerCase();
-                        const expected = (sub.name || '').trim().toLowerCase();
-                        if (typed !== expected) {
-                          showMessage(`Type "${sub.name}" to confirm`, 'error');
-                          return;
-                        }
-                        removeSubject(sub._id);
-                        setConfirmDelete(null);
-                        setConfirmText('');
-                        showMessage('Subject deleted');
-                      }}
-                      className="text-rose-400 hover:text-rose-300 font-bold text-xs"
-                    >
-                      Delete
-                    </button>
-                    <button onClick={() => { setConfirmDelete(null); setConfirmText(''); }} className="text-slate-500 hover:text-slate-400">✕</button>
-                  </div>
-                ) : (
-                  <button
-                    onClick={() => currentUser ? setConfirmDelete(sub._id) : showMessage('Login required', 'error')}
-                    className="text-slate-500 hover:text-rose-400 transition-colors opacity-0 group-hover:opacity-100"
-                  >
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                  </button>
-                )}
+                <button
+                  onClick={() => currentUser ? (setDeleteTarget(sub), setConfirmText(''), setIsDeleteModalOpen(true)) : showMessage('Login required', 'error')}
+                  className="text-slate-500 hover:text-rose-400 transition-colors opacity-0 group-hover:opacity-100"
+                  aria-label={`Delete ${sub.name}`}
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                </button>
               </div>
             ))}
           </div>
+          {isDeleteModalOpen && deleteTarget && (
+            <div className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+              <div className="w-full max-w-md rounded-2xl bg-slate-900 border border-white/10 p-5 space-y-4 shadow-2xl">
+                <h4 className="text-white font-semibold">Confirm Delete</h4>
+                <p className="text-slate-400 text-sm">To delete <span className="text-slate-200 font-medium">{deleteTarget.name}</span>, type the subject name below.</p>
+                <input
+                  value={confirmText}
+                  onChange={(e) => setConfirmText(e.target.value)}
+                  placeholder={`Type "${deleteTarget.name}"`}
+                  className="w-full bg-slate-800 border border-white/10 rounded-xl px-3 py-2 text-white placeholder:text-slate-500 focus:border-rose-500 outline-none"
+                />
+                <div className="flex justify-end gap-2 pt-1">
+                  <button onClick={() => { setIsDeleteModalOpen(false); setDeleteTarget(null); setConfirmText(''); }} className="px-4 py-2 bg-slate-800 text-slate-300 rounded-xl text-sm hover:bg-slate-700">Cancel</button>
+                  <button
+                    onClick={() => {
+                      const typed = (confirmText || '').trim().toLowerCase();
+                      const expected = (deleteTarget.name || '').trim().toLowerCase();
+                      if (typed !== expected) {
+                        showMessage(`Type "${deleteTarget.name}" to confirm`, 'error');
+                        return;
+                      }
+                      removeSubject(deleteTarget._id);
+                      setIsDeleteModalOpen(false);
+                      setDeleteTarget(null);
+                      setConfirmText('');
+                      showMessage('Subject deleted');
+                    }}
+                    disabled={(confirmText || '').trim().toLowerCase() !== (deleteTarget.name || '').trim().toLowerCase()}
+                    className="px-4 py-2 bg-rose-600 text-white rounded-xl text-sm font-semibold hover:bg-rose-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Security & Danger Zone */}
