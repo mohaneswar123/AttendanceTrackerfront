@@ -9,6 +9,7 @@ function Settings() {
   const [isResetting, setIsResetting] = useState(false);
   const [message, setMessage] = useState({ text: '', type: '' });
   const [confirmText, setConfirmText] = useState('');
+  const [resetConfirmText, setResetConfirmText] = useState('');
 
   // Password / Email states
   const [newEmail, setNewEmail] = useState('');
