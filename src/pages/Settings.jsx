@@ -8,6 +8,7 @@ function Settings() {
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [isResetting, setIsResetting] = useState(false);
   const [message, setMessage] = useState({ text: '', type: '' });
+  const [confirmText, setConfirmText] = useState('');
 
   // Password / Email states
   const [newEmail, setNewEmail] = useState('');
@@ -121,8 +122,30 @@ function Settings() {
                 <span className="text-slate-200 font-medium">{sub.name}</span>
                 {confirmDelete === sub._id ? (
                   <div className="flex items-center gap-2 animate-fade-in">
-                    <button onClick={() => { removeSubject(sub._id); setConfirmDelete(null); }} className="text-rose-400 hover:text-rose-300 font-bold text-xs">CONFIRM</button>
-                    <button onClick={() => setConfirmDelete(null)} className="text-slate-500 hover:text-slate-400">✕</button>
+                    <input
+                      value={confirmText}
+                      onChange={(e) => setConfirmText(e.target.value)}
+                      placeholder="Type subject name to confirm"
+                      className="bg-slate-900/60 border border-white/10 rounded-lg px-2 py-1 text-xs text-white placeholder:text-slate-500"
+                    />
+                    <button
+                      onClick={() => {
+                        const typed = (confirmText || '').trim().toLowerCase();
+                        const expected = (sub.name || '').trim().toLowerCase();
+                        if (typed !== expected) {
+                          showMessage(`Type "${sub.name}" to confirm`, 'error');
+                          return;
+                        }
+                        removeSubject(sub._id);
+                        setConfirmDelete(null);
+                        setConfirmText('');
+                        showMessage('Subject deleted');
+                      }}
+                      className="text-rose-400 hover:text-rose-300 font-bold text-xs"
+                    >
+                      Delete
+                    </button>
+                    <button onClick={() => { setConfirmDelete(null); setConfirmText(''); }} className="text-slate-500 hover:text-slate-400">✕</button>
                   </div>
                 ) : (
                   <button
@@ -182,12 +205,35 @@ function Settings() {
             <p className="text-slate-400 text-sm mb-4">Irreversible action. All attendance data will be wiped.</p>
 
             {isResetting ? (
-              <div className="flex gap-3 animate-fade-in">
-                <button onClick={() => { resetAllData(); setIsResetting(false); showMessage('All data reset'); }} className="flex-1 py-2 bg-rose-600 text-white rounded-xl font-bold text-sm shadow-lg shadow-rose-900/50 hover:bg-rose-700">CONFIRM WIPE</button>
-                <button onClick={() => setIsResetting(false)} className="px-4 py-2 bg-slate-800 text-slate-300 rounded-xl text-sm font-medium hover:bg-slate-700">Cancel</button>
+              <div className="space-y-3 animate-fade-in">
+                <input
+                  value={resetConfirmText}
+                  onChange={(e) => setResetConfirmText(e.target.value)}
+                  placeholder='Type "reset all" to confirm'
+                  className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-2 text-white text-sm placeholder:text-slate-600 focus:border-rose-500 outline-none"
+                />
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => {
+                      if (resetConfirmText.trim().toLowerCase() !== 'reset all') {
+                        showMessage('Please type "reset all" to confirm.', 'error');
+                        return;
+                      }
+                      resetAllData();
+                      setIsResetting(false);
+                      setResetConfirmText('');
+                      showMessage('All data reset');
+                    }}
+                    disabled={resetConfirmText.trim().toLowerCase() !== 'reset all'}
+                    className="flex-1 py-2 bg-rose-600 text-white rounded-xl font-bold text-sm shadow-lg shadow-rose-900/50 hover:bg-rose-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Confirm Wipe
+                  </button>
+                  <button onClick={() => { setIsResetting(false); setResetConfirmText(''); }} className="px-4 py-2 bg-slate-800 text-slate-300 rounded-xl text-sm font-medium hover:bg-slate-700">Cancel</button>
+                </div>
               </div>
             ) : (
-              <button onClick={() => currentUser ? setIsResetting(true) : showMessage('Login required', 'error')} className="w-full py-2 border border-rose-500/30 text-rose-400 rounded-xl text-sm font-medium hover:bg-rose-500/10 transition-colors">
+              <button onClick={() => currentUser ? (setIsResetting(true), setResetConfirmText('')) : showMessage('Login required', 'error')} className="w-full py-2 border border-rose-500/30 text-rose-400 rounded-xl text-sm font-medium hover:bg-rose-500/10 transition-colors">
                 Reset All Data
               </button>
             )}
