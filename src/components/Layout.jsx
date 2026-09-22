@@ -38,7 +38,7 @@ function Layout({ children }) {
 
           <main className="w-full flex-grow p-4 md:p-8 pt-20 md:pt-8 bg-transparent pb-24 md:pb-8">
             {/* Background Gradients for Main Content Area */}
-            <div className="fixed inset-0 z-[-1] pointer-events-none">
+            <div className="fixed inset-0 z-[-1] pointer-events-none overflow-hidden">
               <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] rounded-full bg-primary-500/10 blur-[120px]" />
               <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-secondary-500/10 blur-[120px]" />
             </div>

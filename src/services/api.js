@@ -234,8 +234,9 @@ export const pomodoroService = {
     return response.data;
   },
 
-  start: async () => {
-    const response = await apiClient.post('/pomodoro/start');
+  // Lengths in minutes: focus 1-120, break 1-30
+  start: async (focusMinutes, breakMinutes) => {
+    const response = await apiClient.post('/pomodoro/start', { focusMinutes, breakMinutes });
     return response.data;
   },
 

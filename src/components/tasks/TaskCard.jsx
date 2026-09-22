@@ -12,6 +12,9 @@ const PRIORITY_STYLES = {
 
 const PRIORITY_LABELS = { HIGH: 'High', MEDIUM: 'Medium', LOW: 'Low' };
 
+// Taller on phones so each option is easy to tap
+const MENU_ITEM = 'w-full text-left px-4 py-3 md:px-3 md:py-2 active:bg-white/10';
+
 // Keeps presses on the card's buttons from starting a drag
 const noDrag = {
   onMouseDown: (e) => e.stopPropagation(),
@@ -20,7 +23,7 @@ const noDrag = {
 };
 
 // The card's content; also drawn under the pointer while dragging
-export function TaskCardBody({ task, dragging = false, onMarkDone, onMoveTo, onEdit, onDelete }) {
+export function TaskCardBody({ task, dragging = false, onMoveTo, onEdit, onDelete }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
   const done = task.status === 'DONE';
@@ -49,7 +52,7 @@ export function TaskCardBody({ task, dragging = false, onMarkDone, onMoveTo, onE
   return (
     // The glass effect makes each card its own layer, so lift the one whose menu is open
     <div
-      className={`glass-card relative p-4 select-none ${menuOpen ? 'z-20' : ''} ${dragging ? 'shadow-neon-primary rotate-1 cursor-grabbing' : 'cursor-grab'} ${done ? 'opacity-60' : ''}`}
+      className={`glass-card relative p-4 select-none [-webkit-touch-callout:none] ${menuOpen ? 'z-20' : ''} ${dragging ? 'shadow-neon-primary rotate-1 cursor-grabbing' : 'cursor-grab'} ${done ? 'opacity-60' : ''}`}
     >
       <div className="flex items-start gap-2">
         <div className="flex-1 min-w-0">
@@ -66,21 +69,11 @@ export function TaskCardBody({ task, dragging = false, onMarkDone, onMoveTo, onE
         </div>
 
         {!dragging && (
-          <div className="flex items-center gap-1 -mr-1 -mt-1" {...noDrag}>
-            {!done && (
-              <button
-                onClick={onMarkDone}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-emerald-400 hover:bg-emerald-500/10 transition-colors"
-                title="Mark done"
-                aria-label={`Mark "${task.title}" done`}
-              >
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" /></svg>
-              </button>
-            )}
+          <div className="-mr-2 -mt-2 md:-mr-1 md:-mt-1" {...noDrag}>
             <div className="relative" ref={menuRef}>
               <button
                 onClick={() => setMenuOpen(open => !open)}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
+                className="p-2.5 md:p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 active:bg-white/10 transition-colors"
                 title="More actions"
                 aria-label={`More actions for "${task.title}"`}
                 aria-haspopup="menu"
@@ -89,15 +82,15 @@ export function TaskCardBody({ task, dragging = false, onMarkDone, onMoveTo, onE
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><circle cx="5" cy="12" r="2" /><circle cx="12" cy="12" r="2" /><circle cx="19" cy="12" r="2" /></svg>
               </button>
               {menuOpen && (
-                <div role="menu" className="absolute right-0 top-full mt-1 z-30 w-44 rounded-xl bg-slate-900 border border-white/10 shadow-2xl py-1 text-sm">
+                <div role="menu" className="absolute right-0 top-full mt-1 z-30 w-52 md:w-44 rounded-xl bg-slate-900 border border-white/10 shadow-2xl py-1 text-base md:text-sm">
                   {STATUSES.filter(s => s !== task.status).map(status => (
-                    <button key={status} role="menuitem" onClick={choose(() => onMoveTo(status))} className="w-full text-left px-3 py-2 text-slate-300 hover:bg-white/5">
+                    <button key={status} role="menuitem" onClick={choose(() => onMoveTo(status))} className={`${MENU_ITEM} text-slate-300 hover:bg-white/5`}>
                       Move to {STATUS_LABELS[status]}
                     </button>
                   ))}
                   <div className="my-1 border-t border-white/5" />
-                  <button role="menuitem" onClick={choose(onEdit)} className="w-full text-left px-3 py-2 text-slate-300 hover:bg-white/5">Edit</button>
-                  <button role="menuitem" onClick={choose(onDelete)} className="w-full text-left px-3 py-2 text-rose-400 hover:bg-rose-500/10">Delete</button>
+                  <button role="menuitem" onClick={choose(onEdit)} className={`${MENU_ITEM} text-slate-300 hover:bg-white/5`}>Edit</button>
+                  <button role="menuitem" onClick={choose(onDelete)} className={`${MENU_ITEM} text-rose-400 hover:bg-rose-500/10`}>Delete</button>
                 </div>
               )}
             </div>

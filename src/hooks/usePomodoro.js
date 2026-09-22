@@ -147,7 +147,7 @@ export default function usePomodoro(enabled) {
     error,
     muted,
     toggleMute,
-    start: () => run(() => pomodoroService.start()),
+    start: (focusMinutes, breakMinutes) => run(() => pomodoroService.start(focusMinutes, breakMinutes)),
     pause: () => run(() => pomodoroService.pause(timer.sessionId)),
     resume: () => run(() => pomodoroService.resume(timer.sessionId)),
     reset: () => run(() => pomodoroService.stop(timer.sessionId)),

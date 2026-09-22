@@ -114,7 +114,7 @@ export default function useTaskBoard(filterType, customDate, enabled) {
     }
   };
 
-  // To the end of another column (the ✓ button and the "Move to" menu)
+  // To the end of another column (the card menu's "Move to")
   const moveTaskToColumn = (taskId, status) => moveTask(taskId, status, columns[status].length);
 
   const deleteTask = async (taskId) => {
