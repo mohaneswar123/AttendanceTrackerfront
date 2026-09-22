@@ -53,10 +53,11 @@ function History() {
     return groups;
   }, [attendanceRecords, subjectFilter, filterDate, subjects]);
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (!currentUser) return;
     if (confirm('Delete this record?')) {
-      deleteAttendanceRecord(id);
+      const result = await deleteAttendanceRecord(id);
+      if (!result.success) alert(result.message);
     }
   };
 
@@ -105,7 +106,7 @@ function History() {
             <div key={date} className="relative animate-fade-in" style={{ animationDelay: `${groupIndex * 100}ms` }}>
               {/* Date Header */}
               <div className="flex items-center gap-4 mb-4">
-                <div className="w-8 h-8 rounded-full bg-slate-900 border border-primary-500/50 flex items-center justify-center z-10 hidden md:flex">
+                <div className="w-8 h-8 rounded-full bg-slate-900 border border-primary-500/50 items-center justify-center z-10 hidden md:flex">
                   <div className="w-3 h-3 rounded-full bg-primary-400" />
                 </div>
                 <h2 className="text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-400">
@@ -125,9 +126,9 @@ function History() {
                   >
                     <div className="flex justify-between items-start">
                       <div>
-                        <h3 className="font-bold text-white text-lg">{record.subject?.name || record.subject}</h3>
+                        <h3 className="font-bold text-white text-lg">{record.subject?.name || 'Unknown subject'}</h3>
                         <div className="flex items-center gap-2 mt-1 text-xs text-slate-400 font-medium uppercase tracking-wider">
-                          <span>Class {record.classNumber}</span>
+                          <span>{record.classNumber} {Number(record.classNumber) === 1 ? 'hr' : 'hrs'}</span>
                           <span>•</span>
                           <span className={
                             record.status === 'Present' ? 'text-emerald-400' :

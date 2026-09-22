@@ -5,7 +5,6 @@ import { AttendanceContext } from '../contexts/AttendanceContext';
 function Settings() {
   const { currentUser, subjects, addSubject, removeSubject, resetAllData, updateEmail, changePassword } = useContext(AttendanceContext);
   const [newSubject, setNewSubject] = useState('');
-  const [confirmDelete, setConfirmDelete] = useState(null);
   const [isResetting, setIsResetting] = useState(false);
   const [message, setMessage] = useState({ text: '', type: '' });
   const [confirmText, setConfirmText] = useState('');
@@ -26,16 +25,47 @@ function Settings() {
     setTimeout(() => setMessage({ text: '', type: '' }), 3000);
   };
 
-  const handleAddSubject = () => {
+  const handleAddSubject = async () => {
     if (!currentUser) return showMessage('Guest mode active', 'error');
     if (!newSubject.trim()) return;
 
     if (subjects.some(s => s.name?.toLowerCase() === newSubject.trim().toLowerCase())) {
       return showMessage('Subject already exists', 'error');
     }
-    addSubject(newSubject.trim());
-    setNewSubject('');
-    showMessage('Subject added');
+    const result = await addSubject(newSubject.trim());
+    if (result.success) {
+      setNewSubject('');
+      showMessage('Subject added');
+    } else {
+      showMessage(result.message, 'error');
+    }
+  };
+
+  const handleDeleteSubject = async () => {
+    const typed = (confirmText || '').trim().toLowerCase();
+    const expected = (deleteTarget.name || '').trim().toLowerCase();
+    if (typed !== expected) {
+      showMessage(`Type "${deleteTarget.name}" to confirm`, 'error');
+      return;
+    }
+    const result = await removeSubject(deleteTarget._id);
+    setIsDeleteModalOpen(false);
+    setDeleteTarget(null);
+    setConfirmText('');
+    if (result.success) showMessage('Subject deleted');
+    else showMessage(result.message, 'error');
+  };
+
+  const handleReset = async () => {
+    if (resetConfirmText.trim().toLowerCase() !== 'reset all') {
+      showMessage('Please type "reset all" to confirm.', 'error');
+      return;
+    }
+    const result = await resetAllData();
+    setIsResetting(false);
+    setResetConfirmText('');
+    if (result.success) showMessage('All data reset');
+    else showMessage(result.message, 'error');
   };
 
   const handleUpdateProfile = async (type) => {
@@ -45,10 +75,11 @@ function Settings() {
       let res;
       if (type === 'email') {
         if (!newEmail.includes('@')) throw new Error('Invalid email');
-        res = await updateEmail(currentUser._id, newEmail);
+        res = await updateEmail(newEmail);
       } else {
+        if (!newPassword) throw new Error('Enter a new password');
         if (newPassword !== confirmPasswordField) throw new Error('Passwords do not match');
-        res = await changePassword(currentUser.email, oldPassword, newPassword);
+        res = await changePassword(oldPassword, newPassword);
       }
 
       if (res.success) {
@@ -125,7 +156,7 @@ function Settings() {
                 <span className="text-slate-200 font-medium">{sub.name}</span>
                 <button
                   onClick={() => currentUser ? (setDeleteTarget(sub), setConfirmText(''), setIsDeleteModalOpen(true)) : showMessage('Login required', 'error')}
-                  className="text-slate-500 hover:text-rose-400 transition-colors opacity-0 group-hover:opacity-100"
+                  className="text-slate-500 hover:text-rose-400 transition-colors md:opacity-0 md:group-hover:opacity-100"
                   aria-label={`Delete ${sub.name}`}
                 >
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
@@ -147,19 +178,7 @@ function Settings() {
                 <div className="flex justify-end gap-2 pt-1">
                   <button onClick={() => { setIsDeleteModalOpen(false); setDeleteTarget(null); setConfirmText(''); }} className="px-4 py-2 bg-slate-800 text-slate-300 rounded-xl text-sm hover:bg-slate-700">Cancel</button>
                   <button
-                    onClick={() => {
-                      const typed = (confirmText || '').trim().toLowerCase();
-                      const expected = (deleteTarget.name || '').trim().toLowerCase();
-                      if (typed !== expected) {
-                        showMessage(`Type "${deleteTarget.name}" to confirm`, 'error');
-                        return;
-                      }
-                      removeSubject(deleteTarget._id);
-                      setIsDeleteModalOpen(false);
-                      setDeleteTarget(null);
-                      setConfirmText('');
-                      showMessage('Subject deleted');
-                    }}
+                    onClick={handleDeleteSubject}
                     disabled={(confirmText || '').trim().toLowerCase() !== (deleteTarget.name || '').trim().toLowerCase()}
                     className="px-4 py-2 bg-rose-600 text-white rounded-xl text-sm font-semibold hover:bg-rose-700 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
@@ -225,16 +244,7 @@ function Settings() {
                 />
                 <div className="flex gap-3">
                   <button
-                    onClick={() => {
-                      if (resetConfirmText.trim().toLowerCase() !== 'reset all') {
-                        showMessage('Please type "reset all" to confirm.', 'error');
-                        return;
-                      }
-                      resetAllData();
-                      setIsResetting(false);
-                      setResetConfirmText('');
-                      showMessage('All data reset');
-                    }}
+                    onClick={handleReset}
                     disabled={resetConfirmText.trim().toLowerCase() !== 'reset all'}
                     className="flex-1 py-2 bg-rose-600 text-white rounded-xl font-bold text-sm shadow-lg shadow-rose-900/50 hover:bg-rose-700 disabled:opacity-50 disabled:cursor-not-allowed"
                   >

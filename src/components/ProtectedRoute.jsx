@@ -1,11 +1,14 @@
 import React, { useEffect, useState, useContext } from 'react';
+import { Navigate } from 'react-router-dom';
 import { AttendanceContext } from '../contexts/AttendanceContext';
-import { getLoggedUser } from '../utils/auth';
-import { authService } from '../services/api';
 
+// Guests may browse these pages. For a signed-in student, the subscription is checked
+// before the page shows, whenever the tab regains focus, and every minute; the API
+// client redirects to /inactive once it has lapsed.
 function ProtectedRoute({ children }) {
-  const { logout } = useContext(AttendanceContext);
-  const [initialized, setInitialized] = useState(false);
+  const { currentUser, refreshUser } = useContext(AttendanceContext);
+  const userId = currentUser && !currentUser.isAdmin ? currentUser._id : null;
+  const [checked, setChecked] = useState(!userId);
 
   // BLOCK BACK BUTTON CACHE
   useEffect(() => {
@@ -15,77 +18,32 @@ function ProtectedRoute({ children }) {
     return () => window.removeEventListener("popstate", block);
   }, []);
 
-  // MASTER CHECK FUNCTION (used for initial + 5-sec checks)
-  const validateUser = async () => {
-    const local = getLoggedUser();
-    const localId = local?.id || local?._id;
-
-    // Guest → always allowed
-    if (!localId) return { status: "guest" };
-
-    try {
-      const fresh = await authService.getUserById(localId);
-
-      // Backend removed user
-      if (!fresh) {
-        localStorage.removeItem("loggedUser");
-        logout();
-        return { status: "inactive" };
-      }
-
-      // Update local user
-      localStorage.setItem("loggedUser", JSON.stringify(fresh));
-
-      // Check active
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-
-      const paid = fresh.paidTill ? new Date(fresh.paidTill) : null;
-      const activeNow = fresh.active === true && paid && paid >= today;
-
-      if (!activeNow) {
-        localStorage.removeItem("loggedUser");
-        logout();
-        return { status: "inactive" };
-      }
-
-      return { status: "active" };
-
-    } catch (e) {
-      console.error("Validation failed:", e);
-      localStorage.removeItem("loggedUser");
-      logout();
-      return { status: "inactive" };
+  useEffect(() => {
+    if (!userId) {
+      setChecked(true);
+      return;
     }
-  };
 
-  // INITIAL CHECK before render
-  useEffect(() => {
-    validateUser().then(result => {
-      if (result.status === "inactive") {
-        window.location.replace("/inactive");
-      } else {
-        setInitialized(true);
-      }
+    let cancelled = false;
+    const check = () => refreshUser().finally(() => {
+      if (!cancelled) setChecked(true);
     });
-  }, []);
 
-  // BACKGROUND CHECK EVERY 5 SECONDS
-  useEffect(() => {
-    if (!initialized) return;
+    check();
+    const interval = setInterval(check, 60 * 1000);
+    window.addEventListener('focus', check);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+      window.removeEventListener('focus', check);
+    };
+  }, [userId, refreshUser]);
 
-    const interval = setInterval(async () => {
-      const result = await validateUser();
-      if (result.status === "inactive") {
-        window.location.replace("/inactive");
-      }
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, [initialized]);
+  // Admins have their own dashboard
+  if (currentUser?.isAdmin) return <Navigate to="/admin/dashboard" replace />;
 
   // WAIT UNTIL INITIAL CHECK COMPLETES
-  if (!initialized) return null;
+  if (!checked) return null;
 
   return children;
 }

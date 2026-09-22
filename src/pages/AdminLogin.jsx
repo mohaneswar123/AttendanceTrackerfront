@@ -24,7 +24,7 @@ function AdminLogin() {
     setError('');
 
     try {
-      const result = await adminLogin(credentials.email, credentials.password);
+      await adminLogin(credentials.email, credentials.password);
       // If we get here, login was successful
       navigate('/admin/dashboard');
     } catch (err) {

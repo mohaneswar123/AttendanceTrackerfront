@@ -1,9 +1,8 @@
 import React, { useContext, useMemo } from 'react';
-import { Link } from 'react-router-dom';
 import { AttendanceContext } from '../contexts/AttendanceContext';
 
 function Report() {
-  const { currentUser, subjects, attendanceRecords } = useContext(AttendanceContext);
+  const { subjects, attendanceRecords } = useContext(AttendanceContext);
 
   // Derive subjects from records if empty
   const derivedSubjects = useMemo(() => {
@@ -20,7 +19,7 @@ function Report() {
     return Array.from(unique.values());
   }, [subjects, attendanceRecords]);
 
-  // Calculate stats
+  // Calculate stats; classNumber is the class length in hours
   const statistics = useMemo(() => {
     const stats = {};
     derivedSubjects.forEach(subject => {
@@ -54,7 +53,7 @@ function Report() {
       s.percentage = s.totalHours > 0 ? Math.round((s.totalAttendedHours / s.totalHours) * 100) : 0;
     });
     return stats;
-  }, [derivedSubjects, attendanceRecords]);
+  }, [derivedSubjects, attendanceRecords, subjects]);
 
   // Overall stats
   const overallStats = useMemo(() => {

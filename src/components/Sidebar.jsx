@@ -9,7 +9,6 @@ const Sidebar = () => {
 
     const handleLogout = () => {
         logout();
-        localStorage.removeItem("loggedUser");
         navigate('/login');
     };
 

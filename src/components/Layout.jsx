@@ -1,5 +1,6 @@
-import React, { useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import { AttendanceContext } from '../contexts/AttendanceContext';
 import Header from './Header';
 import Sidebar from './Sidebar';
 import MobileBottomNav from './MobileBottomNav';
@@ -7,6 +8,7 @@ import Footer from './Footer';
 
 function Layout({ children }) {
   const location = useLocation();
+  const { error } = useContext(AttendanceContext);
 
   // Route-based robots control: index homepage, noindex others
   useEffect(() => {
@@ -42,6 +44,15 @@ function Layout({ children }) {
             </div>
 
             <div className="max-w-7xl mx-auto">
+              {error && (
+                <div className="mb-6 p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-200 text-sm flex items-center gap-3" role="alert">
+                  <span className="text-lg">⚠️</span>
+                  <span className="flex-1">{error}</span>
+                  <button onClick={() => window.location.reload()} className="px-3 py-1.5 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-100 text-xs font-semibold">
+                    Retry
+                  </button>
+                </div>
+              )}
               {children}
             </div>
           </main>
