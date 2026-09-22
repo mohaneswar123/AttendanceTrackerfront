@@ -108,7 +108,6 @@ function TaskBoard({ columns, visibleStatuses, loading, onMove, cardActions }) {
                 <TaskCard
                   key={id}
                   task={task}
-                  onMarkDone={() => cardActions.onMarkDone(task)}
                   onMoveTo={(to) => cardActions.onMoveTo(task, to)}
                   onEdit={() => cardActions.onEdit(task)}
                   onDelete={() => cardActions.onDelete(task)}

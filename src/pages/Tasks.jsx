@@ -13,12 +13,11 @@ import LoginPrompt from '../components/LoginPrompt';
 const FILTERS = [
   { type: 'today', label: 'Today' },
   { type: 'yesterday', label: 'Yesterday' },
-  { type: 'upcoming', label: 'Upcoming' },
-  { type: 'all', label: 'All Tasks' }
+  { type: 'upcoming', label: 'Upcoming' }
 ];
 
 const chipClass = (active) =>
-  `px-4 py-2 rounded-xl text-sm font-medium border transition-colors ${active
+  `px-4 py-3 md:py-2 rounded-xl text-sm font-medium border transition-colors ${active
     ? 'bg-primary-500/20 text-primary-200 border-primary-500/40'
     : 'bg-slate-900/50 text-slate-400 border-white/10 hover:text-slate-200 hover:bg-white/5'}`;
 
@@ -84,7 +83,6 @@ function TaskBoardPage() {
   };
 
   const cardActions = {
-    onMarkDone: (task) => board.moveTaskToColumn(task.id, 'DONE'),
     onMoveTo: (task, status) => board.moveTaskToColumn(task.id, status),
     onEdit: setEditing,
     onDelete: setDeleting
@@ -93,35 +91,38 @@ function TaskBoardPage() {
   return (
     <div className="space-y-6 pb-20 md:pb-0">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+      <div className="flex items-center md:items-end justify-between gap-4">
         <div>
           <h1 className="text-3xl font-display font-bold text-white tracking-tight">My Tasks</h1>
-          <p className="text-slate-400">Plan your day and move tasks along as you go.</p>
+          <p className="hidden md:block text-slate-400">Plan your day and move tasks along as you go.</p>
         </div>
         <div className="flex gap-3">
-          <button onClick={() => navigate('/pomodoro')} className="btn btn-outline flex-1 md:flex-none px-3 md:px-6 whitespace-nowrap">
-            ⏱️ Start Pomodoro
+          <button onClick={() => navigate('/pomodoro')} className="btn btn-outline px-4 md:px-6 whitespace-nowrap">
+            ⏱️ <span className="md:hidden ml-1.5">Pomodoro</span><span className="hidden md:inline ml-1.5">Start Pomodoro</span>
           </button>
-          <button onClick={() => setAdding(true)} className="btn btn-primary flex-1 md:flex-none px-3 md:px-6 whitespace-nowrap">
+          {/* Phones use the floating + button instead */}
+          <button onClick={() => setAdding(true)} className="hidden md:inline-flex btn btn-primary px-6 whitespace-nowrap">
             + Add Task
           </button>
         </div>
       </div>
 
-      {/* Date filter */}
-      <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Show tasks for">
-        {FILTERS.map(filter => (
-          <button
-            key={filter.type}
-            onClick={() => setFilterType(filter.type)}
-            aria-pressed={filterType === filter.type}
-            className={chipClass(filterType === filter.type)}
-          >
-            {filter.label}
-          </button>
-        ))}
-        <label className={`${chipClass(filterType === 'custom')} flex items-center gap-2 py-1.5`}>
-          <span>Date</span>
+      {/* Date filter: three equal buttons and a full-width date picker on phones, one row on desktop */}
+      <div className="flex flex-col md:flex-row md:items-center gap-2" role="group" aria-label="Show tasks for">
+        <div className="grid grid-cols-3 md:flex gap-2">
+          {FILTERS.map(filter => (
+            <button
+              key={filter.type}
+              onClick={() => setFilterType(filter.type)}
+              aria-pressed={filterType === filter.type}
+              className={chipClass(filterType === filter.type)}
+            >
+              {filter.label}
+            </button>
+          ))}
+        </div>
+        <label className={`${chipClass(filterType === 'custom')} flex items-center justify-between md:justify-start gap-2 py-2 md:py-1.5`}>
+          <span>Pick a date</span>
           <input
             type="date"
             value={customDate}
@@ -132,7 +133,7 @@ function TaskBoardPage() {
               setCustomDate(e.target.value);
               setFilterType('custom');
             }}
-            className="bg-transparent text-sm outline-none [color-scheme:dark]"
+            className="bg-transparent text-base md:text-sm outline-none [color-scheme:dark]"
           />
         </label>
       </div>
@@ -160,18 +161,21 @@ function TaskBoardPage() {
 
       {/* Phones show one column at a time */}
       {!isDesktop && (
-        <div className="grid grid-cols-3 gap-1 p-1 rounded-2xl bg-slate-900/60 border border-white/10" role="tablist" aria-label="Columns">
-          {STATUSES.map(status => (
-            <button
-              key={status}
-              role="tab"
-              aria-selected={mobileColumn === status}
-              onClick={() => setMobileColumn(status)}
-              className={`py-2.5 rounded-xl text-xs font-semibold transition-colors ${mobileColumn === status ? 'bg-primary-500/25 text-white' : 'text-slate-400'}`}
-            >
-              {STATUS_LABELS[status]} · {board.columns[status].length}
-            </button>
-          ))}
+        <div className="space-y-2">
+          <div className="grid grid-cols-3 gap-1 p-1 rounded-2xl bg-slate-900/60 border border-white/10" role="tablist" aria-label="Columns">
+            {STATUSES.map(status => (
+              <button
+                key={status}
+                role="tab"
+                aria-selected={mobileColumn === status}
+                onClick={() => setMobileColumn(status)}
+                className={`py-3 rounded-xl text-xs font-semibold transition-colors ${mobileColumn === status ? 'bg-primary-500/25 text-white' : 'text-slate-400'}`}
+              >
+                {STATUS_LABELS[status]} · {board.columns[status].length}
+              </button>
+            ))}
+          </div>
+          <p className="text-xs text-slate-500 px-1">Press and hold a card to reorder it. Tap ⋯ to move it to another column.</p>
         </div>
       )}
 
@@ -182,6 +186,17 @@ function TaskBoardPage() {
         onMove={(task, status, index) => board.moveTask(task.id, status, index)}
         cardActions={cardActions}
       />
+
+      {/* Add button within thumb reach on phones, above the bottom navigation */}
+      {!isDesktop && !adding && (
+        <button
+          onClick={() => setAdding(true)}
+          aria-label="Add task"
+          className="fixed right-4 bottom-24 z-40 w-14 h-14 rounded-2xl bg-gradient-to-br from-primary-600 to-primary-500 text-white text-3xl leading-none shadow-xl shadow-primary-900/50 active:scale-95 transition-transform"
+        >
+          +
+        </button>
+      )}
 
       {editing && <TaskEditModal task={editing} onSave={handleSaveEdit} onClose={closeEdit} />}
 

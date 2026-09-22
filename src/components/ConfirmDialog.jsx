@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 
-// A small yes/no modal. Escape or clicking the backdrop cancels.
+// A small yes/no dialog: a bottom sheet on phones, centred on larger screens.
+// Escape or tapping the backdrop cancels.
 function ConfirmDialog({ title, message, confirmLabel = 'Confirm', danger = false, onConfirm, onCancel }) {
   useEffect(() => {
     const onKey = (e) => e.key === 'Escape' && onCancel();
@@ -9,24 +10,24 @@ function ConfirmDialog({ title, message, confirmLabel = 'Confirm', danger = fals
   }, [onCancel]);
 
   return (
-    <div className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" onMouseDown={onCancel}>
+    <div className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm flex items-end md:items-center justify-center md:p-4" onMouseDown={onCancel}>
       <div
         role="alertdialog"
         aria-modal="true"
         aria-labelledby="confirm-title"
-        className="w-full max-w-sm rounded-2xl bg-slate-900 border border-white/10 p-5 space-y-4 shadow-2xl"
+        className="w-full md:max-w-sm rounded-t-3xl md:rounded-2xl bg-slate-900 border border-white/10 p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] md:pb-5 space-y-4 shadow-2xl animate-slide-up md:animate-fade-in"
         onMouseDown={(e) => e.stopPropagation()}
       >
-        <h4 id="confirm-title" className="text-white font-semibold">{title}</h4>
+        <h4 id="confirm-title" className="text-white font-semibold text-lg md:text-base">{title}</h4>
         {message && <p className="text-slate-400 text-sm">{message}</p>}
-        <div className="flex justify-end gap-2 pt-1">
-          <button onClick={onCancel} className="px-4 py-2 bg-slate-800 text-slate-300 rounded-xl text-sm hover:bg-slate-700">
+        <div className="grid grid-cols-2 gap-2 pt-1 md:flex md:justify-end">
+          <button onClick={onCancel} className="px-4 py-3 md:py-2 bg-slate-800 text-slate-300 rounded-xl text-sm hover:bg-slate-700">
             Cancel
           </button>
           <button
             onClick={onConfirm}
             autoFocus
-            className={`px-4 py-2 rounded-xl text-sm font-semibold text-white ${danger ? 'bg-rose-600 hover:bg-rose-700' : 'bg-primary-600 hover:bg-primary-500'}`}
+            className={`px-4 py-3 md:py-2 rounded-xl text-sm font-semibold text-white ${danger ? 'bg-rose-600 hover:bg-rose-700' : 'bg-primary-600 hover:bg-primary-500'}`}
           >
             {confirmLabel}
           </button>

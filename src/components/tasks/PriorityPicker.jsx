@@ -18,7 +18,7 @@ function PriorityPicker({ value, onChange }) {
           role="radio"
           aria-checked={value === option.value}
           onClick={() => onChange(option.value)}
-          className={`px-3 py-1.5 rounded-lg border text-xs font-semibold transition-colors ${value === option.value ? option.active : 'bg-slate-800/50 text-slate-400 border-transparent hover:bg-slate-800'}`}
+          className={`px-3.5 py-2.5 md:px-3 md:py-1.5 rounded-lg border text-sm md:text-xs font-semibold transition-colors ${value === option.value ? option.active : 'bg-slate-800/50 text-slate-400 border-transparent hover:bg-slate-800'}`}
         >
           {option.label}
         </button>
