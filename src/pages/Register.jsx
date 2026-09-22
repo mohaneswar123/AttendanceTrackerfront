@@ -1,7 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AttendanceContext } from '../contexts/AttendanceContext';
-import { isUserActive } from '../utils/auth';
 
 function Register() {
   const [formData, setFormData] = useState({
@@ -16,7 +15,7 @@ function Register() {
   const { currentUser, register, loading } = useContext(AttendanceContext);
 
   useEffect(() => {
-    if (currentUser && isUserActive()) navigate('/');
+    if (currentUser && !currentUser.isAdmin) navigate('/');
   }, [currentUser, navigate]);
 
   const handleChange = (e) => {
@@ -49,13 +48,10 @@ function Register() {
       const result = await register(userData);
 
       if (result.success) {
-        navigate('/login');
+        navigate('/login', { state: { registered: true } });
       } else {
-        const msg = result.message || 'Registration failed';
-        setError(msg);
-        if (/email/i.test(msg) && /(exist|already)/i.test(msg)) {
-          setEmailExists(true);
-        }
+        setError(result.message);
+        setEmailExists(result.code === 'EMAIL_EXISTS');
       }
     } catch (err) {
       setError('Registration failed. Please try again.');
@@ -164,7 +160,7 @@ function Register() {
                 }`}
               disabled={loading}
             >
-              {loading ? 'Creating account...' : 'Reigster'}
+              {loading ? 'Creating account...' : 'Register'}
             </button>
           </div>
 

@@ -9,10 +9,9 @@ function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleLogout = () => {
-  logout();
-  localStorage.removeItem("loggedUser"); // FIX
-  navigate('/login');
-};
+    logout();
+    navigate('/login');
+  };
 
 
   const handleLogin = () => {

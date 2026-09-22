@@ -1,11 +1,8 @@
 /** @type {import('tailwindcss').Config} */
-const colors = require('tailwindcss/colors');
-
 module.exports = {
-  mode: 'jit',
-  purge: [
+  content: [
     "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
+    "./src/**/*.{js,jsx}",
   ],
   theme: {
     container: {
@@ -23,67 +20,6 @@ module.exports = {
     },
     extend: {
       colors: {
-        // Manually including colors for Tailwind v2 compatibility if not available by default
-        slate: {
-          50: '#f8fafc',
-          100: '#f1f5f9',
-          200: '#e2e8f0',
-          300: '#cbd5e1',
-          400: '#94a3b8',
-          500: '#64748b',
-          600: '#475569',
-          700: '#334155',
-          800: '#1e293b',
-          900: '#0f172a',
-        },
-        emerald: {
-          50: '#ecfdf5',
-          100: '#d1fae5',
-          200: '#a7f3d0',
-          300: '#6ee7b7',
-          400: '#34d399',
-          500: '#10b981',
-          600: '#059669',
-          700: '#047857',
-          800: '#065f46',
-          900: '#064e3b',
-        },
-        rose: {
-          50: '#fff1f2',
-          100: '#ffe4e6',
-          200: '#fecdd3',
-          300: '#fda4af',
-          400: '#fb7185',
-          500: '#f43f5e',
-          600: '#e11d48',
-          700: '#be123c',
-          800: '#9f1239',
-          900: '#881337',
-        },
-        amber: {
-          50: '#fffbeb',
-          100: '#fef3c7',
-          200: '#fde68a',
-          300: '#fcd34d',
-          400: '#fbbf24',
-          500: '#f59e0b',
-          600: '#d97706',
-          700: '#b45309',
-          800: '#92400e',
-          900: '#78350f',
-        },
-        cyan: {
-          50: '#ecfeff',
-          100: '#cffafe',
-          200: '#a5f3fc',
-          300: '#67e8f9',
-          400: '#22d3ee',
-          500: '#06b6d4',
-          600: '#0891b2',
-          700: '#0e7490',
-          800: '#155e75',
-          900: '#164e63',
-        },
         // Midnight Aurora Palette
         background: {
           DEFAULT: '#020617', // Deep Navy/Black (Slate 950 approx)
@@ -127,6 +63,14 @@ module.exports = {
           foreground: '#94A3B8', // Slate 400
         },
         border: 'rgba(255, 255, 255, 0.08)',
+        // Names used by the older pages (About, Contact, legal pages, 404, Inactive, mobile header)
+        dark: {
+          primary: '#020617',   // same as background
+          secondary: '#0F172A', // same as background.paper
+        },
+        light: {
+          primary: '#F1F5F9',   // Slate 100, the body text colour
+        },
       },
       borderRadius: {
         lg: '0.75rem',
@@ -143,6 +87,12 @@ module.exports = {
         'glass-sm': '0 4px 16px 0 rgba(0, 0, 0, 0.2)',
         'neon-primary': '0 0 10px rgba(139, 92, 246, 0.5), 0 0 20px rgba(139, 92, 246, 0.3)',
         'neon-secondary': '0 0 10px rgba(6, 182, 212, 0.5), 0 0 20px rgba(6, 182, 212, 0.3)',
+        'soft': '0 2px 8px 0 rgba(0, 0, 0, 0.25)',
+        'elevated': '0 10px 30px -5px rgba(0, 0, 0, 0.5)',
+      },
+      spacing: {
+        // Room for the home indicator on notched phones (pb-safe-area)
+        'safe-area': 'env(safe-area-inset-bottom)',
       },
       backdropBlur: {
         xs: '2px',
@@ -150,7 +100,9 @@ module.exports = {
       animation: {
         'fade-in': 'fadeIn 0.5s ease-out forwards',
         'slide-up': 'slideUp 0.6s ease-out forwards',
+        'slide-in': 'slideIn 0.3s ease-out forwards',
         'pulse-glow': 'pulseGlow 3s infinite',
+        'pulse-slow': 'pulse 6s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'float': 'float 6s ease-in-out infinite',
       },
       keyframes: {
@@ -161,6 +113,10 @@ module.exports = {
         slideUp: {
           '0%': { opacity: '0', transform: 'translateY(20px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        slideIn: {
+          '0%': { opacity: '0', transform: 'translateX(20px)' },
+          '100%': { opacity: '1', transform: 'translateX(0)' },
         },
         pulseGlow: {
           '0%, 100%': { boxShadow: '0 0 15px rgba(139, 92, 246, 0.3)' },

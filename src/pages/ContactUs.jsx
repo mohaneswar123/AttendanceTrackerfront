@@ -62,7 +62,7 @@ function ContactUs() {
             <div className="bg-dark-secondary rounded-lg shadow-md p-5">
               <h3 className="text-lg font-medium mb-2 text-light-primary">How do I reset my password?</h3>
               <p className="text-light-primary">
-                If you forgot your password, please send a mail using your registered email address, and our team will send a password to your email.
+                If you forgot your password, email us from your registered email address. We'll set a temporary password for your account and send it to you. After signing in, change it from the Settings page.
               </p>
             </div>
             <div className="bg-dark-secondary rounded-lg shadow-md p-5">

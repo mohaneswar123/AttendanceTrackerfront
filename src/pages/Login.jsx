@@ -1,19 +1,22 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AttendanceContext } from '../contexts/AttendanceContext';
-import { isUserActive } from '../utils/auth';
+import { errorMessage, isSubscriptionError } from '../services/api';
 
 function Login() {
   const [credentials, setCredentials] = useState({
     email: '',
     password: ''
   });
+  const [error, setError] = useState('');
 
   const navigate = useNavigate();
+  const location = useLocation();
+  const justRegistered = location.state?.registered;
   const { currentUser, login, loading } = useContext(AttendanceContext);
 
   useEffect(() => {
-    if (currentUser && isUserActive()) {
+    if (currentUser && !currentUser.isAdmin) {
       navigate('/');
     }
   }, [currentUser, navigate]);
@@ -28,22 +31,16 @@ function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
     try {
-      const user = await login(credentials.email, credentials.password);
-      localStorage.setItem("loggedUser", JSON.stringify(user));
-      if (user.active === true) {
-        navigate("/");
-        return;
-      }
-      navigate("/inactive");
+      await login(credentials.email, credentials.password);
+      navigate("/");
     } catch (err) {
-      const raw = err?.response?.data;
-      const msg = (typeof raw === "string" ? raw : JSON.stringify(raw || "")).toString();
-      if (msg.includes("not active") || msg.includes("expired")) {
+      if (isSubscriptionError(err.response?.data?.code)) {
         navigate("/inactive");
         return;
       }
-      alert("Invalid email or password");
+      setError(errorMessage(err, "Invalid email or password"));
     }
   };
 
@@ -65,6 +62,20 @@ function Login() {
             Sign in to access your attendance register
           </p>
         </div>
+
+        {justRegistered && !error && (
+          <div className="bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 px-4 py-3 rounded-lg text-sm flex items-start gap-2 animate-fade-in" role="status">
+            <span className="text-lg">✅</span>
+            <span className="block sm:inline mt-0.5">Account created. Sign in to continue.</span>
+          </div>
+        )}
+
+        {error && (
+          <div className="bg-rose-500/10 border border-rose-500/30 text-rose-300 px-4 py-3 rounded-lg text-sm flex items-start gap-2 animate-fade-in" role="alert">
+            <span className="text-lg">⚠️</span>
+            <span className="block sm:inline mt-0.5">{error}</span>
+          </div>
+        )}
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-4">

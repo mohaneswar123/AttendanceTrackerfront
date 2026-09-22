@@ -37,15 +37,15 @@ function AboutUs() {
                   Education depends on consistent systems. Our platform prioritizes stability, accuracy, and dependability.
                 </p>
               </div>
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <h3 className="text-lg font-medium mb-2 text-gray-700">Innovation</h3>
-                <p className="text-gray-600">
+              <div className="bg-dark-primary p-4 rounded-lg">
+                <h3 className="text-lg font-medium mb-2 text-light-primary">Innovation</h3>
+                <p className="text-light-primary/80">
                   We continuously improve our platform with new features and capabilities based on user feedback and emerging technologies.
                 </p>
               </div>
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <h3 className="text-lg font-medium mb-2 text-gray-700">Privacy</h3>
-                <p className="text-gray-600">
+              <div className="bg-dark-primary p-4 rounded-lg">
+                <h3 className="text-lg font-medium mb-2 text-light-primary">Privacy</h3>
+                <p className="text-light-primary/80">
                   We respect user privacy and implement strong data protection measures to ensure sensitive information remains secure.
                 </p>
               </div>

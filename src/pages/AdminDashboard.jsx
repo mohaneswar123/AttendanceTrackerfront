@@ -1,7 +1,14 @@
 import React, { useState, useEffect, useContext, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AttendanceContext } from '../contexts/AttendanceContext';
-import { adminService, resetService } from '../services/api';
+import { adminService, errorMessage } from '../services/api';
+
+// Backend users come back with `id`; the dashboard uses `_id`
+const normalizeUser = (user) => ({
+  ...user,
+  _id: user._id || user.id,
+  username: user.username || user.name
+});
 
 function AdminDashboard() {
   const { logout } = useContext(AttendanceContext);
@@ -15,8 +22,7 @@ function AdminDashboard() {
   const [daysToActivate, setDaysToActivate] = useState(30);
   const [actionLoading, setActionLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [userPassword, setUserPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
 
   // New: user status filter & email export panel
   const [userStatusFilter, setUserStatusFilter] = useState('all'); // 'all' | 'active' | 'inactive'
@@ -32,19 +38,9 @@ function AdminDashboard() {
       try {
         setLoading(true);
         const response = await adminService.getAllUsers();
-        // Normalize users data
-        const normalizedUsers = response.map(user => ({
-          ...user,
-          _id: user._id || user.id,
-          username: user.username || user.name,
-          email: user.email,
-          password: user.password,
-          active: user.active,
-          paidTill: user.paidTill
-        }));
-        setUsers(normalizedUsers);
+        setUsers(response.map(normalizeUser));
       } catch (err) {
-        setError('Failed to load users');
+        setError(errorMessage(err, 'Failed to load users'));
         console.error('Error fetching users:', err);
       } finally {
         setLoading(false);
@@ -58,22 +54,14 @@ function AdminDashboard() {
       setRefreshing(true);
       setError(null);
       const response = await adminService.getAllUsers();
-      const normalizedUsers = response.map(user => ({
-        ...user,
-        _id: user._id || user.id,
-        username: user.username || user.name,
-        email: user.email,
-        password: user.password,
-        active: user.active,
-        paidTill: user.paidTill
-      }));
+      const normalizedUsers = response.map(normalizeUser);
       setUsers(normalizedUsers);
       if (selectedUser) {
         const updatedSel = normalizedUsers.find(u => u._id === (selectedUser._id || selectedUser.id));
         if (updatedSel) setSelectedUser(updatedSel);
       }
     } catch (err) {
-      setError('Failed to refresh users');
+      setError(errorMessage(err, 'Failed to refresh users'));
     } finally {
       setRefreshing(false);
     }
@@ -138,7 +126,7 @@ function AdminDashboard() {
 
         setUserAttendance(normalizedAttendance);
       } catch (err) {
-        setError('Failed to load user data');
+        setError(errorMessage(err, 'Failed to load user data'));
       } finally {
         setLoading(false);
       }
@@ -177,18 +165,28 @@ function AdminDashboard() {
     });
   };
 
-  // Password sync
+  // Clear the new-password field when switching users
   useEffect(() => {
-    if (selectedUser) {
-      setUserPassword(selectedUser.password || '');
-      setShowPassword(false);
-    } else {
-      setUserPassword('');
-      setShowPassword(false);
-    }
-  }, [selectedUser?._id, selectedUser?.password]);
+    setNewPassword('');
+  }, [selectedUser?._id]);
 
   // Actions
+  const handleSetPassword = async () => {
+    if (!selectedUser || !newPassword.trim()) return;
+    if (!window.confirm(`Set a new password for ${selectedUser.username}? Their old password will stop working.`)) return;
+
+    setActionLoading(true);
+    try {
+      await adminService.setUserPassword(selectedUser._id, newPassword);
+      alert(`Password updated. Send the new password to ${selectedUser.email}.`);
+      setNewPassword('');
+    } catch (e) {
+      alert(errorMessage(e, 'Failed to set password'));
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   const handleActivate = async () => {
     if (!selectedUser) return;
     if (!window.confirm(`Activate ${selectedUser.username} for ${daysToActivate} days?`)) return;
@@ -200,7 +198,7 @@ function AdminDashboard() {
       setUsers(prev => prev.map(u => (u._id === normalized._id ? { ...u, ...normalized } : u)));
       setSelectedUser(prev => ({ ...(prev || {}), ...normalized }));
     } catch (e) {
-      alert(e?.response?.data?.message || 'Failed to activate user');
+      alert(errorMessage(e, 'Failed to activate user'));
     } finally {
       setActionLoading(false);
     }
@@ -217,7 +215,7 @@ function AdminDashboard() {
       setUsers(prev => prev.map(u => (u._id === normalized._id ? { ...u, ...normalized } : u)));
       setSelectedUser(prev => ({ ...(prev || {}), ...normalized }));
     } catch (e) {
-      alert(e?.response?.data?.message || 'Failed to deactivate user');
+      alert(errorMessage(e, 'Failed to deactivate user'));
     } finally {
       setActionLoading(false);
     }
@@ -231,13 +229,13 @@ function AdminDashboard() {
 
     setActionLoading(true);
     try {
-      await resetService.resetUserData(selectedUser._id);
+      // Also deletes the user's subjects and attendance
       await adminService.deleteUser(selectedUser._id);
       setUsers(prev => prev.filter(u => u._id !== selectedUser._id));
       setSelectedUser(null);
       alert('User deleted.');
     } catch (e) {
-      alert(e?.response?.data?.message || 'Failed to delete user');
+      alert(errorMessage(e, 'Failed to delete user'));
     } finally {
       setActionLoading(false);
     }
@@ -270,18 +268,19 @@ function AdminDashboard() {
         return recordSubjectId === subjectId;
       });
 
-      let present = 0, absent = 0, totalHours = 0, attendedHours = 0;
+      // classNumber is the class length in hours
+      let totalHours = 0, attendedHours = 0, missedHours = 0;
 
       subjectRecords.forEach(record => {
         const hours = Number(record.classNumber) || 1;
-        if (record.status === 'Present') { present += 1; attendedHours += hours; }
-        else if (record.status === 'Absent') { absent += 1; }
+        if (record.status === 'Present') attendedHours += hours;
+        else if (record.status === 'Absent') missedHours += hours;
         if (record.status !== 'No Class') totalHours += hours;
       });
 
       const percentage = totalHours > 0 ? Math.round((attendedHours / totalHours) * 100) : 0;
 
-      return { ...subject, present, absent, totalHours, attendedHours, percentage };
+      return { ...subject, totalHours, attendedHours, missedHours, percentage };
     });
   }, [userSubjects, userAttendance]);
 
@@ -420,13 +419,26 @@ function AdminDashboard() {
                   </div>
 
                   <div className="mt-6 pt-4 border-t border-white/5">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-2">User Password</label>
+                    <label htmlFor="admin-new-password" className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-2">Set New Password</label>
                     <div className="flex gap-2">
-                      <input type={showPassword ? "text" : "password"} value={userPassword} disabled className="flex-1 bg-slate-900/50 rounded-lg px-3 py-2 text-sm text-slate-300 font-mono" />
-                      <button onClick={() => setShowPassword(!showPassword)} className="px-3 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-slate-400 text-xs font-bold uppercase">
-                        {showPassword ? 'Hide' : 'Show'}
+                      <input
+                        id="admin-new-password"
+                        type="text"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        placeholder="Temporary password"
+                        autoComplete="off"
+                        className="flex-1 min-w-0 bg-slate-900/50 border border-white/10 rounded-lg px-3 py-2 text-sm text-slate-300 font-mono focus:border-indigo-500 focus:outline-none"
+                      />
+                      <button
+                        onClick={handleSetPassword}
+                        disabled={actionLoading || !newPassword.trim()}
+                        className="px-3 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-slate-300 text-xs font-bold uppercase disabled:opacity-50"
+                      >
+                        Set
                       </button>
                     </div>
+                    <p className="mt-2 text-xs text-slate-500">Passwords are stored encrypted and can't be viewed. Set a temporary one and email it to the user.</p>
                   </div>
                 </div>
 
@@ -484,8 +496,8 @@ function AdminDashboard() {
                       <thead>
                         <tr className="text-slate-500 border-b border-white/5">
                           <th className="pb-3 pl-2 font-medium">Subject</th>
-                          <th className="pb-3 font-medium text-center">Att</th>
-                          <th className="pb-3 font-medium text-center">Abs</th>
+                          <th className="pb-3 font-medium text-center">Present (h)</th>
+                          <th className="pb-3 font-medium text-center">Absent (h)</th>
                           <th className="pb-3 pr-2 font-medium text-right">Rate</th>
                         </tr>
                       </thead>
@@ -495,7 +507,7 @@ function AdminDashboard() {
                             <tr key={sub._id} className="group hover:bg-white/5 transition-colors">
                               <td className="py-3 pl-2 font-medium text-slate-200">{sub.name}</td>
                               <td className="py-3 text-center text-emerald-400 font-mono">{sub.attendedHours}</td>
-                              <td className="py-3 text-center text-rose-400 font-mono">{sub.absent}</td>
+                              <td className="py-3 text-center text-rose-400 font-mono">{sub.missedHours}</td>
                               <td className="py-3 pr-2 text-right">
                                 <div className="flex items-center justify-end gap-2">
                                   <div className="w-16 h-1.5 bg-slate-800 rounded-full overflow-hidden">
