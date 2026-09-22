@@ -2,10 +2,10 @@
 
 const pad = (n) => String(n).padStart(2, '0');
 
-const toIsoDate = (date) => `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+export const toIsoDate = (date) => `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 
 // "YYYY-MM-DD" -> a Date at local midnight (new Date("YYYY-MM-DD") would be UTC midnight)
-const fromIsoDate = (isoDate) => {
+export const fromIsoDate = (isoDate) => {
   const [year, month, day] = isoDate.split('-').map(Number);
   return new Date(year, month - 1, day);
 };

@@ -12,11 +12,18 @@ const MobileBottomNav = () => {
                 </svg>
             )
         },
-        // History is reached from the Dashboard's "View All", keeping this bar to five items
+        // History is reached from the Dashboard's "View All", keeping this bar to six items
         {
             to: '/tasks', label: 'Tasks', icon: (
                 <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                </svg>
+            )
+        },
+        {
+            to: '/calendar', label: 'Calendar', icon: (
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
             )
         },
@@ -47,14 +54,16 @@ const MobileBottomNav = () => {
 
     return (
         <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-background-paper/80 backdrop-blur-xl border-t border-white/5 pb-safe-area">
-            <div className="flex justify-around items-center h-16 px-2">
+            {/* Six equal items; labels stay on one line even on 360px phones */}
+            <div className="flex justify-around items-center h-16 px-1">
                 {navLinks.map((link) => {
                     const isActive = location.pathname === link.to;
                     return (
                         <Link
                             key={link.to}
                             to={link.to}
-                            className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${isActive ? 'text-primary-400' : 'text-slate-500'
+                            aria-current={isActive ? 'page' : undefined}
+                            className={`flex flex-col items-center justify-center flex-1 min-w-0 h-full space-y-1 ${isActive ? 'text-primary-400' : 'text-slate-500'
                                 }`}
                         >
                             <div className={`relative p-1.5 rounded-xl transition-all duration-300 ${isActive ? 'bg-primary-500/10 -translate-y-1' : ''
@@ -64,7 +73,7 @@ const MobileBottomNav = () => {
                                     <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-primary-500 rounded-full shadow-[0_0_8px_rgba(139,92,246,0.8)]" />
                                 )}
                             </div>
-                            <span className={`text-[10px] font-medium transition-colors ${isActive ? 'text-primary-300' : 'text-slate-500'
+                            <span className={`text-[10px] font-medium tracking-tight whitespace-nowrap transition-colors ${isActive ? 'text-primary-300' : 'text-slate-500'
                                 }`}>
                                 {link.label}
                             </span>

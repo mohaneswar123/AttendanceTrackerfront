@@ -267,6 +267,38 @@ export const pomodoroService = {
   }
 };
 
+// Calendar Services (the signed-in student's entries; the server takes the student from the token).
+// Entries come back as { id, title, type: 'EVENT' | 'REMINDER', date, allDay, startTime, endTime, ... }
+// with the date and "HH:mm" times already in the calendar's time zone.
+export const calendarService = {
+  // from/to are "YYYY-MM-DD" and inclusive; q searches titles. All optional.
+  getEvents: async ({ from, to, q } = {}) => {
+    const response = await apiClient.get('/calendar/events', { params: { from, to, q } });
+    return response.data;
+  },
+
+  getEvent: async (eventId) => {
+    const response = await apiClient.get(`/calendar/events/${eventId}`);
+    return response.data;
+  },
+
+  // entry: { title, type, date, allDay, startTime, endTime }
+  createEvent: async (entry) => {
+    const response = await apiClient.post('/calendar/events', entry);
+    return response.data;
+  },
+
+  updateEvent: async (eventId, entry) => {
+    const response = await apiClient.put(`/calendar/events/${eventId}`, entry);
+    return response.data;
+  },
+
+  deleteEvent: async (eventId) => {
+    const response = await apiClient.delete(`/calendar/events/${eventId}`);
+    return response.data;
+  }
+};
+
 // Reset Services
 export const resetService = {
   resetUserData: async (userId) => {

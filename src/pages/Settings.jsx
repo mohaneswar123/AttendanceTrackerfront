@@ -232,7 +232,7 @@ function Settings() {
           {/* Danger Area */}
           <div className="glass-panel p-6 rounded-3xl border border-rose-500/20 bg-rose-500/5">
             <h3 className="text-lg font-bold text-rose-400 mb-2">Danger Zone</h3>
-            <p className="text-slate-400 text-sm mb-4">Irreversible action. Deletes your subjects and attendance records. Your tasks and focus history are not affected.</p>
+            <p className="text-slate-400 text-sm mb-4">Irreversible action. Deletes your subjects and attendance records. Your tasks, calendar and focus history are not affected.</p>
 
             {isResetting ? (
               <div className="space-y-3 animate-fade-in">

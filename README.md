@@ -36,6 +36,13 @@ Then open http://localhost:5173.
   - `src/components/tasks/` has the board, columns, cards, quick-add form and edit dialog.
   - Filters: Today, Yesterday, Upcoming, or a picked date.
   - Desktop shows three columns. Phones show one column at a time with a switcher and a floating + button. Cards move between columns by dragging on desktop, or with the card menu's "Move to".
+- **Calendar** (`src/pages/Calendar.jsx`):
+  - Month, Week and Day views (weeks start on Sunday), with Today and previous/next.
+  - Add, edit and delete Events and Reminders, all-day or timed. A Reminder is just a calendar entry; nothing is sent.
+  - An Upcoming list and title search.
+  - `src/hooks/useCalendar.js` loads the dates on screen. `src/utils/calendarDate.js` handles the date maths on local "YYYY-MM-DD" strings, so days never shift.
+  - Times are shown exactly as the server returns them, in the calendar's time zone.
+  - On phones, the month shows dots and the chosen day's list, Week becomes a day-by-day list, and forms open as bottom sheets.
 - **Pomodoro** (`src/pages/Pomodoro.jsx`):
   - Students pick their focus length (15, 25, 45, 60 or any 1–120 minutes) and break length (5, 10, 15 or any 1–30 minutes). The choice is remembered on the device.
   - `src/hooks/usePomodoro.js` keeps the display in step with the timer on the server, so it survives refreshes and leaving the page.
