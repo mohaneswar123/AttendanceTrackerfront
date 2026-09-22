@@ -13,7 +13,7 @@ npm run dev
 
 Then open http://localhost:5173.
 
-By default the app talks to the deployed backend on Render. To use a backend running on your machine, copy `.env.example` to `.env.local` (it points at `http://localhost:8080/api`). The backend allows `http://localhost:5173` by default.
+`npm run dev` talks to a backend running on your machine at `http://localhost:8080/api`, which allows `http://localhost:5173` by default. Production builds (`npm run build`) talk to the deployed backend on Render. To use a different backend, copy `.env.example` to `.env.local` and change `VITE_API_BASE_URL`.
 
 ## Scripts
 

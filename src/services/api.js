@@ -1,7 +1,9 @@
 import axios from 'axios';
 
-// Set VITE_API_BASE_URL (see .env.example) to use another backend, e.g. a local one
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://attendancetrackerbackend-mongo.onrender.com/api';
+// `npm run dev` talks to the backend on this machine; production builds talk to Render.
+// Set VITE_API_BASE_URL (see .env.example) to use a different backend.
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
+  || (import.meta.env.DEV ? 'http://localhost:8080/api' : 'https://attendancetrackerbackend-mongo.onrender.com/api');
 
 const SESSION_KEY = 'session';
 
