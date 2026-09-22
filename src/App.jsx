@@ -10,6 +10,8 @@ const Dashboard = lazy(() => import('./pages/Dashboard'));
 const History = lazy(() => import('./pages/History'));
 const Settings = lazy(() => import('./pages/Settings'));
 const Report = lazy(() => import('./pages/Report'));
+const Tasks = lazy(() => import('./pages/Tasks'));
+const Pomodoro = lazy(() => import('./pages/Pomodoro'));
 const Login = lazy(() => import('./pages/Login'));
 const Register = lazy(() => import('./pages/Register'));
 const AdminLogin = lazy(() => import('./pages/AdminLogin'));
@@ -74,6 +76,18 @@ function AppContent() {
             <Route path="/reports" element={
               <ProtectedRoute>
                 <Layout><Report /></Layout>
+              </ProtectedRoute>
+            } />
+
+            <Route path="/tasks" element={
+              <ProtectedRoute>
+                <Layout><Tasks /></Layout>
+              </ProtectedRoute>
+            } />
+
+            <Route path="/pomodoro" element={
+              <ProtectedRoute>
+                <Layout><Pomodoro /></Layout>
               </ProtectedRoute>
             } />
 

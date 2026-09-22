@@ -1,6 +1,6 @@
 # Attendance In Hand (frontend)
 
-Students record attendance per subject (Present, Absent or No Class, plus the class length in hours) and see their history and attendance percentage. Built with React 18, Vite, Tailwind CSS 3 and React Router, and installable as a PWA.
+Students record attendance per subject (Present, Absent or No Class, plus the class length in hours) and see their history and attendance percentage. They can also plan tasks on a simple Kanban board and focus with a Pomodoro timer. Built with React 18, Vite, Tailwind CSS 3, React Router and dnd-kit, and installable as a PWA.
 
 Live at https://attendanceinhand.netlify.app. The backend lives in the separate `AttendanceTrackerBackend-mongo` repository.
 
@@ -31,6 +31,13 @@ By default the app talks to the deployed backend on Render. To use a backend run
 - `src/contexts/AttendanceContext.jsx`: the signed-in session (stored in `localStorage` under `session`), subjects, attendance records and the actions that change them.
 - `src/components/ProtectedRoute.jsx`: re-checks the subscription when a page opens, when the tab regains focus and every minute. Guests can browse the pages without saving anything.
 - `src/pages/`: one component per route. The routes are listed in `src/App.jsx`.
+- **Tasks** (`src/pages/Tasks.jsx`):
+  - `src/hooks/useTaskBoard.js` loads the tasks for the chosen date filter. Moves happen on screen straight away and are then saved.
+  - `src/components/tasks/` has the board, columns, cards, quick-add form and edit dialog.
+  - Desktop shows three columns. Phones show one column at a time with a switcher, and the card menu's "Move to".
+- **Pomodoro** (`src/pages/Pomodoro.jsx`):
+  - `src/hooks/usePomodoro.js` keeps the display in step with the timer on the server, so it survives refreshes and leaving the page.
+  - It isn't linked to tasks.
 - `tailwind.config.js` and `src/index.css`: the "Midnight Aurora" theme and the shared `glass-panel`, `glass-card`, `btn` and `input` classes.
 
 Attendance percentages are weighted by class length: a 2-hour class counts twice as much as a 1-hour class, and "No Class" doesn't count.

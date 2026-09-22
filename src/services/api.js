@@ -193,6 +193,77 @@ export const attendanceService = {
   }
 };
 
+// Task Services (the signed-in student's Kanban board; the server takes the student from the token)
+export const taskService = {
+  // from/to are "YYYY-MM-DD" and inclusive; leave both out for all tasks
+  getTasks: async ({ from, to } = {}) => {
+    const response = await apiClient.get('/tasks', { params: { from, to } });
+    return response.data;
+  },
+
+  // task: { title, taskDate, priority } where priority may be null
+  createTask: async (task) => {
+    const response = await apiClient.post('/tasks', task);
+    return response.data;
+  },
+
+  updateTask: async (taskId, task) => {
+    const response = await apiClient.put(`/tasks/${taskId}`, task);
+    return response.data;
+  },
+
+  // Places the task in `status` between the two neighbouring task ids (either may be null)
+  moveTask: async (taskId, status, afterTaskId, beforeTaskId) => {
+    const response = await apiClient.put(`/tasks/${taskId}/move`, { status, afterTaskId, beforeTaskId });
+    return response.data;
+  },
+
+  deleteTask: async (taskId) => {
+    const response = await apiClient.delete(`/tasks/${taskId}`);
+    return response.data;
+  }
+};
+
+// Pomodoro Services. Every call resolves to the timer's state:
+// { phase: 'IDLE' | 'FOCUS' | 'BREAK', sessionId, remainingSeconds, totalSeconds, paused }
+export const pomodoroService = {
+  getCurrent: async () => {
+    const response = await apiClient.get('/pomodoro/current');
+    return response.data;
+  },
+
+  start: async () => {
+    const response = await apiClient.post('/pomodoro/start');
+    return response.data;
+  },
+
+  pause: async (sessionId) => {
+    const response = await apiClient.put(`/pomodoro/${sessionId}/pause`);
+    return response.data;
+  },
+
+  resume: async (sessionId) => {
+    const response = await apiClient.put(`/pomodoro/${sessionId}/resume`);
+    return response.data;
+  },
+
+  // The Reset button
+  stop: async (sessionId) => {
+    const response = await apiClient.put(`/pomodoro/${sessionId}/stop`);
+    return response.data;
+  },
+
+  complete: async (sessionId) => {
+    const response = await apiClient.put(`/pomodoro/${sessionId}/complete`);
+    return response.data;
+  },
+
+  skipBreak: async (sessionId) => {
+    const response = await apiClient.put(`/pomodoro/${sessionId}/skip-break`);
+    return response.data;
+  }
+};
+
 // Reset Services
 export const resetService = {
   resetUserData: async (userId) => {

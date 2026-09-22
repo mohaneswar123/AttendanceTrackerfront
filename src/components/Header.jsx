@@ -24,6 +24,8 @@ function Header() {
     { to: '/', label: 'Dashboard', icon: '📊' },
     { to: '/history', label: 'History', icon: '📅' },
     { to: '/reports', label: 'Reports', icon: '📈' },
+    { to: '/tasks', label: 'Tasks', icon: '📋' },
+    { to: '/pomodoro', label: 'Pomodoro', icon: '⏱️' },
     { to: '/settings', label: 'Settings', icon: '⚙️' },
   ];
 
