@@ -1,13 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { AttendanceContext } from '../contexts/AttendanceContext';
-
-// Today's date as YYYY-MM-DD in the user's own time zone
-const todayLocal = () => {
-  const now = new Date();
-  const pad = (n) => String(n).padStart(2, '0');
-  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
-};
+import { todayLocal } from '../utils/date';
 
 const hoursLabel = (hours) => `${hours} ${Number(hours) === 1 ? 'hr' : 'hrs'}`;
 
