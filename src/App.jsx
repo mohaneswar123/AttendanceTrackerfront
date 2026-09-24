@@ -13,6 +13,7 @@ const Report = lazy(() => import('./pages/Report'));
 const Tasks = lazy(() => import('./pages/Tasks'));
 const Pomodoro = lazy(() => import('./pages/Pomodoro'));
 const Calendar = lazy(() => import('./pages/Calendar'));
+const Timetable = lazy(() => import('./pages/Timetable'));
 const Login = lazy(() => import('./pages/Login'));
 const Register = lazy(() => import('./pages/Register'));
 const AdminLogin = lazy(() => import('./pages/AdminLogin'));
@@ -89,6 +90,12 @@ function AppContent() {
             <Route path="/calendar" element={
               <ProtectedRoute>
                 <Layout><Calendar /></Layout>
+              </ProtectedRoute>
+            } />
+
+            <Route path="/timetable" element={
+              <ProtectedRoute>
+                <Layout><Timetable /></Layout>
               </ProtectedRoute>
             } />
 

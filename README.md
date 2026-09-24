@@ -1,6 +1,6 @@
 # Attendance In Hand (frontend)
 
-Students record attendance per subject (Present, Absent or No Class, plus the class length in hours) and see their history and attendance percentage. They can also plan tasks on a simple Kanban board and focus with a Pomodoro timer. Built with React 18, Vite, Tailwind CSS 3, React Router and dnd-kit, and installable as a PWA.
+Students record attendance per subject (Present, Absent or No Class, plus the class length in hours) and see their history and attendance percentage. They can also plan tasks on a simple Kanban board, keep a calendar, build weekly routines and focus with a Pomodoro timer. Built with React 18, Vite, Tailwind CSS 3, React Router and dnd-kit, and installable as a PWA.
 
 Live at https://attendanceinhand.netlify.app. The backend lives in the separate `AttendanceTrackerBackend-mongo` repository.
 
@@ -43,6 +43,14 @@ Then open http://localhost:5173.
   - `src/hooks/useCalendar.js` loads the dates on screen. `src/utils/calendarDate.js` handles the date maths on local "YYYY-MM-DD" strings, so days never shift.
   - Times are shown exactly as the server returns them, in the calendar's time zone.
   - On phones, the month shows dots and the chosen day's list, Week becomes a day-by-day list, and forms open as bottom sheets.
+- **Timetable** (`src/pages/Timetable.jsx`):
+  - Weekly routines grouped into modes (College, Home, Exam Prep …), each with its own Monday–Sunday plan. One mode is active.
+  - A small dropdown switches between modes, with Set as active, Edit and Delete in the ⋯ menu beside it.
+  - Day view with tabs for the seven days, and a Week view showing the whole routine. Only the activities the student created are listed; empty stretches are simply empty.
+  - Add, edit and delete activities, and copy a day onto other days (which replaces them, after a warning).
+  - Deleting a mode always asks first and says its activities go with it.
+  - `src/hooks/useTimetable.js` holds the modes and the chosen mode's week. `src/utils/timetable.js` has the days, categories, colours, duration text and the overlap check.
+  - The form refuses an overlapping activity before sending, but the server is the authority: it refuses the same clash with 409 even when the form is bypassed.
 - **Pomodoro** (`src/pages/Pomodoro.jsx`):
   - Students pick their focus length (15, 25, 45, 60 or any 1–120 minutes) and break length (5, 10, 15 or any 1–30 minutes). The choice is remembered on the device.
   - `src/hooks/usePomodoro.js` keeps the display in step with the timer on the server, so it survives refreshes and leaving the page.
