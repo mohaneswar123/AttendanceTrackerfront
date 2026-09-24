@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import SheetHeader from './SheetHeader';
 import { DAYS, DAY_LONG } from '../../utils/timetable';
 
 // Copy one day's activities onto other days. Each target day is replaced, so the days that
@@ -47,28 +48,22 @@ function CopyDayModal({ fromDay, activitiesByDay, onCopy, onClose }) {
         onMouseDown={(e) => e.stopPropagation()}
         className="w-full md:max-w-md max-h-[92vh] overflow-y-auto rounded-t-3xl md:rounded-2xl bg-slate-900 border border-white/10 p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] md:pb-5 space-y-4 shadow-2xl animate-slide-up md:animate-fade-in"
       >
-        <div>
-          <h2 id="copy-day-title" className="text-lg font-semibold text-white">Copy {DAY_LONG[fromDay]}</h2>
-          <p className="mt-1 text-sm text-slate-400">
-            {sourceCount === 0
-              ? `${DAY_LONG[fromDay]} is empty, so the days you pick will be emptied too.`
-              : `${sourceCount} ${sourceCount === 1 ? 'activity' : 'activities'} will be copied to the days you pick.`}
-          </p>
-        </div>
+        <SheetHeader id="copy-day-title" title={`Copy ${DAY_LONG[fromDay]} to…`} onClose={onClose} />
 
         <div className="space-y-1" role="group" aria-label="Copy to">
           {DAYS.filter(day => day !== fromDay).map(day => {
             const count = activitiesByDay[day]?.length ?? 0;
+            const checked = selected.includes(day);
             return (
-              <label key={day} className="flex items-center gap-3 px-3 py-3 md:py-2.5 rounded-xl hover:bg-white/5 cursor-pointer">
+              <label key={day} className="flex items-center gap-3 px-3 py-3 rounded-xl bg-slate-800/40 hover:bg-white/5 cursor-pointer">
+                <span className="flex-1 text-sm font-medium text-slate-200">{DAY_LONG[day]}</span>
+                {count > 0 && <span className="text-xs text-slate-500">{count} already</span>}
                 <input
                   type="checkbox"
-                  checked={selected.includes(day)}
+                  checked={checked}
                   onChange={() => toggle(day)}
                   className="w-5 h-5 rounded accent-primary-500"
                 />
-                <span className="flex-1 text-sm font-medium text-slate-200">{DAY_LONG[day]}</span>
-                {count > 0 && <span className="text-xs text-slate-500">{count} already</span>}
               </label>
             );
           })}
@@ -84,11 +79,19 @@ function CopyDayModal({ fromDay, activitiesByDay, onCopy, onClose }) {
 
         {formError && <p className="text-sm text-rose-400" role="alert">{formError}</p>}
 
-        <div className="grid grid-cols-2 gap-2 pt-1 md:flex md:justify-end">
-          <button type="button" onClick={onClose} className="px-4 py-3 md:py-2 bg-slate-800 text-slate-300 rounded-xl text-sm hover:bg-slate-700">Cancel</button>
-          <button type="submit" disabled={saving} className="px-4 py-3 md:py-2 bg-primary-600 hover:bg-primary-500 text-white rounded-xl text-sm font-semibold disabled:opacity-50">
-            {saving ? 'Copying…' : 'Copy'}
+        <div>
+          <button
+            type="submit"
+            disabled={saving}
+            className="w-full py-3.5 rounded-xl bg-primary-600 hover:bg-primary-500 text-white font-semibold disabled:opacity-50"
+          >
+            {saving ? 'Copying…' : 'Replace Days'}
           </button>
+          <p className="mt-2 text-center text-xs text-slate-500">
+            {sourceCount === 0
+              ? `${DAY_LONG[fromDay]} is empty, so the days you pick will be emptied too.`
+              : `This will replace the selected days with a copy of ${DAY_LONG[fromDay]}'s activities.`}
+          </p>
         </div>
       </form>
     </div>

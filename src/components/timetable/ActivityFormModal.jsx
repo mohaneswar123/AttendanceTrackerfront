@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import SheetHeader from './SheetHeader';
 import { formatTime } from '../../utils/calendarDate';
 import { CATEGORIES, DAYS, DAY_LONG, findOverlap } from '../../utils/timetable';
 
@@ -69,7 +70,7 @@ function ActivityFormModal({ activity, initial, activitiesByDay, onSave, onClose
         onMouseDown={(e) => e.stopPropagation()}
         className="w-full md:max-w-md max-h-[92vh] overflow-y-auto rounded-t-3xl md:rounded-2xl bg-slate-900 border border-white/10 p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] md:pb-5 space-y-4 shadow-2xl animate-slide-up md:animate-fade-in"
       >
-        <h2 id="activity-form-title" className="text-lg font-semibold text-white">{activity ? 'Edit activity' : 'New activity'}</h2>
+        <SheetHeader id="activity-form-title" title={activity ? 'Edit Activity' : 'Add Activity'} onClose={onClose} />
 
         <div>
           <label htmlFor="activity-title" className="label">Title</label>
@@ -78,12 +79,26 @@ function ActivityFormModal({ activity, initial, activitiesByDay, onSave, onClose
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             maxLength={100}
-            placeholder="e.g. Data Structures lecture"
+            placeholder="e.g. Breakfast"
             aria-invalid={Boolean(errors.title)}
             aria-describedby={errors.title ? 'activity-title-error' : undefined}
             className="input"
           />
           {fieldError(errors.title, 'activity-title-error')}
+        </div>
+
+        <div>
+          <label htmlFor="activity-category" className="label">Category</label>
+          <select
+            id="activity-category"
+            value={category ?? ''}
+            onChange={(e) => setCategory(e.target.value || null)}
+            className="input"
+          >
+            {CATEGORIES.map(option => (
+              <option key={option.label} value={option.value ?? ''}>{option.icon} {option.label}</option>
+            ))}
+          </select>
         </div>
 
         <div>
@@ -102,62 +117,42 @@ function ActivityFormModal({ activity, initial, activitiesByDay, onSave, onClose
         </div>
 
         <div>
-          <span className="label">Category</span>
-          <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Category">
-            {CATEGORIES.map(option => (
-              <button
-                key={option.label}
-                type="button"
-                role="radio"
-                aria-checked={category === option.value}
-                onClick={() => setCategory(option.value)}
-                className={`px-3 py-2.5 md:py-2 rounded-xl border text-sm font-semibold transition-colors ${category === option.value ? option.chip : 'bg-slate-800/50 text-slate-400 border-transparent hover:bg-slate-800'}`}
-              >
-                {option.label}
-              </button>
-            ))}
-          </div>
+          <label htmlFor="activity-start" className="label">Start Time</label>
+          <input
+            id="activity-start"
+            type="time"
+            value={startTime}
+            onChange={(e) => setStartTime(e.target.value)}
+            aria-invalid={Boolean(errors.startTime)}
+            aria-describedby={errors.startTime ? 'activity-start-error' : undefined}
+            className="input [color-scheme:dark]"
+          />
+          {fieldError(errors.startTime, 'activity-start-error')}
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label htmlFor="activity-start" className="label">Start</label>
-            <input
-              id="activity-start"
-              type="time"
-              value={startTime}
-              onChange={(e) => setStartTime(e.target.value)}
-              aria-invalid={Boolean(errors.startTime)}
-              aria-describedby={errors.startTime ? 'activity-start-error' : undefined}
-              className="input [color-scheme:dark]"
-            />
-          </div>
-          <div>
-            <label htmlFor="activity-end" className="label">End</label>
-            <input
-              id="activity-end"
-              type="time"
-              value={endTime}
-              onChange={(e) => setEndTime(e.target.value)}
-              aria-invalid={Boolean(errors.endTime)}
-              aria-describedby={errors.endTime ? 'activity-end-error' : undefined}
-              className="input [color-scheme:dark]"
-            />
-          </div>
-          <div className="col-span-2 -mt-2">
-            {fieldError(errors.startTime, 'activity-start-error')}
-            {fieldError(errors.endTime, 'activity-end-error')}
-          </div>
+        <div>
+          <label htmlFor="activity-end" className="label">End Time</label>
+          <input
+            id="activity-end"
+            type="time"
+            value={endTime}
+            onChange={(e) => setEndTime(e.target.value)}
+            aria-invalid={Boolean(errors.endTime)}
+            aria-describedby={errors.endTime ? 'activity-end-error' : undefined}
+            className="input [color-scheme:dark]"
+          />
+          {fieldError(errors.endTime, 'activity-end-error')}
         </div>
 
         {formError && <p className="text-sm text-rose-400" role="alert">{formError}</p>}
 
-        <div className="grid grid-cols-2 gap-2 pt-1 md:flex md:justify-end">
-          <button type="button" onClick={onClose} className="px-4 py-3 md:py-2 bg-slate-800 text-slate-300 rounded-xl text-sm hover:bg-slate-700">Cancel</button>
-          <button type="submit" disabled={saving} className="px-4 py-3 md:py-2 bg-primary-600 hover:bg-primary-500 text-white rounded-xl text-sm font-semibold disabled:opacity-50">
-            {saving ? 'Saving…' : 'Save'}
-          </button>
-        </div>
+        <button
+          type="submit"
+          disabled={saving}
+          className="w-full py-3.5 rounded-xl bg-primary-600 hover:bg-primary-500 text-white font-semibold disabled:opacity-50"
+        >
+          {saving ? 'Saving…' : 'Save'}
+        </button>
       </form>
     </div>
   );

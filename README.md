@@ -45,9 +45,9 @@ Then open http://localhost:5173.
   - On phones, the month shows dots and the chosen day's list, Week becomes a day-by-day list, and forms open as bottom sheets.
 - **Timetable** (`src/pages/Timetable.jsx`):
   - Weekly routines grouped into modes (College, Home, Exam Prep …), each with its own Monday–Sunday plan. One mode is active.
-  - A small dropdown switches between modes, with Set as active, Edit and Delete in the ⋯ menu beside it.
-  - Day view with tabs for the seven days, and a Week view showing the whole routine. Only the activities the student created are listed; empty stretches are simply empty.
-  - Add, edit and delete activities, and copy a day onto other days (which replaces them, after a warning).
+  - A dropdown switches between modes; the ⋯ beside it offers Set as active, Edit mode, Copy a day and Delete mode.
+  - Chips for the seven days, then the day itself: each activity's start time down the left and the activity as a card coloured by its category. Only the activities the student created are listed; empty stretches are simply empty.
+  - Add, edit and delete activities from each card's ⋯ menu, and copy a day onto other days (which replaces them, after a warning).
   - Deleting a mode always asks first and says its activities go with it.
   - `src/hooks/useTimetable.js` holds the modes and the chosen mode's week. `src/utils/timetable.js` has the days, categories, colours, duration text and the overlap check.
   - The form refuses an overlapping activity before sending, but the server is the authority: it refuses the same clash with 409 even when the form is bypassed.
