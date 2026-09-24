@@ -34,11 +34,11 @@ function CalendarEventCard({ event, variant = 'row', onClick }) {
         // Keeps Enter on the chip from also reaching the day cell around it
         onKeyDown={(e) => e.stopPropagation()}
         title={`${event.title} · ${timeLabel(event)}`}
-        className={`w-full text-left truncate px-1.5 py-0.5 rounded-md border text-[11px] font-medium transition-colors ${TYPE_STYLES[event.type].chip}`}
+        className={`w-full text-left px-1.5 py-0.5 rounded-md border text-[11px] font-medium transition-colors ${TYPE_STYLES[event.type].chip}`}
       >
-        {bell(event)}
-        {!event.allDay && <span className="opacity-70">{formatShortTime(event.startTime)} </span>}
-        {event.title}
+        {/* Timed entries put the time above the title, so more of the title fits */}
+        {!event.allDay && <span className="block truncate text-[10px] opacity-70">{formatShortTime(event.startTime)}</span>}
+        <span className="block truncate font-semibold">{bell(event)}{event.title}</span>
       </button>
     );
   }

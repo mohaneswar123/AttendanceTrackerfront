@@ -5,6 +5,7 @@ import useMediaQuery from '../hooks/useMediaQuery';
 import { todayLocal } from '../utils/date';
 import {
   VIEWS,
+  addMonths,
   defaultTimes,
   groupByDate,
   isSameMonth,
@@ -15,6 +16,7 @@ import {
 } from '../utils/calendarDate';
 import CalendarHeader from '../components/calendar/CalendarHeader';
 import CalendarToolbar from '../components/calendar/CalendarToolbar';
+import MiniMonth from '../components/calendar/MiniMonth';
 import MonthView from '../components/calendar/MonthView';
 import WeekView from '../components/calendar/WeekView';
 import DayView from '../components/calendar/DayView';
@@ -52,6 +54,7 @@ function CalendarPage() {
   const [view, setView] = useState(VIEWS.MONTH);
   const [currentDate, setCurrentDate] = useState(todayLocal);
   const [selectedDate, setSelectedDate] = useState(todayLocal); // the phone month's chosen day
+  const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [form, setForm] = useState(null);          // { event } to edit, or { initial } to create
   const [details, setDetails] = useState(null);    // the entry being viewed
@@ -105,6 +108,13 @@ function CalendarPage() {
   const closeDetails = useCallback(() => setDetails(null), []);
   const cancelDelete = useCallback(() => setDeleting(null), []);
 
+  const toggleSearch = () => {
+    setSearchOpen(open => {
+      if (open) setSearchQuery('');
+      return !open;
+    });
+  };
+
   const handleSave = async (entry) => {
     const result = await calendar.saveEvent(form.event?.id, entry);
     if (result.success) {
@@ -144,21 +154,24 @@ function CalendarPage() {
   return (
     <div className="space-y-4 md:space-y-5 pb-24 md:pb-0">
       <CalendarHeader
-        title={title}
-        periodName={PERIOD_NAMES[view]}
         loading={calendar.loading}
-        onToday={() => goTo(today)}
-        onPrevious={() => goTo(stepDate(view, currentDate, -1))}
-        onNext={() => goTo(stepDate(view, currentDate, 1))}
+        searchOpen={searchOpen}
+        onToggleSearch={toggleSearch}
+        onAdd={() => openCreateOn(today)}
+        showAdd={isDesktop}
       />
 
       <CalendarToolbar
         view={view}
         onViewChange={setView}
+        title={title}
+        periodName={PERIOD_NAMES[view]}
+        onToday={() => goTo(today)}
+        onPrevious={() => goTo(stepDate(view, currentDate, -1))}
+        onNext={() => goTo(stepDate(view, currentDate, 1))}
+        searchOpen={searchOpen}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
-        onAdd={() => openCreateOn(today)}
-        showAdd={isDesktop}
       />
 
       {notice && (
@@ -174,7 +187,7 @@ function CalendarPage() {
         </div>
       )}
 
-      {/* Upcoming sits beside Month and Day on wide screens; Week keeps the full width for its seven columns */}
+      {/* The side panel sits beside Month and Day on wide screens; Week keeps the full width for its seven columns */}
       <div className={`grid gap-5 items-start ${view === VIEWS.WEEK ? '' : 'lg:grid-cols-[minmax(0,1fr)_20rem]'}`}>
         <div className="space-y-4 min-w-0">
           {searching ? (
@@ -224,8 +237,10 @@ function CalendarPage() {
                 <DayView
                   currentDate={currentDate}
                   eventsByDate={eventsByDate}
-                  onSlotClick={(date, minutes) => openCreate({ date, allDay: false, ...defaultTimes(minutes) })}
                   onEventClick={setDetails}
+                  onEdit={(event) => setForm({ event })}
+                  onDelete={setDeleting}
+                  onAdd={openCreateOn}
                 />
               )}
 
@@ -246,21 +261,33 @@ function CalendarPage() {
           )}
         </div>
 
-        <aside className="glass-panel rounded-3xl p-4 md:p-5" aria-label="Upcoming">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-bold text-white">Upcoming</h2>
-            {upcoming.length > UPCOMING_SHOWN && (
-              <button type="button" onClick={() => setShowAllUpcoming(all => !all)} className="text-xs font-semibold text-primary-300 hover:text-primary-200">
-                {showAllUpcoming ? 'Show less' : 'View all'}
-              </button>
-            )}
-          </div>
-          <AgendaView
-            events={showAllUpcoming ? upcoming : upcoming.slice(0, UPCOMING_SHOWN)}
-            onEventClick={setDetails}
-            emptyMessage="Nothing coming up."
-          />
-        </aside>
+        <div className="space-y-4">
+          {isDesktop && (
+            <MiniMonth
+              currentDate={currentDate}
+              selectedDate={selectedDate}
+              eventsByDate={eventsByDate}
+              onSelect={goTo}
+              onStepMonth={(step) => goTo(addMonths(currentDate, step))}
+            />
+          )}
+
+          <aside className="glass-panel rounded-3xl p-4 md:p-5" aria-label="Upcoming">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-bold text-white">Upcoming Events</h2>
+              {upcoming.length > UPCOMING_SHOWN && (
+                <button type="button" onClick={() => setShowAllUpcoming(all => !all)} className="text-xs font-semibold text-primary-300 hover:text-primary-200">
+                  {showAllUpcoming ? 'Show less' : 'See all'}
+                </button>
+              )}
+            </div>
+            <AgendaView
+              events={showAllUpcoming ? upcoming : upcoming.slice(0, UPCOMING_SHOWN)}
+              onEventClick={setDetails}
+              emptyMessage="Nothing coming up."
+            />
+          </aside>
+        </div>
       </div>
 
       {/* Add button within thumb reach on phones, above the bottom navigation */}

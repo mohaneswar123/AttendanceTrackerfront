@@ -102,6 +102,18 @@ export const timeLabel = (event) => {
   return event.endTime ? `${formatTime(event.startTime)} – ${formatTime(event.endTime)}` : formatTime(event.startTime);
 };
 
+// How long an entry runs: "1 hour", "30 minutes", "1 hour 30 minutes", or null when it has no end
+export const eventDuration = (event) => {
+  if (event.allDay || !event.endTime) return null;
+  const minutes = toMinutes(event.endTime) - toMinutes(event.startTime);
+  const hours = Math.floor(minutes / 60);
+  const rest = minutes % 60;
+  const parts = [];
+  if (hours) parts.push(`${hours} hour${hours === 1 ? '' : 's'}`);
+  if (rest) parts.push(`${rest} minute${rest === 1 ? '' : 's'}`);
+  return parts.join(' ') || null;
+};
+
 export const toMinutes = (hhmm) => {
   const [hours, minutes] = hhmm.split(':').map(Number);
   return hours * 60 + minutes;

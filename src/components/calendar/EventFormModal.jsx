@@ -92,7 +92,12 @@ function EventFormModal({ event, initial, onSave, onClose }) {
         onMouseDown={(e) => e.stopPropagation()}
         className="w-full md:max-w-md max-h-[92vh] overflow-y-auto rounded-t-3xl md:rounded-2xl bg-slate-900 border border-white/10 p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] md:pb-5 space-y-4 shadow-2xl animate-slide-up md:animate-fade-in"
       >
-        <h2 id="event-form-title" className="text-lg font-semibold text-white">{event ? 'Edit entry' : 'New entry'}</h2>
+        <div className="flex items-center gap-2">
+          <h2 id="event-form-title" className="flex-1 text-lg font-semibold text-white">{event ? 'Edit Event' : 'Add Event'}</h2>
+          <button type="button" onClick={onClose} aria-label="Close" className="w-10 h-10 flex items-center justify-center rounded-xl text-slate-400 hover:text-white hover:bg-white/10">
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+          </button>
+        </div>
 
         <div>
           <label htmlFor="event-title" className="label">Title</label>
@@ -179,10 +184,10 @@ function EventFormModal({ event, initial, onSave, onClose }) {
 
         {formError && <p className="text-sm text-rose-400" role="alert">{formError}</p>}
 
-        <div className="grid grid-cols-2 gap-2 pt-1 md:flex md:justify-end">
-          <button type="button" onClick={onClose} className="px-4 py-3 md:py-2 bg-slate-800 text-slate-300 rounded-xl text-sm hover:bg-slate-700">Cancel</button>
-          <button type="submit" disabled={saving} className="px-4 py-3 md:py-2 bg-primary-600 hover:bg-primary-500 text-white rounded-xl text-sm font-semibold disabled:opacity-50">
-            {saving ? 'Saving…' : 'Save'}
+        <div className="grid grid-cols-[1fr_1.6fr] gap-3 pt-1">
+          <button type="button" onClick={onClose} className="py-3.5 bg-slate-800 text-slate-300 rounded-xl text-sm font-semibold hover:bg-slate-700">Cancel</button>
+          <button type="submit" disabled={saving} className="py-3.5 bg-primary-600 hover:bg-primary-500 text-white rounded-xl text-sm font-semibold disabled:opacity-50">
+            {saving ? 'Saving…' : 'Save Event'}
           </button>
         </div>
       </form>

@@ -21,7 +21,7 @@ function AgendaView({ events, days, onEventClick, emptyMessage = 'Nothing planne
         return (
           <section key={date} aria-label={longDate(date)}>
             <h3 className={`text-xs font-bold uppercase tracking-wider mb-2 ${date === today ? 'text-primary-300' : 'text-slate-400'}`}>
-              {shortDate(date, true)}{date === today && ' · Today'}
+              {date === today ? `Today · ${shortDate(date, true)}` : shortDate(date, true)}
             </h3>
             <div className="space-y-2">
               {entries.map(event => (
