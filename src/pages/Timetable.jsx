@@ -1,7 +1,6 @@
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { AttendanceContext } from '../contexts/AttendanceContext';
 import useTimetable from '../hooks/useTimetable';
-import useMediaQuery from '../hooks/useMediaQuery';
 import { defaultTimes } from '../utils/calendarDate';
 import { DAY_LONG, groupByDay, todayDay } from '../utils/timetable';
 import ModeSelector from '../components/timetable/ModeSelector';
@@ -10,16 +9,21 @@ import DayTabs from '../components/timetable/DayTabs';
 import DayTimeline from '../components/timetable/DayTimeline';
 import ActivityFormModal from '../components/timetable/ActivityFormModal';
 import CopyDayModal from '../components/timetable/CopyDayModal';
-import WeekOverview from '../components/timetable/WeekOverview';
 import ConfirmDialog from '../components/ConfirmDialog';
 import LoginPrompt from '../components/LoginPrompt';
+import { PlusIcon } from '../components/icons';
+
+const TRASH_ICON = (
+  <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+  </svg>
+);
 
 function Timetable() {
   const { currentUser } = useContext(AttendanceContext);
   if (!currentUser) {
     return (
       <LoginPrompt
-        icon="🗓️"
         title="Your weekly timetable"
         message="Log in to build routines for college, home or exam week."
       />
@@ -35,12 +39,10 @@ function newActivityTimes(dayActivities) {
 }
 
 function TimetablePage() {
-  const isDesktop = useMediaQuery('(min-width: 768px)');
   const timetable = useTimetable();
   const [day, setDay] = useState(todayDay);
-  const [view, setView] = useState('DAY');
-  const [modeForm, setModeForm] = useState(null);      // { mode } to edit, or {} to create
-  const [activityForm, setActivityForm] = useState(null); // { activity } to edit, or { initial }
+  const [modeForm, setModeForm] = useState(null);          // { mode } to edit, or {} to create
+  const [activityForm, setActivityForm] = useState(null);  // { activity } to edit, or { initial }
   const [copying, setCopying] = useState(false);
   const [deletingMode, setDeletingMode] = useState(null);
   const [deletingActivity, setDeletingActivity] = useState(null);
@@ -60,8 +62,8 @@ function TimetablePage() {
   const cancelDeleteMode = useCallback(() => setDeletingMode(null), []);
   const cancelDeleteActivity = useCallback(() => setDeletingActivity(null), []);
 
-  const openNewActivity = (forDay = day) =>
-    setActivityForm({ initial: { dayOfWeek: forDay, ...newActivityTimes(activitiesByDay[forDay] || []) } });
+  const openNewActivity = () =>
+    setActivityForm({ initial: { dayOfWeek: day, ...newActivityTimes(activitiesByDay[day] || []) } });
 
   const handleSaveMode = async (fields) => {
     const result = await timetable.saveMode(modeForm.mode?.id, fields);
@@ -92,8 +94,7 @@ function TimetablePage() {
 
   const handleSetActive = async (mode) => {
     const result = await timetable.activateMode(mode.id);
-    if (result.success) setNotice(`${mode.name} is now your active mode.`);
-    else setNotice(result.message);
+    setNotice(result.success ? `${mode.name} is now your active mode.` : result.message);
   };
 
   const handleDeleteMode = async () => {
@@ -113,25 +114,28 @@ function TimetablePage() {
   const { modes, selectedMode, loading } = timetable;
 
   return (
-    <div className="space-y-4 md:space-y-5 pb-24 md:pb-0">
-      <div className="flex items-center md:items-end justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-display font-bold text-white tracking-tight">My Timetable</h1>
-          <p className="hidden md:block text-slate-400">Build a routine for each part of your life and switch between them.</p>
+    <div className="space-y-4 pb-24 md:pb-0">
+      <div className="flex items-center justify-between gap-4">
+        <div className="min-w-0">
+          <h1 className="page-title">Timetable</h1>
+          <p className="page-subtitle hidden md:block">A routine for each part of your life.</p>
         </div>
-        {modes.length > 0 && isDesktop && (
-          <button onClick={() => openNewActivity()} className="btn btn-primary px-6 whitespace-nowrap">+ Add Activity</button>
+        {modes.length > 0 && (
+          <button type="button" onClick={openNewActivity} aria-label="Add activity" className="btn btn-primary shrink-0 w-11 px-0 md:w-auto md:px-4">
+            <PlusIcon className="w-4 h-4" />
+            <span className="hidden md:inline">Add activity</span>
+          </button>
         )}
       </div>
 
       {notice && (
-        <div className="p-3 rounded-xl bg-secondary-500/10 border border-secondary-500/30 text-secondary-200 text-sm" role="status">
+        <div className="notice notice-info" role="status">
           {notice}
         </div>
       )}
 
       {timetable.error && (
-        <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-200 text-sm flex items-center gap-3" role="alert">
+        <div className="notice notice-danger" role="alert">
           <span className="flex-1">{timetable.error}</span>
           <button onClick={timetable.clearError} className="text-rose-300 hover:text-white text-xs font-semibold">Dismiss</button>
         </div>
@@ -141,14 +145,14 @@ function TimetablePage() {
 
       {/* Nothing yet: explain modes once, then get out of the way */}
       {!loading && modes.length === 0 && (
-        <section className="glass-panel rounded-3xl p-6 md:p-10 text-center max-w-xl mx-auto">
-          <div className="text-5xl mb-4">🗓️</div>
-          <h2 className="text-xl md:text-2xl font-bold text-white mb-2">Start with a mode</h2>
+        <section className="surface rounded-xl p-6 md:p-10 text-center max-w-md mx-auto mt-6">
+          <h2 className="text-xl md:text-2xl font-bold text-white mb-2">Create your first mode</h2>
           <p className="text-slate-400 mb-6">
-            A mode is one weekly routine — College, Home, Exam Prep. Each has its own Monday to Sunday plan,
-            and you switch whichever one you're living right now.
+            Set up a weekly routine for your college, home, office or any mode you create.
           </p>
-          <button onClick={() => setModeForm({})} className="btn btn-primary px-6">Create your first mode</button>
+          <button onClick={() => setModeForm({})} className="w-full md:w-auto px-6 py-3.5 rounded-xl bg-primary-600 hover:bg-primary-500 text-primary-foreground font-semibold">
+            + Create Mode
+          </button>
         </section>
       )}
 
@@ -160,72 +164,28 @@ function TimetablePage() {
             onSelect={timetable.selectMode}
             onSetActive={handleSetActive}
             onEdit={(mode) => setModeForm({ mode })}
+            onCopyDay={() => setCopying(true)}
             onDelete={setDeletingMode}
             onCreate={() => setModeForm({})}
           />
 
-          <section className="glass-panel rounded-3xl p-4 md:p-6 space-y-4">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div className="flex gap-1 p-1 rounded-xl bg-slate-900/60 border border-white/10" role="tablist" aria-label="View">
-                {['DAY', 'WEEK'].map(value => (
-                  <button
-                    key={value}
-                    role="tab"
-                    aria-selected={view === value}
-                    onClick={() => setView(value)}
-                    className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${view === value ? 'bg-primary-500/25 text-white' : 'text-slate-400 hover:text-slate-200'}`}
-                  >
-                    {value === 'DAY' ? 'Day' : 'Week'}
-                  </button>
-                ))}
-              </div>
-              {view === 'DAY' && (
-                <button
-                  type="button"
-                  onClick={() => setCopying(true)}
-                  className="px-4 py-2 rounded-xl border border-white/10 bg-slate-900/50 text-sm font-semibold text-slate-300 hover:bg-white/5"
-                >
-                  Copy {DAY_LONG[day]}
-                </button>
-              )}
-            </div>
-
-            {view === 'DAY' ? (
-              <>
-                <DayTabs day={day} onChange={setDay} activitiesByDay={activitiesByDay} />
-                <div>
-                  <h2 className="sr-only">{DAY_LONG[day]}</h2>
-                  <DayTimeline
-                    activities={activitiesByDay[day] || []}
-                    onEdit={(activity) => setActivityForm({ activity })}
-                    onDelete={setDeletingActivity}
-                    onAdd={() => openNewActivity()}
-                  />
-                </div>
-              </>
-            ) : (
-              <WeekOverview
-                activitiesByDay={activitiesByDay}
-                onDayClick={(value) => {
-                  setDay(value);
-                  setView('DAY');
-                }}
-              />
-            )}
+          <section className="surface rounded-xl p-3 md:p-5 space-y-4">
+            <DayTabs day={day} onChange={setDay} />
+            <h2 className="sr-only">{DAY_LONG[day]}</h2>
+            <DayTimeline
+              activities={activitiesByDay[day] || []}
+              onEdit={(activity) => setActivityForm({ activity })}
+              onDelete={setDeletingActivity}
+              onAdd={openNewActivity}
+            />
           </section>
-        </>
-      )}
 
-      {/* Add button within thumb reach on phones, above the bottom navigation */}
-      {!isDesktop && modes.length > 0 && !activityForm && (
-        <button
-          type="button"
-          onClick={() => openNewActivity()}
-          aria-label="Add activity"
-          className="fixed right-4 bottom-24 z-40 w-14 h-14 rounded-2xl bg-gradient-to-br from-primary-600 to-primary-500 text-white text-3xl leading-none shadow-xl shadow-primary-900/50 active:scale-95 transition-transform"
-        >
-          +
-        </button>
+          {selectedMode && !selectedMode.active && (
+            <p className="text-xs text-slate-500 text-center">
+              You're looking at {selectedMode.name}. Your active mode is {modes.find(m => m.active)?.name || 'not set'}.
+            </p>
+          )}
+        </>
       )}
 
       {modeForm && <ModeFormModal mode={modeForm.mode} onSave={handleSaveMode} onClose={closeModeForm} />}
@@ -250,6 +210,7 @@ function TimetablePage() {
           message={`Are you sure you want to delete “${deletingMode.name}”? This will permanently delete the mode and all its weekly timetable activities. This action cannot be undone.`}
           confirmLabel="Delete Mode"
           danger
+          icon={TRASH_ICON}
           onConfirm={handleDeleteMode}
           onCancel={cancelDeleteMode}
         />
@@ -264,12 +225,6 @@ function TimetablePage() {
           onConfirm={handleDeleteActivity}
           onCancel={cancelDeleteActivity}
         />
-      )}
-
-      {selectedMode && !selectedMode.active && (
-        <p className="text-xs text-slate-500 text-center">
-          You're looking at {selectedMode.name}. Your active mode is {modes.find(m => m.active)?.name || 'not set'}.
-        </p>
       )}
     </div>
   );

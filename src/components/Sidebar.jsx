@@ -1,158 +1,93 @@
 import React, { useContext } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AttendanceContext } from '../contexts/AttendanceContext';
+import ThemeToggle from './ThemeToggle';
+import {
+  CalendarIcon, ClipboardCheckIcon, ListIcon, LogOutIcon, SettingsIcon, TableIcon, TimerIcon
+} from './icons';
 
-const Sidebar = () => {
-    const { currentUser, logout } = useContext(AttendanceContext);
-    const location = useLocation();
-    const navigate = useNavigate();
+// Attendance is one page with four addresses, so all of them mark its item
+const ATTENDANCE_PATHS = ['/', '/history', '/reports', '/subjects'];
 
-    const handleLogout = () => {
-        logout();
-        navigate('/login');
-    };
+export const NAV_ITEMS = [
+  { to: '/', label: 'Attendance', Icon: ClipboardCheckIcon },
+  { to: '/tasks', label: 'Tasks', Icon: ListIcon },
+  { to: '/calendar', label: 'Calendar', Icon: CalendarIcon },
+  { to: '/timetable', label: 'Timetable', Icon: TableIcon },
+  { to: '/pomodoro', label: 'Pomodoro', Icon: TimerIcon },
+  { to: '/settings', label: 'Settings', Icon: SettingsIcon }
+];
 
-    const navLinks = [
-        {
-            to: '/', label: 'Overview', icon: (
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-                </svg>
-            )
-        },
-        {
-            to: '/history', label: 'History', icon: (
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-            )
-        },
-        {
-            to: '/reports', label: 'Reports', icon: (
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                </svg>
-            )
-        },
-        {
-            to: '/tasks', label: 'Tasks', icon: (
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-                </svg>
-            )
-        },
-        {
-            to: '/calendar', label: 'Calendar', icon: (
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-            )
-        },
-        {
-            to: '/timetable', label: 'Timetable', icon: (
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6a2 2 0 012-2h12a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM4 10h16M10 10v10M8 4v2m8-2v2" />
-                </svg>
-            )
-        },
-        {
-            to: '/pomodoro', label: 'Pomodoro', icon: (
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <circle cx="12" cy="13" r="8" strokeWidth="2" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v4l2.5 2.5M10 2h4M12 2v3" />
-                </svg>
-            )
-        },
-        {
-            to: '/settings', label: 'Settings', icon: (
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-            )
-        },
-    ];
+export const isNavActive = (to, pathname) =>
+  (to === '/' ? ATTENDANCE_PATHS.includes(pathname) : pathname === to);
 
-    const displayName = currentUser?.username || 'Guest';
+function Sidebar() {
+  const { currentUser, logout } = useContext(AttendanceContext);
+  const location = useLocation();
+  const navigate = useNavigate();
 
-    return (
-        <aside className="hidden md:flex flex-col w-64 h-screen fixed left-0 top-0 glass-panel border-r border-white/5 z-40 transition-all duration-300">
-            {/* Brand */}
-            <div className="h-20 flex items-center px-8 border-b border-white/5">
-                <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-500 to-secondary-500 flex items-center justify-center text-white font-bold shadow-neon-primary">
-                        A
-                    </div>
-                    <span className="font-display font-bold text-xl tracking-tight text-white">
-                        Attendify
-                    </span>
-                </div>
-            </div>
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
-            {/* Navigation */}
-            <nav className="flex-1 py-8 px-4 space-y-2">
-                <div className="px-4 mb-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                    Menu
-                </div>
-                {navLinks.map((link) => {
-                    const active = location.pathname === link.to;
-                    return (
-                        <Link
-                            key={link.to}
-                            to={link.to}
-                            className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group relative overflow-hidden ${active
-                                    ? 'bg-primary-500/10 text-primary-300'
-                                    : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
-                                }`}
-                        >
-                            {active && (
-                                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-primary-500 rounded-r-full shadow-[0_0_10px_rgba(139,92,246,0.5)]" />
-                            )}
-                            <span className={`transition-colors duration-200 ${active ? 'text-primary-400' : 'text-slate-400 group-hover:text-slate-200'}`}>
-                                {link.icon}
-                            </span>
-                            <span className="font-medium">{link.label}</span>
-                        </Link>
-                    );
-                })}
-            </nav>
+  const displayName = currentUser?.username || 'Guest';
 
-            {/* User / Footer */}
-            <div className="p-4 border-t border-white/5">
-                {currentUser ? (
-                    <div className="bg-white/5 rounded-2xl p-4 backdrop-blur-sm border border-white/5">
-                        <div className="flex items-center gap-3 mb-3">
-                            <div className="w-10 h-10 rounded-full bg-gradient-to-r from-primary-500 to-secondary-500 p-0.5">
-                                <div className="w-full h-full rounded-full bg-slate-900 flex items-center justify-center text-xs font-bold text-white uppercase">
-                                    {displayName.substring(0, 2)}
-                                </div>
-                            </div>
-                            <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium text-white truncate">{displayName}</p>
-                                <p className="text-xs text-emerald-400 truncate">Pro Plan</p>
-                            </div>
-                        </div>
-                        <button
-                            onClick={handleLogout}
-                            className="w-full py-2 px-3 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 text-xs font-semibold transition-colors flex items-center justify-center gap-2"
-                        >
-                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                            </svg>
-                            Sign Out
-                        </button>
-                    </div>
-                ) : (
-                    <Link
-                        to="/login"
-                        className="flex items-center justify-center w-full py-3 rounded-xl bg-gradient-to-r from-primary-600 to-primary-500 text-white shadow-lg hover:shadow-neon-primary transition-all active:scale-95"
-                    >
-                        Sign In
-                    </Link>
-                )}
-            </div>
-        </aside>
-    );
-};
+  return (
+    <aside className="hidden md:flex flex-col w-60 h-screen fixed left-0 top-0 bg-background-paper border-r border-line z-40">
+      <div className="h-14 flex items-center px-5 border-b border-line">
+        <Link to="/" className="flex items-center gap-2.5">
+          <span className="w-6 h-6 rounded bg-primary-600 text-primary-foreground text-[11px] font-bold flex items-center justify-center">AH</span>
+          <span className="font-semibold tracking-tight text-white">Attendance In Hand</span>
+        </Link>
+      </div>
+
+      <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto custom-scrollbar" aria-label="Main">
+        {NAV_ITEMS.map(({ to, label, Icon }) => {
+          const active = isNavActive(to, location.pathname);
+          return (
+            <Link
+              key={to}
+              to={to}
+              aria-current={active ? 'page' : undefined}
+              className={`flex items-center gap-3 h-9 px-3 rounded-lg text-sm transition-colors ${active
+                ? 'bg-primary-500/12 text-white font-medium'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'}`}
+            >
+              <Icon className={`w-[18px] h-[18px] ${active ? 'text-primary-400' : ''}`} />
+              {label}
+            </Link>
+          );
+        })}
+      </nav>
+
+      <div className="p-3 border-t border-line space-y-2">
+        <div className="flex items-center justify-between h-9 px-3">
+          <span className="text-xs text-slate-500">Appearance</span>
+          <ThemeToggle compact />
+        </div>
+
+        {currentUser ? (
+          <div className="flex items-center gap-2.5 h-11 px-3 rounded-lg">
+            <span className="w-7 h-7 rounded-full bg-white/10 text-slate-200 text-[11px] font-semibold uppercase flex items-center justify-center shrink-0">
+              {displayName.substring(0, 2)}
+            </span>
+            <span className="flex-1 min-w-0 text-sm text-slate-200 truncate">{displayName}</span>
+            <button
+              onClick={handleLogout}
+              aria-label="Sign out"
+              title="Sign out"
+              className="p-1.5 rounded-md text-slate-500 hover:text-slate-200 hover:bg-white/5 transition-colors"
+            >
+              <LogOutIcon className="w-[18px] h-[18px]" />
+            </button>
+          </div>
+        ) : (
+          <Link to="/login" className="btn btn-primary w-full">Sign in</Link>
+        )}
+      </div>
+    </aside>
+  );
+}
 
 export default Sidebar;

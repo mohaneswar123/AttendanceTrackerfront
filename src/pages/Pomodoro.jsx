@@ -45,7 +45,6 @@ function Pomodoro() {
   if (!currentUser) {
     return (
       <LoginPrompt
-        icon="⏱️"
         title="Focus with Pomodoro"
         message="Log in to use the focus timer with short breaks."
       />
@@ -100,7 +99,7 @@ function PomodoroTimer() {
     <div className="space-y-5 pb-20 md:pb-0">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-display font-bold text-white tracking-tight">Pomodoro</h1>
+          <h1 className="page-title">Pomodoro</h1>
           <p className="text-slate-400 text-sm md:text-base">
             {idle ? 'Pick your focus and break times, then press Start.' : 'Your break starts by itself when the focus time ends.'}
           </p>
@@ -110,9 +109,9 @@ function PomodoroTimer() {
           aria-pressed={pomodoro.muted}
           aria-label={pomodoro.muted ? 'Turn sound on' : 'Mute sound'}
           title={pomodoro.muted ? 'Sound off' : 'Sound on'}
-          className="shrink-0 w-12 h-12 flex items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xl"
+          className="shrink-0 w-12 h-12 flex items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 border border-line text-xl"
         >
-          {pomodoro.muted ? '🔕' : '🔔'}
+          {pomodoro.muted ? 'Sound off' : 'Sound on'}
         </button>
       </div>
 
@@ -122,7 +121,7 @@ function PomodoroTimer() {
         </div>
       )}
 
-      <div className="glass-panel rounded-3xl p-5 sm:p-8 md:p-12 flex flex-col items-center">
+      <div className="surface rounded-xl p-5 sm:p-8 md:p-12 flex flex-col items-center">
         {/* Countdown ring */}
         <div className="relative w-56 h-56 sm:w-64 sm:h-64 md:w-72 md:h-72">
           <svg className="w-full h-full -rotate-90" viewBox="0 0 288 288" aria-hidden="true">
@@ -168,7 +167,7 @@ function PomodoroTimer() {
 
         {/* Choosing times, only before starting; the timer above shows the choice */}
         {idle && timer && (
-          <div className="w-full max-w-md mt-6 pt-5 border-t border-white/5 space-y-5">
+          <div className="w-full max-w-md mt-6 pt-5 border-t border-line space-y-5">
             <DurationPicker
               label="Focus"
               value={times.focusMinutes}

@@ -45,35 +45,26 @@ function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-      {/* Background decorations */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary-500/20 rounded-full blur-[100px] -z-10 animate-pulse-glow" />
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-secondary-500/20 rounded-full blur-[100px] -z-10 animate-float" />
+    <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
 
-      <div className="max-w-md w-full space-y-8 glass-card p-8 md:p-10 relative z-10">
+      <div className="max-w-md w-full space-y-8 surface p-8 md:p-10">
         <div>
           <div className="flex justify-center mb-6">
-            <div className="text-5xl">📚</div>
+            <div className="w-11 h-11 mx-auto rounded-lg bg-primary-600 text-primary-foreground text-sm font-bold flex items-center justify-center">AH</div>
           </div>
-          <h2 className="mt-2 text-center text-3xl font-display font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-secondary-400 drop-shadow-sm">
-            Welcome Back
-          </h2>
-          <p className="mt-2 text-center text-sm text-slate-400">
-            Sign in to access your attendance register
-          </p>
+          <h1 className="text-center text-xl font-semibold text-white">Sign in</h1>
+          <p className="mt-1 text-center text-sm text-slate-400">Welcome back to Attendance In Hand</p>
         </div>
 
         {justRegistered && !error && (
-          <div className="bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 px-4 py-3 rounded-lg text-sm flex items-start gap-2 animate-fade-in" role="status">
-            <span className="text-lg">✅</span>
-            <span className="block sm:inline mt-0.5">Account created. Sign in to continue.</span>
+          <div className="notice notice-success" role="status">
+            <span className="block sm:inline">Account created. Sign in to continue.</span>
           </div>
         )}
 
         {error && (
-          <div className="bg-rose-500/10 border border-rose-500/30 text-rose-300 px-4 py-3 rounded-lg text-sm flex items-start gap-2 animate-fade-in" role="alert">
-            <span className="text-lg">⚠️</span>
-            <span className="block sm:inline mt-0.5">{error}</span>
+          <div className="notice notice-danger" role="alert">
+            <span className="block sm:inline">{error}</span>
           </div>
         )}
 
@@ -115,8 +106,8 @@ function Login() {
             <button
               type="submit"
               className={`w-full flex justify-center py-3 px-4 rounded-xl text-sm font-semibold text-white shadow-lg transition-all duration-300 ${loading
-                  ? 'bg-slate-700 cursor-not-allowed opacity-70'
-                  : 'bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-500 hover:to-primary-400 hover:shadow-neon-primary hover:-translate-y-0.5'
+ ? 'bg-slate-700 cursor-not-allowed opacity-70'
+                  : 'bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-500 hover:to-primary-400 hover:'
                 }`}
               disabled={loading}
             >

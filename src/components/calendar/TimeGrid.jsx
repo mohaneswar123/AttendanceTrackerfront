@@ -10,6 +10,7 @@ import {
   timeLabel
 } from '../../utils/calendarDate';
 import { fromIsoDate, todayLocal } from '../../utils/date';
+import { BellIcon } from '../icons';
 
 const HOURS = Array.from({ length: 24 }, (_, hour) => hour);
 const SLOTS = Array.from({ length: 48 }, (_, slot) => slot); // half hours
@@ -31,7 +32,7 @@ function useNowMinutes() {
 // where they overlap, and the "now" line on today
 function DayColumn({ date, events, isToday, nowMinutes, onSlotClick, onEventClick }) {
   return (
-    <div className="relative border-l border-white/5" style={{ height: 24 * HOUR_HEIGHT }}>
+    <div className="relative border-l border-line" style={{ height: 24 * HOUR_HEIGHT }}>
       {SLOTS.map(slot => (
         <button
           key={slot}
@@ -39,7 +40,7 @@ function DayColumn({ date, events, isToday, nowMinutes, onSlotClick, onEventClic
           tabIndex={-1}
           aria-label={`Add an entry on ${longDate(date)} at ${formatTime(fromMinutes(slot * 30))}`}
           onClick={() => onSlotClick(date, slot * 30)}
-          className={`absolute inset-x-0 hover:bg-white/5 ${slot % 2 === 0 ? 'border-t border-white/5' : ''}`}
+          className={`absolute inset-x-0 hover:bg-white/5 ${slot % 2 === 0 ? 'border-t border-line' : ''}`}
           style={{ top: slot * SLOT_HEIGHT, height: SLOT_HEIGHT }}
         />
       ))}
@@ -58,7 +59,7 @@ function DayColumn({ date, events, isToday, nowMinutes, onSlotClick, onEventClic
             width: `calc((100% - ${FREE_STRIP}) / ${columns} - 4px)`
           }}
         >
-          <span className="block font-semibold truncate">{event.type === 'REMINDER' && '🔔 '}{event.title}</span>
+          <span className="block font-semibold truncate">{event.type === 'REMINDER' && <BellIcon className="w-3 h-3 inline-block mr-0.5 -mt-0.5" />}{event.title}</span>
           <span className="block opacity-80 truncate">{timeLabel(event)}</span>
         </button>
       ))}
@@ -89,8 +90,8 @@ function TimeGrid({ days, eventsByDate, onSlotClick, onEventClick, onDayHeaderCl
   }, []);
 
   return (
-    <div className="glass-panel rounded-3xl overflow-hidden">
-      <div className="grid border-b border-white/5" style={columns}>
+    <div className="surface rounded-xl overflow-hidden">
+      <div className="grid border-b border-line" style={columns}>
         <div />
         {days.map(date => (
           <button
@@ -102,17 +103,17 @@ function TimeGrid({ days, eventsByDate, onSlotClick, onEventClick, onDayHeaderCl
             className="py-2 text-center disabled:cursor-default"
           >
             <span className="block text-[11px] uppercase text-slate-500 font-semibold">{WEEKDAYS[fromIsoDate(date).getDay()]}</span>
-            <span className={`mx-auto mt-0.5 w-8 h-8 flex items-center justify-center rounded-full text-sm font-semibold ${date === today ? 'bg-primary-500 text-white' : 'text-slate-200'}`}>
+            <span className={`mx-auto mt-0.5 w-8 h-8 flex items-center justify-center rounded-full text-sm font-semibold ${date === today ? 'bg-primary-500 text-primary-foreground' : 'text-slate-200'}`}>
               {Number(date.slice(8))}
             </span>
           </button>
         ))}
       </div>
 
-      <div className="grid border-b border-white/5" style={columns}>
+      <div className="grid border-b border-line" style={columns}>
         <div className="text-[10px] text-slate-500 text-right pr-2 pt-2">all-day</div>
         {days.map(date => (
-          <div key={date} className="p-1 space-y-1 min-h-[2.25rem] border-l border-white/5">
+          <div key={date} className="p-1 space-y-1 min-h-[2.25rem] border-l border-line">
             {(eventsByDate[date] || []).filter(event => event.allDay).map(event => (
               <CalendarEventCard key={event.id} event={event} variant="chip" onClick={onEventClick} />
             ))}

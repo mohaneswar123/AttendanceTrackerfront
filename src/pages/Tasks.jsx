@@ -9,6 +9,7 @@ import QuickAddTask from '../components/tasks/QuickAddTask';
 import TaskEditModal from '../components/tasks/TaskEditModal';
 import ConfirmDialog from '../components/ConfirmDialog';
 import LoginPrompt from '../components/LoginPrompt';
+import { PlusIcon } from '../components/icons';
 
 const FILTERS = [
   { type: 'today', label: 'Today' },
@@ -16,17 +17,12 @@ const FILTERS = [
   { type: 'upcoming', label: 'Upcoming' }
 ];
 
-const chipClass = (active) =>
-  `px-4 py-3 md:py-2 rounded-xl text-sm font-medium border transition-colors ${active
-    ? 'bg-primary-500/20 text-primary-200 border-primary-500/40'
-    : 'bg-slate-900/50 text-slate-400 border-white/10 hover:text-slate-200 hover:bg-white/5'}`;
 
 function Tasks() {
   const { currentUser } = useContext(AttendanceContext);
   if (!currentUser) {
     return (
       <LoginPrompt
-        icon="📋"
         title="Plan your study tasks"
         message="Log in to add tasks and move them from To Do to Done."
       />
@@ -93,49 +89,48 @@ function TaskBoardPage() {
       {/* Header */}
       <div className="flex items-center md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-display font-bold text-white tracking-tight">My Tasks</h1>
-          <p className="hidden md:block text-slate-400">Plan your day and move tasks along as you go.</p>
+          <h1 className="page-title">Tasks</h1>
+          <p className="page-subtitle hidden md:block">Plan your day and move tasks along.</p>
         </div>
-        <div className="flex gap-3">
-          <button onClick={() => navigate('/pomodoro')} className="btn btn-outline px-4 md:px-6 whitespace-nowrap">
-            ⏱️ <span className="md:hidden ml-1.5">Pomodoro</span><span className="hidden md:inline ml-1.5">Start Pomodoro</span>
+        <div className="flex gap-2 shrink-0">
+          <button onClick={() => navigate('/pomodoro')} className="btn btn-secondary">
+            <span className="md:hidden">Pomodoro</span><span className="hidden md:inline">Start Pomodoro</span>
           </button>
           {/* Phones use the floating + button instead */}
-          <button onClick={() => setAdding(true)} className="hidden md:inline-flex btn btn-primary px-6 whitespace-nowrap">
-            + Add Task
+          <button onClick={() => setAdding(true)} className="hidden md:inline-flex btn btn-primary">
+            <PlusIcon className="w-4 h-4" />
+            Add task
           </button>
         </div>
       </div>
 
-      {/* Date filter: three equal buttons and a full-width date picker on phones, one row on desktop */}
-      <div className="flex flex-col md:flex-row md:items-center gap-2" role="group" aria-label="Show tasks for">
-        <div className="grid grid-cols-3 md:flex gap-2">
+      {/* Which day's tasks to show */}
+      <div className="flex flex-col sm:flex-row sm:items-center gap-2" role="group" aria-label="Show tasks for">
+        <div className="segmented grid grid-cols-3 sm:inline-flex">
           {FILTERS.map(filter => (
             <button
               key={filter.type}
               onClick={() => setFilterType(filter.type)}
               aria-pressed={filterType === filter.type}
-              className={chipClass(filterType === filter.type)}
+              aria-checked={filterType === filter.type}
+              className="segmented-item"
             >
               {filter.label}
             </button>
           ))}
         </div>
-        <label className={`${chipClass(filterType === 'custom')} flex items-center justify-between md:justify-start gap-2 py-2 md:py-1.5`}>
-          <span>Pick a date</span>
-          <input
-            type="date"
-            value={customDate}
-            aria-label="Show tasks for a date"
-            onFocus={() => setFilterType('custom')}
-            onChange={(e) => {
-              if (!e.target.value) return;
-              setCustomDate(e.target.value);
-              setFilterType('custom');
-            }}
-            className="bg-transparent text-base md:text-sm outline-none [color-scheme:dark]"
-          />
-        </label>
+        <input
+          type="date"
+          value={customDate}
+          aria-label="Show tasks for a date"
+          onFocus={() => setFilterType('custom')}
+          onChange={(e) => {
+            if (!e.target.value) return;
+            setCustomDate(e.target.value);
+            setFilterType('custom');
+          }}
+          className={`input w-auto [color-scheme:dark] ${filterType === 'custom' ? 'border-primary-500/60' : ''}`}
+        />
       </div>
 
       {adding && (
@@ -147,13 +142,13 @@ function TaskBoardPage() {
       )}
 
       {notice && (
-        <div className="p-3 rounded-xl bg-secondary-500/10 border border-secondary-500/30 text-secondary-200 text-sm animate-fade-in" role="status">
+        <div className="notice notice-info" role="status">
           {notice}
         </div>
       )}
 
       {board.error && (
-        <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-200 text-sm flex items-center gap-3" role="alert">
+        <div className="notice notice-danger" role="alert">
           <span className="flex-1">{board.error}</span>
           <button onClick={board.clearError} className="text-rose-300 hover:text-white text-xs font-semibold">Dismiss</button>
         </div>
@@ -162,7 +157,7 @@ function TaskBoardPage() {
       {/* Phones show one column at a time */}
       {!isDesktop && (
         <div className="space-y-2">
-          <div className="grid grid-cols-3 gap-1 p-1 rounded-2xl bg-slate-900/60 border border-white/10" role="tablist" aria-label="Columns">
+          <div className="grid grid-cols-3 gap-1 p-1 rounded-lg bg-slate-900/60 border border-line" role="tablist" aria-label="Columns">
             {STATUSES.map(status => (
               <button
                 key={status}
@@ -192,9 +187,9 @@ function TaskBoardPage() {
         <button
           onClick={() => setAdding(true)}
           aria-label="Add task"
-          className="fixed right-4 bottom-24 z-40 w-14 h-14 rounded-2xl bg-gradient-to-br from-primary-600 to-primary-500 text-white text-3xl leading-none shadow-xl shadow-primary-900/50 active:scale-95 transition-transform"
+          className="fixed right-4 bottom-20 z-40 w-14 h-14 rounded-full bg-primary-600 hover:bg-primary-700 text-primary-foreground flex items-center justify-center shadow-lg transition-colors"
         >
-          +
+          <PlusIcon className="w-6 h-6" />
         </button>
       )}
 

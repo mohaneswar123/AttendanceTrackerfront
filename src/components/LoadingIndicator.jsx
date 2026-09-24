@@ -3,7 +3,7 @@ import React from 'react';
 function LoadingIndicator() {
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-dark-primary/80 backdrop-blur-md"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-dark-primary/80"
       role="status"
       aria-live="polite"
       aria-busy="true"

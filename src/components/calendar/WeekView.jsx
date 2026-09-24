@@ -10,7 +10,7 @@ function WeekView({ currentDate, events, eventsByDate, compact, onSlotClick, onE
 
   if (compact) {
     return (
-      <section className="glass-panel rounded-3xl p-4" aria-label="Week">
+      <section className="surface rounded-xl p-4" aria-label="Week">
         <AgendaView events={events} days={days} onEventClick={onEventClick} />
       </section>
     );

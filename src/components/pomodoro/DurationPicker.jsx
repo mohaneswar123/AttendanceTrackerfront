@@ -72,7 +72,7 @@ function DurationPicker({ label, value, presets, max, onChange }) {
             onChange={(e) => typed(e.target.value)}
             onBlur={() => setDraft(String(value))}
             aria-label={`${label} minutes`}
-            className="w-20 h-12 rounded-xl bg-slate-900/60 border border-white/10 text-center text-xl font-bold text-white outline-none focus:border-primary-500"
+            className="w-20 h-12 rounded-xl bg-slate-900/60 border border-line text-center text-xl font-bold text-white outline-none focus:border-primary-500"
           />
           <button
             type="button"

@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { MODE_COLORS, MODE_ICONS } from '../../utils/timetable';
-
-const COLOR_NAMES = { VIOLET: 'Violet', CYAN: 'Cyan', EMERALD: 'Emerald', AMBER: 'Amber', ROSE: 'Rose', SLATE: 'Slate' };
+import SheetHeader from './SheetHeader';
+import { COLOR_NAMES, FIRST_ICONS, MODE_COLORS, MODE_ICONS } from '../../utils/timetable';
 
 // Create or rename a mode: a bottom sheet on phones, centred on larger screens
 function ModeFormModal({ mode, onSave, onClose }) {
   const [name, setName] = useState(mode?.name ?? '');
   const [icon, setIcon] = useState(mode?.icon ?? MODE_ICONS[0]);
   const [color, setColor] = useState(mode?.color ?? 'VIOLET');
+  // The first few icons are shown; "…" opens the rest
+  const [allIcons, setAllIcons] = useState(() => MODE_ICONS.indexOf(mode?.icon) >= FIRST_ICONS);
   const [error, setError] = useState('');
   const [formError, setFormError] = useState('');
   const [saving, setSaving] = useState(false);
@@ -32,8 +33,10 @@ function ModeFormModal({ mode, onSave, onClose }) {
     if (!result.success) setFormError(result.message);
   };
 
+  const shownIcons = allIcons ? MODE_ICONS : MODE_ICONS.slice(0, FIRST_ICONS);
+
   return (
-    <div className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm flex items-end md:items-center justify-center md:p-4" onMouseDown={onClose}>
+    <div className="fixed inset-0 z-[60] bg-black/60 flex items-end md:items-center justify-center md:p-4" onMouseDown={onClose}>
       <form
         role="dialog"
         aria-modal="true"
@@ -41,9 +44,9 @@ function ModeFormModal({ mode, onSave, onClose }) {
         noValidate
         onSubmit={handleSubmit}
         onMouseDown={(e) => e.stopPropagation()}
-        className="w-full md:max-w-md max-h-[92vh] overflow-y-auto rounded-t-3xl md:rounded-2xl bg-slate-900 border border-white/10 p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] md:pb-5 space-y-4 shadow-2xl animate-slide-up md:animate-fade-in"
+        className="w-full md:max-w-md max-h-[92vh] overflow-y-auto rounded-t-xl md:rounded-lg bg-slate-900 border border-line p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] md:pb-5 space-y-4 shadow-lg animate-slide-up md:animate-fade-in"
       >
-        <h2 id="mode-form-title" className="text-lg font-semibold text-white">{mode ? 'Edit mode' : 'New mode'}</h2>
+        <SheetHeader id="mode-form-title" title={mode ? 'Edit Mode' : 'Create Mode'} onClose={onClose} />
 
         <div>
           <label htmlFor="mode-name" className="label">Name</label>
@@ -61,9 +64,9 @@ function ModeFormModal({ mode, onSave, onClose }) {
         </div>
 
         <div>
-          <span className="label">Icon</span>
-          <div className="grid grid-cols-6 gap-2" role="radiogroup" aria-label="Icon">
-            {MODE_ICONS.map(option => (
+          <span className="label">Icon (emoji)</span>
+          <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Icon">
+            {shownIcons.map(option => (
               <button
                 key={option}
                 type="button"
@@ -71,17 +74,27 @@ function ModeFormModal({ mode, onSave, onClose }) {
                 aria-checked={icon === option}
                 aria-label={`Icon ${option}`}
                 onClick={() => setIcon(option)}
-                className={`h-12 rounded-xl border text-xl transition-colors ${icon === option ? 'bg-primary-500/25 border-primary-500/50' : 'bg-slate-800/50 border-transparent hover:bg-slate-800'}`}
+                className={`w-12 h-12 rounded-xl border text-xl transition-colors ${icon === option ? 'bg-primary-500/25 border-primary-500/60' : 'bg-slate-800/50 border-transparent hover:bg-slate-800'}`}
               >
                 {option}
               </button>
             ))}
+            {!allIcons && (
+              <button
+                type="button"
+                onClick={() => setAllIcons(true)}
+                aria-label="Show more icons"
+                className="w-12 h-12 rounded-xl border border-transparent bg-slate-800/50 text-slate-400 hover:bg-slate-800"
+              >
+                …
+              </button>
+            )}
           </div>
         </div>
 
         <div>
           <span className="label">Colour</span>
-          <div className="grid grid-cols-6 gap-2" role="radiogroup" aria-label="Colour">
+          <div className="flex flex-wrap gap-3" role="radiogroup" aria-label="Colour">
             {Object.entries(MODE_COLORS).map(([value, colors]) => (
               <button
                 key={value}
@@ -90,22 +103,21 @@ function ModeFormModal({ mode, onSave, onClose }) {
                 aria-checked={color === value}
                 aria-label={COLOR_NAMES[value]}
                 onClick={() => setColor(value)}
-                className={`h-12 rounded-xl border flex items-center justify-center transition-colors ${color === value ? 'bg-white/10 border-white/40' : 'bg-slate-800/50 border-transparent hover:bg-slate-800'}`}
-              >
-                <span className={`w-6 h-6 rounded-full ${colors.dot}`} />
-              </button>
+                className={`w-11 h-11 rounded-full ${colors.dot} transition-shadow ${color === value ? 'ring-2 ring-white/80 ring-offset-2 ring-offset-slate-900' : 'opacity-70 hover:opacity-100'}`}
+              />
             ))}
           </div>
         </div>
 
         {formError && <p className="text-sm text-rose-400" role="alert">{formError}</p>}
 
-        <div className="grid grid-cols-2 gap-2 pt-1 md:flex md:justify-end">
-          <button type="button" onClick={onClose} className="px-4 py-3 md:py-2 bg-slate-800 text-slate-300 rounded-xl text-sm hover:bg-slate-700">Cancel</button>
-          <button type="submit" disabled={saving} className="px-4 py-3 md:py-2 bg-primary-600 hover:bg-primary-500 text-white rounded-xl text-sm font-semibold disabled:opacity-50">
-            {saving ? 'Saving…' : 'Save'}
-          </button>
-        </div>
+        <button
+          type="submit"
+          disabled={saving}
+          className="w-full py-3.5 rounded-xl bg-primary-600 hover:bg-primary-500 text-primary-foreground font-semibold disabled:opacity-50"
+        >
+          {saving ? 'Saving…' : mode ? 'Save Changes' : 'Create Mode'}
+        </button>
       </form>
     </div>
   );

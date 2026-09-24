@@ -60,25 +60,17 @@ function Register() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-      {/* Background decorations */}
-      <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-primary-500/20 rounded-full blur-[100px] -z-10 animate-pulse-glow" />
-      <div className="absolute bottom-1/4 left-1/4 w-96 h-96 bg-secondary-500/20 rounded-full blur-[100px] -z-10 animate-float" />
+    <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
 
-      <div className="max-w-md w-full space-y-8 glass-card p-8 md:p-10 relative z-10">
+      <div className="max-w-md w-full space-y-8 surface p-8 md:p-10">
         <div>
-          <h2 className="mt-2 text-center text-3xl font-display font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-secondary-400 drop-shadow-sm">
-            Create Account
-          </h2>
-          <p className="mt-2 text-center text-sm text-slate-400">
-            Join now to track your attendance seamlessly
-          </p>
+          <h1 className="text-center text-xl font-semibold text-white">Create an account</h1>
+          <p className="mt-1 text-center text-sm text-slate-400">Start tracking your attendance</p>
         </div>
 
         {error && (
-          <div className="bg-rose-500/10 border border-rose-500/30 text-rose-300 px-4 py-3 rounded-lg text-sm flex items-start gap-2 animate-fade-in" role="alert">
-            <span className="text-lg">⚠️</span>
-            <span className="block sm:inline mt-0.5">{error}</span>
+          <div className="notice notice-danger" role="alert">
+            <span className="block sm:inline">{error}</span>
           </div>
         )}
 
@@ -155,8 +147,8 @@ function Register() {
             <button
               type="submit"
               className={`w-full flex justify-center py-3 px-4 rounded-xl text-sm font-semibold text-white shadow-lg transition-all duration-300 ${loading
-                  ? 'bg-slate-700 cursor-not-allowed opacity-70'
-                  : 'bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-500 hover:to-primary-400 hover:shadow-neon-primary hover:-translate-y-0.5'
+ ? 'bg-slate-700 cursor-not-allowed opacity-70'
+                  : 'bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-500 hover:to-primary-400 hover:'
                 }`}
               disabled={loading}
             >
