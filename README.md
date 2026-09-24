@@ -2,7 +2,7 @@
 
 Students record attendance per subject (Present, Absent or No Class, plus the class length in hours) and see their history and attendance percentage. They can also plan tasks on a simple Kanban board, keep a calendar, build weekly routines and focus with a Pomodoro timer. Built with React 18, Vite, Tailwind CSS 3, React Router and dnd-kit, and installable as a PWA.
 
-Live at https://attendanceinhand.netlify.app. The backend lives in the separate `AttendanceTrackerBackend-mongo` repository.
+Live at https://momentum-six-ivory.vercel.app. The backend lives in the separate `AttendanceTrackerBackend-mongo` repository.
 
 ## Getting started
 
@@ -55,10 +55,16 @@ Then open http://localhost:5173.
   - Students pick their focus length (15, 25, 45, 60 or any 1–120 minutes) and break length (5, 10, 15 or any 1–30 minutes). The choice is remembered on the device.
   - `src/hooks/usePomodoro.js` keeps the display in step with the timer on the server, so it survives refreshes and leaving the page.
   - It isn't linked to tasks.
-- `tailwind.config.js` and `src/index.css`: the "Midnight Aurora" theme and the shared `glass-panel`, `glass-card`, `btn` and `input` classes.
+- `src/theme.css`, `tailwind.config.js` and `src/index.css`: the two colour sets and the shared `surface`, `btn`, `input`, `badge`, `notice` and `segmented` classes. `src/contexts/ThemeContext.jsx` switches between them.
 
 Attendance percentages are weighted by class length: a 2-hour class counts twice as much as a 1-hour class, and "No Class" doesn't count.
 
 ## Deployment
 
-Netlify builds with `npm run build` and publishes `dist/`. `public/_redirects` sends every path to `index.html` so client-side routes work on refresh.
+Vercel builds with `npm run build` and publishes `dist/`.
+
+`vercel.json` rewrites every path to `index.html`, so a client-side route still works when it is opened directly or refreshed. Vercel checks the filesystem first, so `/assets`, `/manifest.webmanifest` and `/sw.js` still serve themselves. Without that rewrite every route except `/` returns 404. It also stops `sw.js` being cached, or an old service worker would pin an old copy of the app.
+
+`public/_redirects` does the same job on Netlify and is kept for that deployment.
+
+**The backend has to allow the frontend's origin.** `CORS_ALLOWED_ORIGINS` on the API lists the sites that may call it. A site that is not on the list gets a network error at sign-in — the browser blocks the request before the server can explain, so the app can only say "Cannot reach the server".
