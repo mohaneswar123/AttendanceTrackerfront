@@ -12,7 +12,7 @@ function TaskColumn({ status, taskIds, loading, showHeader = true, children }) {
   return (
     <section
       aria-label={STATUS_LABELS[status]}
-      className={`glass-panel rounded-3xl p-4 flex flex-col min-h-[16rem] transition-colors ${isOver ? 'border-primary-500/40 bg-primary-500/5' : ''}`}
+      className={`surface rounded-xl p-4 flex flex-col min-h-[16rem] transition-colors ${isOver ? 'border-primary-500/40 bg-primary-500/5' : ''}`}
     >
       {showHeader && (
         <h3 className="flex items-center gap-2 px-1 mb-4 font-bold text-white">
@@ -25,7 +25,7 @@ function TaskColumn({ status, taskIds, loading, showHeader = true, children }) {
         <div ref={setNodeRef} className="flex-1 flex flex-col gap-3">
           {children}
           {taskIds.length === 0 && (
-            <p className="flex-1 flex items-center justify-center text-sm text-slate-500 border border-dashed border-white/10 rounded-2xl py-8">
+            <p className="flex-1 flex items-center justify-center text-sm text-slate-500 border border-dashed border-line rounded-lg py-8">
               {loading ? 'Loading…' : 'Nothing here yet.'}
             </p>
           )}

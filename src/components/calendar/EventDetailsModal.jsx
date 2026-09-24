@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { TYPE_LABELS, TYPE_STYLES } from './CalendarEventCard';
 import { eventDuration, longDate, timeLabel } from '../../utils/calendarDate';
+import { BellIcon, CalendarIcon } from '../icons';
 
 const iconButton = 'w-10 h-10 flex items-center justify-center rounded-xl transition-colors';
 
@@ -22,13 +23,13 @@ function EventDetailsModal({ event, onEdit, onDelete, onClose }) {
   const duration = eventDuration(event);
 
   return (
-    <div className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm flex items-end md:items-center justify-center md:p-4" onMouseDown={onClose}>
+    <div className="fixed inset-0 z-[60] bg-black/60 flex items-end md:items-center justify-center md:p-4" onMouseDown={onClose}>
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="event-details-title"
         onMouseDown={(e) => e.stopPropagation()}
-        className="w-full md:max-w-md rounded-t-3xl md:rounded-2xl bg-slate-900 border border-white/10 p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] md:pb-5 space-y-5 shadow-2xl animate-slide-up md:animate-fade-in"
+        className="w-full md:max-w-md rounded-t-xl md:rounded-lg bg-slate-900 border border-line p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] md:pb-5 space-y-5 shadow-lg animate-slide-up md:animate-fade-in"
       >
         <div className="flex items-center gap-2">
           <h2 className="flex-1 text-lg font-semibold text-white">Event Details</h2>
@@ -38,8 +39,8 @@ function EventDetailsModal({ event, onEdit, onDelete, onClose }) {
         </div>
 
         <div className="flex items-start gap-3">
-          <span className={`w-12 h-12 shrink-0 rounded-2xl border flex items-center justify-center text-2xl ${TYPE_STYLES[event.type].badge}`} aria-hidden="true">
-            {event.type === 'REMINDER' ? '🔔' : '📅'}
+          <span className={`w-12 h-12 shrink-0 rounded-lg border flex items-center justify-center text-2xl ${TYPE_STYLES[event.type].badge}`} aria-hidden="true">
+            {event.type === 'REMINDER' ? <BellIcon /> : <CalendarIcon />}
           </span>
           <div className="flex-1 min-w-0">
             <h3 id="event-details-title" className="text-xl font-semibold text-white break-words">{event.title}</h3>
@@ -55,7 +56,7 @@ function EventDetailsModal({ event, onEdit, onDelete, onClose }) {
           </div>
         </div>
 
-        <div className="space-y-3 border-t border-white/5 pt-4">
+        <div className="space-y-3 border-t border-line pt-4">
           {row(
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>,
             longDate(event.date)

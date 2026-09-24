@@ -25,6 +25,7 @@ import EventFormModal from '../components/calendar/EventFormModal';
 import EventDetailsModal from '../components/calendar/EventDetailsModal';
 import ConfirmDialog from '../components/ConfirmDialog';
 import LoginPrompt from '../components/LoginPrompt';
+import { PlusIcon } from '../components/icons';
 
 const UPCOMING_SHOWN = 8;
 const PERIOD_NAMES = { [VIEWS.MONTH]: 'month', [VIEWS.WEEK]: 'week', [VIEWS.DAY]: 'day' };
@@ -34,7 +35,6 @@ function Calendar() {
   if (!currentUser) {
     return (
       <LoginPrompt
-        icon="📅"
         title="Your calendar"
         message="Log in to keep track of exams, deadlines and important dates."
       />
@@ -175,13 +175,13 @@ function CalendarPage() {
       />
 
       {notice && (
-        <div className="p-3 rounded-xl bg-secondary-500/10 border border-secondary-500/30 text-secondary-200 text-sm" role="status">
+        <div className="notice notice-info" role="status">
           {notice}
         </div>
       )}
 
       {calendar.error && (
-        <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-200 text-sm flex items-center gap-3" role="alert">
+        <div className="notice notice-danger" role="alert">
           <span className="flex-1">{calendar.error}</span>
           <button onClick={calendar.clearError} className="text-rose-300 hover:text-white text-xs font-semibold">Dismiss</button>
         </div>
@@ -191,7 +191,7 @@ function CalendarPage() {
       <div className={`grid gap-5 items-start ${view === VIEWS.WEEK ? '' : 'lg:grid-cols-[minmax(0,1fr)_20rem]'}`}>
         <div className="space-y-4 min-w-0">
           {searching ? (
-            <section aria-label="Search results" className="glass-panel rounded-3xl p-4 md:p-6">
+            <section aria-label="Search results" className="surface rounded-xl p-4 md:p-6">
               <div className="flex items-center justify-between gap-3 mb-4">
                 <h2 className="font-bold text-white">
                   {results === null
@@ -246,12 +246,12 @@ function CalendarPage() {
 
               {/* Phones: the chosen day's entries under the month grid */}
               {view === VIEWS.MONTH && !isDesktop && (
-                <section className="glass-panel rounded-3xl p-4" aria-label="Selected day">
+                <section className="surface rounded-xl p-4" aria-label="Selected day">
                   <AgendaView events={eventsByDate[selectedDate] || []} days={[selectedDate]} onEventClick={setDetails} />
                   <button
                     type="button"
                     onClick={() => openCreateOn(selectedDate)}
-                    className="mt-3 w-full py-3 rounded-xl border border-dashed border-white/15 text-sm font-semibold text-slate-300 active:bg-white/5"
+                    className="mt-3 w-full py-3 rounded-xl border border-dashed border-line text-sm font-semibold text-slate-300 active:bg-white/5"
                   >
                     + Add on {shortDate(selectedDate, true)}
                   </button>
@@ -272,7 +272,7 @@ function CalendarPage() {
             />
           )}
 
-          <aside className="glass-panel rounded-3xl p-4 md:p-5" aria-label="Upcoming">
+          <aside className="surface rounded-xl p-4 md:p-5" aria-label="Upcoming">
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-bold text-white">Upcoming Events</h2>
               {upcoming.length > UPCOMING_SHOWN && (
@@ -296,9 +296,9 @@ function CalendarPage() {
           type="button"
           onClick={() => openCreateOn(view === VIEWS.MONTH ? selectedDate : view === VIEWS.DAY ? currentDate : today)}
           aria-label="Add event"
-          className="fixed right-4 bottom-24 z-40 w-14 h-14 rounded-2xl bg-gradient-to-br from-primary-600 to-primary-500 text-white text-3xl leading-none shadow-xl shadow-primary-900/50 active:scale-95 transition-transform"
+          className="fixed right-4 bottom-20 z-40 w-14 h-14 rounded-full bg-primary-600 hover:bg-primary-700 text-primary-foreground flex items-center justify-center shadow-lg transition-colors"
         >
-          +
+          <PlusIcon className="w-6 h-6" />
         </button>
       )}
 

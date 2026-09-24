@@ -15,8 +15,8 @@ function DayTabs({ day, onChange }) {
             aria-label={DAY_LONG[value]}
             onClick={() => onChange(value)}
             className={`py-3 md:py-2 rounded-full text-xs md:text-sm font-semibold transition-colors ${selected
-              ? 'bg-primary-600 text-white'
-              : 'bg-slate-900/60 border border-white/10 text-slate-400 hover:text-slate-200 hover:bg-white/5'}`}
+ ? 'bg-primary-600 text-primary-foreground'
+              : 'bg-slate-900/60 border border-line text-slate-400 hover:text-slate-200 hover:bg-white/5'}`}
           >
             {DAY_SHORT[value]}
           </button>

@@ -19,7 +19,7 @@ function NotFound() {
         <div className="space-y-3">
           <Link 
             to="/"
-            className="block bg-primary-500 hover:bg-primary-600 text-dark-primary font-medium py-3 px-4 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 active:translate-y-0"
+            className="block bg-primary-500 hover:bg-primary-600 text-dark-primary font-medium py-3 px-4 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg transform active:translate-y-0"
           >
             Return to Dashboard
           </Link>
@@ -33,7 +33,7 @@ function NotFound() {
         </div>
         
         <div className="mt-8 text-light-primary/70 text-sm">
-          <p>Need help? <Link to="/contact-us" className="text-primary-500 hover:underline">Contact Support</Link></p>
+          <p>Need help? <Link to="/contact-us" className="text-primary-400 hover:underline">Contact Support</Link></p>
           
           <div className="mt-4">
             <Link to="/" className="inline-block mx-2 hover:text-primary-500">Home</Link>

@@ -1,19 +1,23 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
+const LINKS = [
+  { to: '/privacy-policy', label: 'Privacy' },
+  { to: '/terms', label: 'Terms' },
+  { to: '/about-us', label: 'About' },
+  { to: '/contact-us', label: 'Contact' }
+];
+
 function Footer() {
   return (
-    <footer className="w-full border-t border-white/5 py-8 mt-auto backdrop-blur-sm bg-background/50">
-      <div className="container px-4 text-center">
-        <div className="mb-4 flex flex-wrap items-center justify-center gap-6 text-sm">
-          <Link to="/privacy-policy" className="text-slate-400 hover:text-primary-400 transition-colors">Privacy Policy</Link>
-          <Link to="/about-us" className="text-slate-400 hover:text-primary-400 transition-colors">About Us</Link>
-          <Link to="/contact-us" className="text-slate-400 hover:text-primary-400 transition-colors">Contact Us</Link>
-          <Link to="/terms" className="text-slate-400 hover:text-primary-400 transition-colors">T&C</Link>
-        </div>
-        <p className="text-xs text-slate-500">
-          © {new Date().getFullYear()} Attendance Register. Crafted with <span className="text-rose-500 animate-pulse">❤</span> for efficiency.
-        </p>
+    <footer className="border-t border-line">
+      <div className="max-w-6xl mx-auto px-8 py-5 flex items-center justify-between gap-4 text-xs text-slate-500">
+        <p>© {new Date().getFullYear()} Attendance In Hand</p>
+        <nav className="flex items-center gap-5" aria-label="Legal">
+          {LINKS.map(link => (
+            <Link key={link.to} to={link.to} className="hover:text-slate-300 transition-colors">{link.label}</Link>
+          ))}
+        </nav>
       </div>
     </footer>
   );

@@ -8,7 +8,7 @@ function MiniMonth({ currentDate, selectedDate, eventsByDate, onSelect, onStepMo
   const days = monthWeeks(currentDate).flat();
 
   return (
-    <section className="glass-panel rounded-3xl p-4" aria-label="Jump to a date">
+    <section className="surface rounded-xl p-4" aria-label="Jump to a date">
       <div className="flex items-center justify-between gap-2 mb-2">
         <h2 className="text-sm font-bold text-white truncate">{viewTitle(VIEWS.MONTH, currentDate)}</h2>
         <div className="flex gap-1 shrink-0">
@@ -40,7 +40,7 @@ function MiniMonth({ currentDate, selectedDate, eventsByDate, onSelect, onStepMo
               aria-pressed={selected}
               className={`h-8 flex flex-col items-center justify-center rounded-lg text-xs transition-colors ${isSameMonth(date, currentDate) ? '' : 'opacity-40'} ${selected ? 'ring-1 ring-primary-500/60' : 'hover:bg-white/5'}`}
             >
-              <span className={`w-6 h-6 flex items-center justify-center rounded-full ${date === today ? 'bg-primary-500 text-white font-bold' : 'text-slate-200'}`}>
+              <span className={`w-6 h-6 flex items-center justify-center rounded-full ${date === today ? 'bg-primary-500 text-primary-foreground font-bold' : 'text-slate-200'}`}>
                 {Number(date.slice(8))}
               </span>
               <span className="h-1 flex items-center" aria-hidden="true">

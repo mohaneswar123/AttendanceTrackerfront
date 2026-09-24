@@ -45,12 +45,12 @@ function AdminLogin() {
       <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[100px] animate-pulse-slow"></div>
       <div className="absolute bottom-[-10%] left-[-5%] w-[500px] h-[500px] bg-purple-600/20 rounded-full blur-[100px] animate-pulse-slow" style={{ animationDelay: '1s' }}></div>
 
-      <div className="glass-card w-full max-w-md p-8 relative z-10 border border-white/10 shadow-2xl shadow-indigo-500/10">
+      <div className="surface w-full max-w-md p-8 relative z-10 border border-line shadow-lg">
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl mx-auto flex items-center justify-center shadow-lg shadow-indigo-500/30 mb-4 transform -rotate-6">
+          <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg mx-auto flex items-center justify-center shadow-lg mb-4 transform -rotate-6">
             <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
           </div>
-          <h2 className="text-3xl font-display font-bold text-white mb-2">Admin Portal</h2>
+          <h2 className="text-3xl font-semibold text-white mb-2">Admin Portal</h2>
           <p className="text-slate-400">Secure access for system administrators</p>
         </div>
 
@@ -74,7 +74,7 @@ function AdminLogin() {
                   type="email"
                   autoComplete="email"
                   required
-                  className="w-full bg-slate-900/50 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white placeholder:text-slate-600 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 outline-none transition-all"
+                  className="w-full bg-slate-900/50 border border-line rounded-xl py-3 pl-10 pr-4 text-white placeholder:text-slate-600 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 outline-none transition-all"
                   placeholder="admin@example.com"
                   value={credentials.email}
                   onChange={handleChange}
@@ -94,7 +94,7 @@ function AdminLogin() {
                   type="password"
                   autoComplete="current-password"
                   required
-                  className="w-full bg-slate-900/50 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white placeholder:text-slate-600 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 outline-none transition-all"
+                  className="w-full bg-slate-900/50 border border-line rounded-xl py-3 pl-10 pr-4 text-white placeholder:text-slate-600 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 outline-none transition-all"
                   placeholder="••••••••"
                   value={credentials.password}
                   onChange={handleChange}
@@ -106,7 +106,7 @@ function AdminLogin() {
 
           <button
             type="submit"
-            className="w-full group relative flex justify-center py-3 px-4 border border-transparent text-sm font-bold rounded-xl text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-slate-900 transition-all shadow-lg shadow-indigo-600/20 hover:shadow-indigo-600/30 overflow-hidden"
+            className="w-full group relative flex justify-center py-3 px-4 border border-transparent text-sm font-bold rounded-xl text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-slate-900 transition-all shadow-lg hover: overflow-hidden"
             disabled={loading}
           >
             {loading ? (

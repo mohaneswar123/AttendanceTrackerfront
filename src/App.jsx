@@ -4,12 +4,11 @@ import Layout from './components/Layout';
 import LoadingIndicator from './components/LoadingIndicator';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AttendanceContext, AttendanceProvider } from './contexts/AttendanceContext';
+import { ThemeProvider } from './contexts/ThemeContext';
 
 // Lazy-loaded page
-const Dashboard = lazy(() => import('./pages/Dashboard'));
-const History = lazy(() => import('./pages/History'));
+const Attendance = lazy(() => import('./pages/Attendance'));
 const Settings = lazy(() => import('./pages/Settings'));
-const Report = lazy(() => import('./pages/Report'));
 const Tasks = lazy(() => import('./pages/Tasks'));
 const Pomodoro = lazy(() => import('./pages/Pomodoro'));
 const Calendar = lazy(() => import('./pages/Calendar'));
@@ -60,26 +59,14 @@ function AppContent() {
               </AdminRoute>
             } />
 
-            <Route
-              path="/"
-              element={
+            {/* Attendance is one page; each section keeps its own address */}
+            {['/', '/history', '/reports', '/subjects'].map(path => (
+              <Route key={path} path={path} element={
                 <ProtectedRoute>
-                  <Layout><Dashboard /></Layout>
+                  <Layout><Attendance /></Layout>
                 </ProtectedRoute>
-              }
-            />
-
-            <Route path="/history" element={
-              <ProtectedRoute>
-                <Layout><History /></Layout>
-              </ProtectedRoute>
-            } />
-
-            <Route path="/reports" element={
-              <ProtectedRoute>
-                <Layout><Report /></Layout>
-              </ProtectedRoute>
-            } />
+              } />
+            ))}
 
             <Route path="/tasks" element={
               <ProtectedRoute>
@@ -123,9 +110,11 @@ function AppContent() {
 
 function App() {
   return (
-    <AttendanceProvider>
-      <AppContent />
-    </AttendanceProvider>
+    <ThemeProvider>
+      <AttendanceProvider>
+        <AppContent />
+      </AttendanceProvider>
+    </ThemeProvider>
   );
 }
 

@@ -82,7 +82,7 @@ function EventFormModal({ event, initial, onSave, onClose }) {
   );
 
   return (
-    <div className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm flex items-end md:items-center justify-center md:p-4" onMouseDown={onClose}>
+    <div className="fixed inset-0 z-[60] bg-black/60 flex items-end md:items-center justify-center md:p-4" onMouseDown={onClose}>
       <form
         role="dialog"
         aria-modal="true"
@@ -90,7 +90,7 @@ function EventFormModal({ event, initial, onSave, onClose }) {
         noValidate
         onSubmit={handleSubmit}
         onMouseDown={(e) => e.stopPropagation()}
-        className="w-full md:max-w-md max-h-[92vh] overflow-y-auto rounded-t-3xl md:rounded-2xl bg-slate-900 border border-white/10 p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] md:pb-5 space-y-4 shadow-2xl animate-slide-up md:animate-fade-in"
+        className="w-full md:max-w-md max-h-[92vh] overflow-y-auto rounded-t-xl md:rounded-lg bg-slate-900 border border-line p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] md:pb-5 space-y-4 shadow-lg animate-slide-up md:animate-fade-in"
       >
         <div className="flex items-center gap-2">
           <h2 id="event-form-title" className="flex-1 text-lg font-semibold text-white">{event ? 'Edit Event' : 'Add Event'}</h2>
@@ -118,7 +118,7 @@ function EventFormModal({ event, initial, onSave, onClose }) {
           <span className="label">Type</span>
           <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-label="Type">
             {typeButton('EVENT', 'Event', 'bg-primary-500/25 text-white border-primary-500/50')}
-            {typeButton('REMINDER', '🔔 Reminder', 'bg-amber-500/20 text-amber-100 border-amber-500/50')}
+            {typeButton('REMINDER', 'Reminder', 'bg-amber-500/20 text-amber-100 border-amber-500/50')}
           </div>
           {type === 'REMINDER' && <p className="mt-1.5 text-xs text-slate-500">A reminder is a note on your calendar. No notification is sent.</p>}
         </div>
@@ -145,7 +145,7 @@ function EventFormModal({ event, initial, onSave, onClose }) {
         >
           <span className="text-sm font-medium text-slate-300">All day</span>
           <span className={`relative w-12 h-7 rounded-full transition-colors ${allDay ? 'bg-primary-500' : 'bg-slate-700'}`}>
-            <span className={`absolute top-1 left-1 w-5 h-5 rounded-full bg-white transition-transform ${allDay ? 'translate-x-5' : ''}`} />
+            <span className={`absolute top-1 left-1 w-5 h-5 rounded-full bg-primary-foreground transition-transform ${allDay ? 'translate-x-5' : ''}`} />
           </span>
         </button>
 
@@ -186,7 +186,7 @@ function EventFormModal({ event, initial, onSave, onClose }) {
 
         <div className="grid grid-cols-[1fr_1.6fr] gap-3 pt-1">
           <button type="button" onClick={onClose} className="py-3.5 bg-slate-800 text-slate-300 rounded-xl text-sm font-semibold hover:bg-slate-700">Cancel</button>
-          <button type="submit" disabled={saving} className="py-3.5 bg-primary-600 hover:bg-primary-500 text-white rounded-xl text-sm font-semibold disabled:opacity-50">
+          <button type="submit" disabled={saving} className="py-3.5 bg-primary-600 hover:bg-primary-500 text-primary-foreground rounded-xl text-sm font-semibold disabled:opacity-50">
             {saving ? 'Saving…' : 'Save Event'}
           </button>
         </div>

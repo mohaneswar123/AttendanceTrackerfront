@@ -1,3 +1,10 @@
+// Colours that differ between the dark and light sets are read from CSS variables
+// (see src/theme.css), so switching data-theme on <html> re-paints everything.
+const v = (name) => `rgb(var(--c-${name}) / <alpha-value>)`;
+const ramp = (name, shades) => Object.fromEntries(shades.map(shade => [shade, v(`${name}-${shade}`)]));
+// On a dark screen these shades are text; on cream they take the dark end of their palette
+const TEXT_SHADES = [50, 100, 200, 300, 400];
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
@@ -20,20 +27,19 @@ module.exports = {
     },
     extend: {
       colors: {
-        // Midnight Aurora Palette
+        // Midnight Aurora by default, cream under data-theme="light"
+        white: v('white'),
+        // Surfaces and muted text in one ramp, so panels and labels flip together
+        slate: ramp('slate', [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950]),
         background: {
-          DEFAULT: '#020617', // Deep Navy/Black (Slate 950 approx)
-          paper: '#0F172A',   // Slate 900
-          surface: '#1E293B', // Slate 800
+          DEFAULT: v('bg-base'),
+          paper: v('bg-paper'),
+          surface: v('bg-surface'),
         },
         primary: {
-          DEFAULT: '#8B5CF6', // Violet 500
-          foreground: '#FFFFFF',
-          50: '#F5F3FF',
-          100: '#EDE9FE',
-          200: '#DDD6FE',
-          300: '#C4B5FD',
-          400: '#A78BFA',
+          DEFAULT: '#6366F1', // Indigo 500
+          foreground: '#FFFFFF', // always white: it sits on a filled violet button
+          ...ramp('primary', TEXT_SHADES),
           500: '#8B5CF6',
           600: '#7C3AED',
           700: '#6D28D9',
@@ -41,54 +47,64 @@ module.exports = {
           900: '#4C1D95',
         },
         secondary: {
-          DEFAULT: '#06B6D4', // Cyan 500
+          DEFAULT: '#0EA5E9', // Sky 500
           foreground: '#FFFFFF',
           50: '#ECFEFF',
-          100: '#CFFAFE',
-          200: '#A5F3FC',
-          300: '#67E8F9',
-          400: '#22D3EE',
+          ...ramp('secondary', [100, 200, 300, 400]),
           500: '#06B6D4',
           600: '#0891B2',
           700: '#0E7490',
           800: '#155E75',
           900: '#164E63',
         },
+        // Tailwind's own palettes, with only their light shades made theme-aware
+        rose: ramp('rose', TEXT_SHADES),
+        emerald: ramp('emerald', TEXT_SHADES),
+        amber: ramp('amber', TEXT_SHADES),
+        red: ramp('red', [100, 200, 300, 400]),
+        indigo: ramp('indigo', TEXT_SHADES),
+        sky: ramp('sky', TEXT_SHADES),
+        cyan: ramp('cyan', TEXT_SHADES),
+        violet: ramp('violet', TEXT_SHADES),
+        teal: ramp('teal', TEXT_SHADES),
+        orange: ramp('orange', TEXT_SHADES),
+        blue: ramp('blue', [100, 200, 300, 400]),
+        purple: ramp('purple', [100, 200, 300, 400]),
         accent: {
           DEFAULT: '#10B981', // Emerald 500
           foreground: '#FFFFFF',
         },
         muted: {
           DEFAULT: '#334155', // Slate 700
-          foreground: '#94A3B8', // Slate 400
+          foreground: v('ink-muted'),
         },
-        border: 'rgba(255, 255, 255, 0.08)',
+        border: v('line'),
+        line: v('line'),
         // Names used by the older pages (About, Contact, legal pages, 404, Inactive, mobile header)
         dark: {
-          primary: '#020617',   // same as background
-          secondary: '#0F172A', // same as background.paper
+          primary: v('bg-base'),    // same as background
+          secondary: v('bg-paper'), // same as background.paper
         },
         light: {
-          primary: '#F1F5F9',   // Slate 100, the body text colour
+          primary: v('ink-base'),   // the body text colour
         },
       },
       borderRadius: {
-        lg: '0.75rem',
-        xl: '1rem',
-        '2xl': '1.5rem',
-        '3xl': '2rem',
+        DEFAULT: '0.375rem',
+        md: '0.5rem',
+        lg: '0.625rem',
+        xl: '0.75rem',
+        '2xl': '1rem',
+        '3xl': '1.25rem',
       },
       fontFamily: {
         sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        display: ['Outfit', 'Inter', 'sans-serif'], // For Headings if we add Outfit
+        display: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },
       boxShadow: {
-        'glass': '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
-        'glass-sm': '0 4px 16px 0 rgba(0, 0, 0, 0.2)',
-        'neon-primary': '0 0 10px rgba(139, 92, 246, 0.5), 0 0 20px rgba(139, 92, 246, 0.3)',
-        'neon-secondary': '0 0 10px rgba(6, 182, 212, 0.5), 0 0 20px rgba(6, 182, 212, 0.3)',
-        'soft': '0 2px 8px 0 rgba(0, 0, 0, 0.25)',
-        'elevated': '0 10px 30px -5px rgba(0, 0, 0, 0.5)',
+        'sm': '0 1px 2px 0 rgba(0, 0, 0, 0.12)',
+        'md': '0 4px 12px -2px rgba(0, 0, 0, 0.18)',
+        'lg': '0 10px 30px -10px rgba(0, 0, 0, 0.35)',
       },
       spacing: {
         // Room for the home indicator on notched phones (pb-safe-area)
@@ -98,12 +114,8 @@ module.exports = {
         xs: '2px',
       },
       animation: {
-        'fade-in': 'fadeIn 0.5s ease-out forwards',
-        'slide-up': 'slideUp 0.6s ease-out forwards',
-        'slide-in': 'slideIn 0.3s ease-out forwards',
-        'pulse-glow': 'pulseGlow 3s infinite',
-        'pulse-slow': 'pulse 6s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-        'float': 'float 6s ease-in-out infinite',
+        'fade-in': 'fadeIn 0.15s ease-out forwards',
+        'slide-up': 'slideUp 0.2s ease-out forwards',
       },
       keyframes: {
         fadeIn: {
@@ -111,25 +123,9 @@ module.exports = {
           '100%': { opacity: '1' },
         },
         slideUp: {
-          '0%': { opacity: '0', transform: 'translateY(20px)' },
+          '0%': { opacity: '0', transform: 'translateY(8px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
         },
-        slideIn: {
-          '0%': { opacity: '0', transform: 'translateX(20px)' },
-          '100%': { opacity: '1', transform: 'translateX(0)' },
-        },
-        pulseGlow: {
-          '0%, 100%': { boxShadow: '0 0 15px rgba(139, 92, 246, 0.3)' },
-          '50%': { boxShadow: '0 0 25px rgba(6, 182, 212, 0.5)' },
-        },
-        float: {
-          '0%, 100%': { transform: 'translateY(0)' },
-          '50%': { transform: 'translateY(-10px)' },
-        },
-      },
-      backgroundImage: {
-        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-        'glass-gradient': 'linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%)',
       },
     },
   },

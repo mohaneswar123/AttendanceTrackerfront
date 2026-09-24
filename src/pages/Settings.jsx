@@ -1,60 +1,29 @@
-import React, { useState, useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AttendanceContext } from '../contexts/AttendanceContext';
+import ThemeToggle from '../components/ThemeToggle';
+import InstallApp from '../components/InstallApp';
 
+// The account and this device. Subjects live with the attendance they belong to.
 function Settings() {
-  const { currentUser, subjects, addSubject, removeSubject, resetAllData, updateEmail, changePassword } = useContext(AttendanceContext);
-  const [newSubject, setNewSubject] = useState('');
-  const [isResetting, setIsResetting] = useState(false);
+  const { currentUser, resetAllData, updateEmail, changePassword } = useContext(AttendanceContext);
   const [message, setMessage] = useState({ text: '', type: '' });
-  const [confirmText, setConfirmText] = useState('');
+  const [isResetting, setIsResetting] = useState(false);
   const [resetConfirmText, setResetConfirmText] = useState('');
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [deleteTarget, setDeleteTarget] = useState(null);
 
-  // Password / Email states
   const [newEmail, setNewEmail] = useState('');
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPasswordField, setConfirmPasswordField] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Helper to show messages
-  const showMessage = (text, type = 'success') => {
-    setMessage({ text, type });
-    setTimeout(() => setMessage({ text: '', type: '' }), 3000);
-  };
+  useEffect(() => {
+    if (!message.text) return;
+    const timer = setTimeout(() => setMessage({ text: '', type: '' }), 3000);
+    return () => clearTimeout(timer);
+  }, [message]);
 
-  const handleAddSubject = async () => {
-    if (!currentUser) return showMessage('Guest mode active', 'error');
-    if (!newSubject.trim()) return;
-
-    if (subjects.some(s => s.name?.toLowerCase() === newSubject.trim().toLowerCase())) {
-      return showMessage('Subject already exists', 'error');
-    }
-    const result = await addSubject(newSubject.trim());
-    if (result.success) {
-      setNewSubject('');
-      showMessage('Subject added');
-    } else {
-      showMessage(result.message, 'error');
-    }
-  };
-
-  const handleDeleteSubject = async () => {
-    const typed = (confirmText || '').trim().toLowerCase();
-    const expected = (deleteTarget.name || '').trim().toLowerCase();
-    if (typed !== expected) {
-      showMessage(`Type "${deleteTarget.name}" to confirm`, 'error');
-      return;
-    }
-    const result = await removeSubject(deleteTarget._id);
-    setIsDeleteModalOpen(false);
-    setDeleteTarget(null);
-    setConfirmText('');
-    if (result.success) showMessage('Subject deleted');
-    else showMessage(result.message, 'error');
-  };
+  const showMessage = (text, type = 'success') => setMessage({ text, type });
 
   const handleReset = async () => {
     if (resetConfirmText.trim().toLowerCase() !== 'reset all') {
@@ -64,8 +33,7 @@ function Settings() {
     const result = await resetAllData();
     setIsResetting(false);
     setResetConfirmText('');
-    if (result.success) showMessage('All data reset');
-    else showMessage(result.message, 'error');
+    showMessage(result.success ? 'All data reset' : result.message, result.success ? 'success' : 'error');
   };
 
   const handleUpdateProfile = async (type) => {
@@ -97,169 +65,105 @@ function Settings() {
   };
 
   return (
-    <div className="space-y-8 pb-20 md:pb-0">
-      <div className="flex flex-col gap-1">
-        <h1 className="text-3xl font-display font-bold text-white tracking-tight">Settings</h1>
-        <p className="text-slate-400">Manage your subjects and account preferences.</p>
+    <div className="space-y-6 pb-20 md:pb-0">
+      <div>
+        <h1 className="page-title">Settings</h1>
+        <p className="page-subtitle">Your account and this device.</p>
       </div>
 
-      {/* Global Message Toast */}
       {message.text && (
-        <div className={`fixed top-6 right-6 z-50 px-6 py-3 rounded-xl shadow-2xl backdrop-blur-xl border flex items-center gap-3 animate-slide-in ${message.type === 'error' ? 'bg-rose-500/20 border-rose-500/50 text-rose-200' : 'bg-emerald-500/20 border-emerald-500/50 text-emerald-200'
-          }`}>
-          {message.type === 'error' ? '⚠️' : '✅'} {message.text}
+        <div className={`p-3 rounded-xl border text-sm ${message.type === 'error' ? 'bg-rose-500/10 border-rose-500/30 text-rose-200' : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-200'}`} role="status">
+          {message.text}
         </div>
       )}
 
-      {/* Profile Card */}
-      <div className="glass-panel p-6 rounded-3xl flex items-center gap-6">
-        <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary-500 to-secondary-500 flex items-center justify-center text-3xl font-bold text-white shadow-lg shadow-primary-500/30">
+      <div className="surface p-6 rounded-xl flex items-center gap-5">
+        <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-primary-500 to-secondary-500 flex items-center justify-center text-2xl font-bold text-primary-foreground">
           {currentUser ? currentUser.email[0].toUpperCase() : 'G'}
         </div>
-        <div>
-          <h2 className="text-xl font-bold text-white mb-1">{currentUser ? 'Student Account' : 'Guest User'}</h2>
-          <p className="text-slate-400 text-sm">{currentUser ? currentUser.email : 'Local usage only'}</p>
+        <div className="min-w-0">
+          <h2 className="text-lg font-bold text-white">{currentUser ? 'Student Account' : 'Guest User'}</h2>
+          <p className="text-slate-400 text-sm truncate">{currentUser ? currentUser.email : 'Local usage only'}</p>
           {!currentUser && <Link to="/login" className="text-primary-400 text-xs font-bold uppercase mt-2 block tracking-wider">Login to Sync</Link>}
         </div>
       </div>
 
-      {/* Main Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="surface p-6 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-lg font-bold text-white">Appearance</h2>
+          <p className="text-slate-400 text-sm mt-1">Remembered on this device only.</p>
+        </div>
+        <ThemeToggle />
+      </div>
 
-        {/* Subject Management */}
-        <div className="glass-panel p-6 rounded-3xl space-y-6">
-          <h3 className="text-lg font-bold text-white flex items-center gap-2">
-            <span className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center text-blue-400">📚</span>
-            Subjects
-          </h3>
+      <InstallApp />
 
-          <div className="flex gap-2">
-            <input
-              value={newSubject}
-              onChange={(e) => setNewSubject(e.target.value)}
-              placeholder="Enter subject name (e.g. Mathematics)"
-              className="flex-1 bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-primary-500 outline-none transition-all placeholder:text-slate-600"
-              onKeyDown={(e) => e.key === 'Enter' && handleAddSubject()}
-            />
-            <button
-              onClick={handleAddSubject}
-              className="bg-primary-500 hover:bg-primary-600 text-white p-3 rounded-xl shadow-lg shadow-primary-500/20 transition-all hover:scale-105 active:scale-95"
-            >
-              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+        <div className="surface p-6 rounded-xl space-y-5">
+          <h2 className="text-lg font-bold text-white">Security</h2>
+
+          <div className="space-y-2">
+            <label htmlFor="settings-email" className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Update Email</label>
+            <div className="flex gap-2">
+              <input
+                id="settings-email"
+                value={newEmail} onChange={e => setNewEmail(e.target.value)} placeholder="New email address"
+                className="flex-1 bg-slate-900/50 border border-line rounded-xl px-4 py-2.5 text-white text-sm focus:border-primary-500 outline-none"
+              />
+              <button onClick={() => handleUpdateProfile('email')} disabled={loading} className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-sm font-medium transition-colors">Update</button>
+            </div>
+          </div>
+
+          <div className="space-y-2 pt-4 border-t border-line">
+            <label htmlFor="settings-old-password" className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Change Password</label>
+            <input id="settings-old-password" type="password" value={oldPassword} onChange={e => setOldPassword(e.target.value)} placeholder="Current password"
+              className="w-full bg-slate-900/50 border border-line rounded-xl px-4 py-2.5 text-white text-sm focus:border-primary-500 outline-none" />
+            <div className="grid grid-cols-2 gap-2">
+              <input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder="New password" aria-label="New password"
+                className="bg-slate-900/50 border border-line rounded-xl px-4 py-2.5 text-white text-sm focus:border-primary-500 outline-none" />
+              <input type="password" value={confirmPasswordField} onChange={e => setConfirmPasswordField(e.target.value)} placeholder="Confirm" aria-label="Confirm new password"
+                className="bg-slate-900/50 border border-line rounded-xl px-4 py-2.5 text-white text-sm focus:border-primary-500 outline-none" />
+            </div>
+            <button onClick={() => handleUpdateProfile('password')} disabled={loading} className="w-full py-2.5 mt-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-sm font-medium transition-colors">
+              {loading ? 'Processing...' : 'Change Password'}
             </button>
           </div>
-
-          <div className="flex flex-wrap gap-3 max-h-[300px] overflow-y-auto custom-scrollbar p-1">
-            {subjects.length === 0 && <p className="text-slate-500 text-sm italic w-full text-center py-4">No subjects added yet.</p>}
-            {subjects.map(sub => (
-              <div key={sub._id} className="group flex items-center gap-2 px-4 py-2 bg-slate-800/50 hover:bg-slate-800 border border-white/5 hover:border-white/10 rounded-2xl transition-all">
-                <span className="text-slate-200 font-medium">{sub.name}</span>
-                <button
-                  onClick={() => currentUser ? (setDeleteTarget(sub), setConfirmText(''), setIsDeleteModalOpen(true)) : showMessage('Login required', 'error')}
-                  className="text-slate-500 hover:text-rose-400 transition-colors md:opacity-0 md:group-hover:opacity-100"
-                  aria-label={`Delete ${sub.name}`}
-                >
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                </button>
-              </div>
-            ))}
-          </div>
-          {isDeleteModalOpen && deleteTarget && (
-            <div className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-              <div className="w-full max-w-md rounded-2xl bg-slate-900 border border-white/10 p-5 space-y-4 shadow-2xl">
-                <h4 className="text-white font-semibold">Confirm Delete</h4>
-                <p className="text-slate-400 text-sm">To delete <span className="text-slate-200 font-medium">{deleteTarget.name}</span>, type the subject name below.</p>
-                <input
-                  value={confirmText}
-                  onChange={(e) => setConfirmText(e.target.value)}
-                  placeholder={`Type "${deleteTarget.name}"`}
-                  className="w-full bg-slate-800 border border-white/10 rounded-xl px-3 py-2 text-white placeholder:text-slate-500 focus:border-rose-500 outline-none"
-                />
-                <div className="flex justify-end gap-2 pt-1">
-                  <button onClick={() => { setIsDeleteModalOpen(false); setDeleteTarget(null); setConfirmText(''); }} className="px-4 py-2 bg-slate-800 text-slate-300 rounded-xl text-sm hover:bg-slate-700">Cancel</button>
-                  <button
-                    onClick={handleDeleteSubject}
-                    disabled={(confirmText || '').trim().toLowerCase() !== (deleteTarget.name || '').trim().toLowerCase()}
-                    className="px-4 py-2 bg-rose-600 text-white rounded-xl text-sm font-semibold hover:bg-rose-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
 
-        {/* Security & Danger Zone */}
-        <div className="space-y-6">
+        <div className="surface p-6 rounded-xl border border-rose-500/20">
+          <h2 className="text-lg font-bold text-rose-400 mb-2">Danger Zone</h2>
+          <p className="text-slate-400 text-sm mb-4">
+            Irreversible. Deletes your subjects and attendance records. Your tasks, calendar, timetable and focus history are not affected.
+          </p>
 
-          {/* Account Security */}
-          <div className="glass-panel p-6 rounded-3xl space-y-6">
-            <h3 className="text-lg font-bold text-white flex items-center gap-2">
-              <span className="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center text-emerald-400">🔐</span>
-              Security
-            </h3>
-
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Update Email</label>
-                <div className="flex gap-2">
-                  <input
-                    value={newEmail} onChange={e => setNewEmail(e.target.value)} placeholder="New Email Address"
-                    className="flex-1 bg-slate-900/50 border border-white/10 rounded-xl px-4 py-2 text-white text-sm focus:border-emerald-500 outline-none"
-                  />
-                  <button onClick={() => handleUpdateProfile('email')} disabled={loading} className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-sm font-medium transition-colors">Update</button>
-                </div>
-              </div>
-
-              <div className="space-y-2 pt-2 border-t border-white/5">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Change Password</label>
-                <input type="password" value={oldPassword} onChange={e => setOldPassword(e.target.value)} placeholder="Current Password"
-                  className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-2 text-white text-sm focus:border-emerald-500 outline-none mb-2" />
-                <div className="grid grid-cols-2 gap-2">
-                  <input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder="New Password"
-                    className="bg-slate-900/50 border border-white/10 rounded-xl px-4 py-2 text-white text-sm focus:border-emerald-500 outline-none" />
-                  <input type="password" value={confirmPasswordField} onChange={e => setConfirmPasswordField(e.target.value)} placeholder="Confirm"
-                    className="bg-slate-900/50 border border-white/10 rounded-xl px-4 py-2 text-white text-sm focus:border-emerald-500 outline-none" />
-                </div>
-                <button onClick={() => handleUpdateProfile('password')} disabled={loading} className="w-full py-2 mt-2 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 rounded-xl text-sm font-medium transition-colors">
-                  {loading ? 'Processing...' : 'Change Password'}
+          {isResetting ? (
+            <div className="space-y-3">
+              <input
+                value={resetConfirmText}
+                onChange={(e) => setResetConfirmText(e.target.value)}
+                placeholder='Type "reset all" to confirm'
+                aria-label='Type "reset all" to confirm'
+                className="w-full bg-slate-900/50 border border-line rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-slate-500 focus:border-rose-500 outline-none"
+              />
+              <div className="flex gap-3">
+                <button
+                  onClick={handleReset}
+                  disabled={resetConfirmText.trim().toLowerCase() !== 'reset all'}
+                  className="flex-1 py-2.5 bg-rose-600 text-primary-foreground rounded-xl font-semibold text-sm hover:bg-rose-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Reset everything
                 </button>
+                <button onClick={() => { setIsResetting(false); setResetConfirmText(''); }} className="px-4 py-2.5 bg-slate-800 text-slate-300 rounded-xl text-sm font-medium hover:bg-slate-700">Cancel</button>
               </div>
             </div>
-          </div>
-
-          {/* Danger Area */}
-          <div className="glass-panel p-6 rounded-3xl border border-rose-500/20 bg-rose-500/5">
-            <h3 className="text-lg font-bold text-rose-400 mb-2">Danger Zone</h3>
-            <p className="text-slate-400 text-sm mb-4">Irreversible action. Deletes your subjects and attendance records. Your tasks, calendar, timetable and focus history are not affected.</p>
-
-            {isResetting ? (
-              <div className="space-y-3 animate-fade-in">
-                <input
-                  value={resetConfirmText}
-                  onChange={(e) => setResetConfirmText(e.target.value)}
-                  placeholder='Type "reset all" to confirm'
-                  className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-2 text-white text-sm placeholder:text-slate-600 focus:border-rose-500 outline-none"
-                />
-                <div className="flex gap-3">
-                  <button
-                    onClick={handleReset}
-                    disabled={resetConfirmText.trim().toLowerCase() !== 'reset all'}
-                    className="flex-1 py-2 bg-rose-600 text-white rounded-xl font-bold text-sm shadow-lg shadow-rose-900/50 hover:bg-rose-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Confirm Wipe
-                  </button>
-                  <button onClick={() => { setIsResetting(false); setResetConfirmText(''); }} className="px-4 py-2 bg-slate-800 text-slate-300 rounded-xl text-sm font-medium hover:bg-slate-700">Cancel</button>
-                </div>
-              </div>
-            ) : (
-              <button onClick={() => currentUser ? (setIsResetting(true), setResetConfirmText('')) : showMessage('Login required', 'error')} className="w-full py-2 border border-rose-500/30 text-rose-400 rounded-xl text-sm font-medium hover:bg-rose-500/10 transition-colors">
-                Reset All Data
-              </button>
-            )}
-          </div>
-
+          ) : (
+            <button
+              onClick={() => currentUser ? (setIsResetting(true), setResetConfirmText('')) : showMessage('Login required', 'error')}
+              className="w-full py-2.5 border border-rose-500/30 text-rose-400 rounded-xl text-sm font-medium hover:bg-rose-500/10 transition-colors"
+            >
+              Reset all attendance data
+            </button>
+          )}
         </div>
       </div>
     </div>

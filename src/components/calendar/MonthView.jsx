@@ -5,36 +5,31 @@ import { todayLocal } from '../../utils/date';
 
 const MAX_CHIPS = 3;
 
-// The month grid, Sunday first. On desktop each day lists its entries and clicking an
-// empty spot adds one; on phones (`compact`) days show coloured dots and tapping selects the day.
+// The month grid, Sunday first. On desktop it is one grid divided by hairlines and each
+// day lists its entries; on phones (`compact`) days show dots and tapping selects the day.
 function MonthView({ currentDate, eventsByDate, compact, selectedDate, onDayClick, onEventClick, onMoreClick }) {
   const today = todayLocal();
   const days = monthWeeks(currentDate).flat();
 
-  const dayNumber = (date) => (
-    <span
-      className={`w-7 h-7 flex items-center justify-center rounded-full text-sm ${date === today ? 'bg-primary-500 text-white font-bold' : 'text-slate-200'}`}
-    >
+  const dayNumber = (date, dimmed) => (
+    <span className={`w-6 h-6 flex items-center justify-center rounded-full text-xs tabular-nums ${date === today
+      ? 'bg-primary-600 text-primary-foreground font-semibold'
+      : dimmed ? 'text-slate-500' : 'text-slate-300'}`}>
       {Number(date.slice(8))}
     </span>
   );
 
-  return (
-    <div className="glass-panel rounded-3xl p-2 md:p-3">
-      <div className="grid grid-cols-7 mb-1" aria-hidden="true">
-        {WEEKDAYS.map(day => (
-          <div key={day} className="text-center text-[11px] md:text-xs font-semibold text-slate-500 uppercase py-2">
-            {compact ? day[0] : day}
-          </div>
-        ))}
-      </div>
-
-      <div className="grid grid-cols-7 gap-0.5 md:gap-1">
-        {days.map(date => {
-          const entries = eventsByDate[date] || [];
-          const dimmed = !isSameMonth(date, currentDate);
-
-          if (compact) {
+  if (compact) {
+    return (
+      <div className="surface p-2">
+        <div className="grid grid-cols-7" aria-hidden="true">
+          {WEEKDAYS.map(day => (
+            <div key={day} className="text-center text-[11px] font-medium text-slate-500 py-2">{day[0]}</div>
+          ))}
+        </div>
+        <div className="grid grid-cols-7">
+          {days.map(date => {
+            const entries = eventsByDate[date] || [];
             const selected = date === selectedDate;
             return (
               <button
@@ -43,18 +38,35 @@ function MonthView({ currentDate, eventsByDate, compact, selectedDate, onDayClic
                 onClick={() => onDayClick(date)}
                 aria-label={`${longDate(date)}, ${entries.length} ${entries.length === 1 ? 'entry' : 'entries'}`}
                 aria-pressed={selected}
-                className={`h-14 flex flex-col items-center justify-center rounded-xl transition-colors ${selected ? 'bg-primary-500/25 ring-1 ring-primary-500/50' : 'active:bg-white/10'} ${dimmed ? 'opacity-40' : ''}`}
+                className={`h-12 flex flex-col items-center justify-center gap-1 rounded-lg transition-colors ${selected ? 'bg-white/10' : ''} ${isSameMonth(date, currentDate) ? '' : 'opacity-60'}`}
               >
-                {dayNumber(date)}
-                <span className="flex gap-0.5 h-1.5 mt-1" aria-hidden="true">
+                {dayNumber(date, !isSameMonth(date, currentDate))}
+                <span className="flex gap-0.5 h-1" aria-hidden="true">
                   {entries.slice(0, 3).map(entry => (
-                    <span key={entry.id} className={`w-1.5 h-1.5 rounded-full ${TYPE_STYLES[entry.type].dot}`} />
+                    <span key={entry.id} className={`w-1 h-1 rounded-full ${TYPE_STYLES[entry.type].dot}`} />
                   ))}
                 </span>
               </button>
             );
-          }
+          })}
+        </div>
+      </div>
+    );
+  }
 
+  return (
+    <div className="surface overflow-hidden">
+      <div className="grid grid-cols-7 border-b border-line" aria-hidden="true">
+        {WEEKDAYS.map(day => (
+          <div key={day} className="text-center text-xs font-medium text-slate-500 py-2">{day}</div>
+        ))}
+      </div>
+
+      {/* One grid split by hairlines, so every cell reads as part of the same month */}
+      <div className="grid grid-cols-7 gap-px bg-line">
+        {days.map(date => {
+          const entries = eventsByDate[date] || [];
+          const dimmed = !isSameMonth(date, currentDate);
           return (
             <div
               key={date}
@@ -68,10 +80,10 @@ function MonthView({ currentDate, eventsByDate, compact, selectedDate, onDayClic
                   onDayClick(date);
                 }
               }}
-              className={`min-h-[7.5rem] p-1.5 rounded-xl border cursor-pointer transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${dimmed ? 'border-transparent opacity-50' : 'bg-slate-900/40 border-white/5 hover:border-primary-500/40'}`}
+              className={`min-h-[6.5rem] p-1.5 cursor-pointer transition-colors outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-500 ${dimmed ? 'bg-background-paper/50' : 'bg-background-paper hover:bg-white/5'}`}
             >
-              <div className="flex justify-end mb-1">{dayNumber(date)}</div>
-              <div className="space-y-1">
+              <div className="flex justify-end">{dayNumber(date, dimmed)}</div>
+              <div className="mt-1 space-y-1">
                 {entries.slice(0, MAX_CHIPS).map(entry => (
                   <CalendarEventCard key={entry.id} event={entry} variant="chip" onClick={onEventClick} />
                 ))}
@@ -83,9 +95,9 @@ function MonthView({ currentDate, eventsByDate, compact, selectedDate, onDayClic
                       onMoreClick(date);
                     }}
                     onKeyDown={(e) => e.stopPropagation()}
-                    className="px-1 text-[11px] font-semibold text-slate-400 hover:text-white"
+                    className="px-1 text-[11px] font-medium text-slate-400 hover:text-white"
                   >
-                    +{entries.length - MAX_CHIPS} more
+                    {entries.length - MAX_CHIPS} more
                   </button>
                 )}
               </div>

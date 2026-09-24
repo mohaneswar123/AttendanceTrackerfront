@@ -9,7 +9,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <!-- PWA (the manifest link is added by vite-plugin-pwa at build time) -->
-    <meta name="theme-color" content="#000000" />
+    <meta name="theme-color" content="#020617" />
+
+    <!-- The saved colour set, applied before the first paint so the page never flashes -->
+    <script>
+      (function () {
+        try {
+          var saved = localStorage.getItem('theme');
+          var theme = saved === 'light' || saved === 'dark' ? saved : 'dark';
+          document.documentElement.dataset.theme = theme;
+          if (theme === 'light') {
+            document.querySelector('meta[name="theme-color"]').setAttribute('content', '#FAF6EF');
+          }
+        } catch (e) {
+          document.documentElement.dataset.theme = 'dark';
+        }
+      })();
+    </script>
 
 
     <!-- Primary SEO -->

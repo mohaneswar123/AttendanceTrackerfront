@@ -27,7 +27,7 @@ function ActivityMenu({ activity, open, onToggle, onClose, onEdit, onDelete }) {
         <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="5" r="2" /><circle cx="12" cy="12" r="2" /><circle cx="12" cy="19" r="2" /></svg>
       </button>
       {open && (
-        <div role="menu" className="absolute right-0 top-full mt-1 z-30 w-40 rounded-xl bg-slate-900 border border-white/10 shadow-2xl py-1 text-base md:text-sm">
+        <div role="menu" className="absolute right-0 top-full mt-1 z-30 w-40 rounded-xl bg-slate-900 border border-line shadow-lg py-1 text-base md:text-sm">
           <button role="menuitem" onClick={choose(onEdit)} className={`${MENU_ITEM} text-slate-300 hover:bg-white/5`}>
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
             Edit
@@ -56,7 +56,7 @@ function DayTimeline({ activities, onEdit, onDelete, onAdd }) {
         <button
           type="button"
           onClick={onAdd}
-          className="mt-4 px-5 py-3 md:py-2 rounded-xl bg-primary-600 hover:bg-primary-500 text-white text-sm font-semibold"
+          className="mt-4 px-5 py-3 md:py-2 rounded-xl bg-primary-600 hover:bg-primary-500 text-primary-foreground text-sm font-semibold"
         >
           + Add an activity
         </button>

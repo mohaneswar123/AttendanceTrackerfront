@@ -11,6 +11,7 @@ import ActivityFormModal from '../components/timetable/ActivityFormModal';
 import CopyDayModal from '../components/timetable/CopyDayModal';
 import ConfirmDialog from '../components/ConfirmDialog';
 import LoginPrompt from '../components/LoginPrompt';
+import { PlusIcon } from '../components/icons';
 
 const TRASH_ICON = (
   <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -23,7 +24,6 @@ function Timetable() {
   if (!currentUser) {
     return (
       <LoginPrompt
-        icon="🗓️"
         title="Your weekly timetable"
         message="Log in to build routines for college, home or exam week."
       />
@@ -116,28 +116,26 @@ function TimetablePage() {
   return (
     <div className="space-y-4 pb-24 md:pb-0">
       <div className="flex items-center justify-between gap-4">
-        <h1 className="text-2xl md:text-3xl font-display font-bold text-white tracking-tight">My Timetable</h1>
+        <div className="min-w-0">
+          <h1 className="page-title">Timetable</h1>
+          <p className="page-subtitle hidden md:block">A routine for each part of your life.</p>
+        </div>
         {modes.length > 0 && (
-          <button
-            type="button"
-            onClick={openNewActivity}
-            aria-label="Add activity"
-            className="shrink-0 flex items-center gap-2 h-11 px-3.5 md:px-5 rounded-2xl bg-primary-600 hover:bg-primary-500 text-white font-semibold shadow-lg shadow-primary-900/40 active:scale-95 transition"
-          >
-            <span className="text-2xl leading-none" aria-hidden="true">+</span>
-            <span className="hidden md:inline">Add Activity</span>
+          <button type="button" onClick={openNewActivity} aria-label="Add activity" className="btn btn-primary shrink-0 w-11 px-0 md:w-auto md:px-4">
+            <PlusIcon className="w-4 h-4" />
+            <span className="hidden md:inline">Add activity</span>
           </button>
         )}
       </div>
 
       {notice && (
-        <div className="p-3 rounded-xl bg-secondary-500/10 border border-secondary-500/30 text-secondary-200 text-sm" role="status">
+        <div className="notice notice-info" role="status">
           {notice}
         </div>
       )}
 
       {timetable.error && (
-        <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-200 text-sm flex items-center gap-3" role="alert">
+        <div className="notice notice-danger" role="alert">
           <span className="flex-1">{timetable.error}</span>
           <button onClick={timetable.clearError} className="text-rose-300 hover:text-white text-xs font-semibold">Dismiss</button>
         </div>
@@ -147,13 +145,12 @@ function TimetablePage() {
 
       {/* Nothing yet: explain modes once, then get out of the way */}
       {!loading && modes.length === 0 && (
-        <section className="glass-panel rounded-3xl p-6 md:p-10 text-center max-w-md mx-auto mt-6">
-          <div className="text-6xl mb-5">🗓️</div>
+        <section className="surface rounded-xl p-6 md:p-10 text-center max-w-md mx-auto mt-6">
           <h2 className="text-xl md:text-2xl font-bold text-white mb-2">Create your first mode</h2>
           <p className="text-slate-400 mb-6">
             Set up a weekly routine for your college, home, office or any mode you create.
           </p>
-          <button onClick={() => setModeForm({})} className="w-full md:w-auto px-6 py-3.5 rounded-xl bg-primary-600 hover:bg-primary-500 text-white font-semibold">
+          <button onClick={() => setModeForm({})} className="w-full md:w-auto px-6 py-3.5 rounded-xl bg-primary-600 hover:bg-primary-500 text-primary-foreground font-semibold">
             + Create Mode
           </button>
         </section>
@@ -172,7 +169,7 @@ function TimetablePage() {
             onCreate={() => setModeForm({})}
           />
 
-          <section className="glass-panel rounded-3xl p-3 md:p-5 space-y-4">
+          <section className="surface rounded-xl p-3 md:p-5 space-y-4">
             <DayTabs day={day} onChange={setDay} />
             <h2 className="sr-only">{DAY_LONG[day]}</h2>
             <DayTimeline

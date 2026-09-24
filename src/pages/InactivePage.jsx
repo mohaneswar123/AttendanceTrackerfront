@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 function InactivePage() {
   return (
     <div className="min-h-screen bg-dark-primary flex items-center justify-center px-4 py-10">
-      <div className="max-w-xl w-full bg-dark-secondary border border-dark-primary rounded-2xl shadow-md p-6 text-light-primary">
+      <div className="max-w-xl w-full bg-dark-secondary border border-dark-primary rounded-lg shadow-md p-6 text-light-primary">
         <div className="text-center mb-4">
           <h1 className="text-2xl md:text-3xl font-bold">Your subscription is inactive</h1>
           <p className="text-light-primary/80 mt-2 text-sm">Please renew to continue using Attendance Register.</p>

@@ -308,13 +308,13 @@ function AdminDashboard() {
     <div className="min-h-screen bg-dark-primary flex flex-col font-sans text-light-primary">
 
       {/* Header */}
-      <header className="glass-panel sticky top-0 z-30 border-b border-white/5 px-6 py-4 flex items-center justify-between">
+      <header className="surface sticky top-0 z-30 border-b border-line px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold shadow-lg shadow-indigo-500/20">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-primary-foreground font-bold shadow-lg">
             AD
           </div>
           <div>
-            <h1 className="text-xl font-bold font-display tracking-tight text-white leading-none">Admin Command</h1>
+            <h1 className="text-xl font-semibold tracking-tight text-white leading-none">Admin Command</h1>
             <p className="text-xs text-slate-400 font-medium tracking-wide">SYSTEM OVERVIEW</p>
           </div>
         </div>
@@ -332,7 +332,7 @@ function AdminDashboard() {
 
         {/* Left Sidebar: User List */}
         <div className="lg:col-span-4 xl:col-span-3 flex flex-col gap-4 h-[calc(100vh-140px)] sticky top-24">
-          <div className="glass-panel p-4 rounded-3xl flex flex-col h-full overflow-hidden border border-white/5">
+          <div className="surface p-4 rounded-xl flex flex-col h-full overflow-hidden border border-line">
             <div className="flex items-center justify-between mb-4 px-2">
               <h2 className="font-bold text-lg text-white">Users</h2>
               <span className="text-xs font-bold bg-white/10 text-white px-2 py-1 rounded-full">{filteredUsers.length}</span>
@@ -346,7 +346,7 @@ function AdminDashboard() {
                   placeholder="Find user..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-slate-900/50 border border-white/10 rounded-xl py-2 pl-9 pr-4 text-sm text-white focus:outline-none focus:border-indigo-500 placeholder:text-slate-600 transition-colors"
+                  className="w-full bg-slate-900/50 border border-line rounded-xl py-2 pl-9 pr-4 text-sm text-white focus:outline-none focus:border-indigo-500 placeholder:text-slate-600 transition-colors"
                 />
               </div>
 
@@ -354,7 +354,7 @@ function AdminDashboard() {
                 <select
                   value={userStatusFilter}
                   onChange={(e) => setUserStatusFilter(e.target.value)}
-                  className="flex-1 bg-slate-900/50 border border-white/10 rounded-xl px-3 py-2 text-xs font-medium text-slate-300 focus:outline-none"
+                  className="flex-1 bg-slate-900/50 border border-line rounded-xl px-3 py-2 text-xs font-medium text-slate-300 focus:outline-none"
                 >
                   <option value="all">All Status</option>
                   <option value="active">Active</option>
@@ -376,9 +376,9 @@ function AdminDashboard() {
                   <button
                     key={user._id}
                     onClick={() => handleUserSelect(user._id)}
-                    className={`w-full text-left p-3 rounded-2xl transition-all border ${selectedUser?._id === user._id
-                        ? 'bg-indigo-600 border-indigo-500 shadow-lg shadow-indigo-900/50'
-                        : 'bg-transparent border-transparent hover:bg-white/5 hover:border-white/5'
+                    className={`w-full text-left p-3 rounded-lg transition-all border ${selectedUser?._id === user._id
+ ? 'bg-indigo-600 border-indigo-500'
+                        : 'bg-transparent border-transparent hover:bg-white/5 hover:border-line'
                       }`}
                   >
                     <div className="flex items-center justify-between mb-1">
@@ -402,7 +402,7 @@ function AdminDashboard() {
               {/* User Overview Panel */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Info Card */}
-                <div className="glass-panel p-6 rounded-3xl border border-white/5 flex flex-col justify-between">
+                <div className="surface p-6 rounded-xl border border-line flex flex-col justify-between">
                   <div>
                     <h2 className="text-2xl font-bold text-white mb-1">{selectedUser.username}</h2>
                     <p className="text-slate-400 font-mono text-sm">{selectedUser.email}</p>
@@ -418,7 +418,7 @@ function AdminDashboard() {
                     </div>
                   </div>
 
-                  <div className="mt-6 pt-4 border-t border-white/5">
+                  <div className="mt-6 pt-4 border-t border-line">
                     <label htmlFor="admin-new-password" className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-2">Set New Password</label>
                     <div className="flex gap-2">
                       <input
@@ -428,7 +428,7 @@ function AdminDashboard() {
                         onChange={(e) => setNewPassword(e.target.value)}
                         placeholder="Temporary password"
                         autoComplete="off"
-                        className="flex-1 min-w-0 bg-slate-900/50 border border-white/10 rounded-lg px-3 py-2 text-sm text-slate-300 font-mono focus:border-indigo-500 focus:outline-none"
+                        className="flex-1 min-w-0 bg-slate-900/50 border border-line rounded-lg px-3 py-2 text-sm text-slate-300 font-mono focus:border-indigo-500 focus:outline-none"
                       />
                       <button
                         onClick={handleSetPassword}
@@ -443,7 +443,7 @@ function AdminDashboard() {
                 </div>
 
                 {/* Actions Card */}
-                <div className="glass-panel p-6 rounded-3xl border border-white/5 flex flex-col justify-center">
+                <div className="surface p-6 rounded-xl border border-line flex flex-col justify-center">
                   <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-3">Quick Actions</label>
                   <div className="space-y-3">
                     <div className="flex gap-2">
@@ -451,12 +451,12 @@ function AdminDashboard() {
                         type="number"
                         value={daysToActivate}
                         onChange={(e) => setDaysToActivate(Number(e.target.value))}
-                        className="w-20 bg-slate-900/50 border border-white/10 rounded-xl px-3 py-2 text-center text-white font-bold focus:border-indigo-500 focus:outline-none"
+                        className="w-20 bg-slate-900/50 border border-line rounded-xl px-3 py-2 text-center text-white font-bold focus:border-indigo-500 focus:outline-none"
                       />
                       <button
                         onClick={handleActivate}
                         disabled={actionLoading}
-                        className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-xl transition-all shadow-lg shadow-emerald-500/20 disabled:opacity-50"
+                        className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-primary-foreground font-bold py-2 rounded-xl transition-all shadow-lg disabled:opacity-50"
                       >
                         Activate Access
                       </button>
@@ -486,7 +486,7 @@ function AdminDashboard() {
               <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
 
                 {/* Subject Stats */}
-                <div className="glass-panel p-6 rounded-3xl border border-white/5">
+                <div className="surface p-6 rounded-xl border border-line">
                   <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-blue-400"></span> Academic Performance
                   </h3>
@@ -494,7 +494,7 @@ function AdminDashboard() {
                   <div className="overflow-x-auto">
                     <table className="w-full text-left text-sm">
                       <thead>
-                        <tr className="text-slate-500 border-b border-white/5">
+                        <tr className="text-slate-500 border-b border-line">
                           <th className="pb-3 pl-2 font-medium">Subject</th>
                           <th className="pb-3 font-medium text-center">Present (h)</th>
                           <th className="pb-3 font-medium text-center">Absent (h)</th>
@@ -527,7 +527,7 @@ function AdminDashboard() {
                 </div>
 
                 {/* Attendance Log */}
-                <div className="glass-panel p-6 rounded-3xl border border-white/5">
+                <div className="surface p-6 rounded-xl border border-line">
                   <div className="flex flex-wrap items-center justify-between mb-4 gap-2">
                     <h3 className="text-lg font-bold text-white flex items-center gap-2">
                       <span className="w-2 h-2 rounded-full bg-purple-400"></span> Attendance Log

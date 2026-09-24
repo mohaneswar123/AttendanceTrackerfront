@@ -52,7 +52,7 @@ export function TaskCardBody({ task, dragging = false, onMoveTo, onEdit, onDelet
   return (
     // The glass effect makes each card its own layer, so lift the one whose menu is open
     <div
-      className={`glass-card relative p-4 select-none [-webkit-touch-callout:none] ${menuOpen ? 'z-20' : ''} ${dragging ? 'shadow-neon-primary rotate-1 cursor-grabbing' : 'cursor-grab'} ${done ? 'opacity-60' : ''}`}
+      className={`surface relative p-4 select-none [-webkit-touch-callout:none] ${menuOpen ? 'z-20' : ''} ${dragging ? ' rotate-1 cursor-grabbing' : 'cursor-grab'} ${done ? 'opacity-60' : ''}`}
     >
       <div className="flex items-start gap-2">
         <div className="flex-1 min-w-0">
@@ -82,13 +82,13 @@ export function TaskCardBody({ task, dragging = false, onMoveTo, onEdit, onDelet
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><circle cx="5" cy="12" r="2" /><circle cx="12" cy="12" r="2" /><circle cx="19" cy="12" r="2" /></svg>
               </button>
               {menuOpen && (
-                <div role="menu" className="absolute right-0 top-full mt-1 z-30 w-52 md:w-44 rounded-xl bg-slate-900 border border-white/10 shadow-2xl py-1 text-base md:text-sm">
+                <div role="menu" className="absolute right-0 top-full mt-1 z-30 w-52 md:w-44 rounded-xl bg-slate-900 border border-line shadow-lg py-1 text-base md:text-sm">
                   {STATUSES.filter(s => s !== task.status).map(status => (
                     <button key={status} role="menuitem" onClick={choose(() => onMoveTo(status))} className={`${MENU_ITEM} text-slate-300 hover:bg-white/5`}>
                       Move to {STATUS_LABELS[status]}
                     </button>
                   ))}
-                  <div className="my-1 border-t border-white/5" />
+                  <div className="my-1 border-t border-line" />
                   <button role="menuitem" onClick={choose(onEdit)} className={`${MENU_ITEM} text-slate-300 hover:bg-white/5`}>Edit</button>
                   <button role="menuitem" onClick={choose(onDelete)} className={`${MENU_ITEM} text-rose-400 hover:bg-rose-500/10`}>Delete</button>
                 </div>
@@ -109,7 +109,7 @@ function TaskCard({ task, ...actions }) {
     <div
       ref={setNodeRef}
       style={{ transform: CSS.Transform.toString(transform), transition }}
-      className={`rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${isDragging ? 'opacity-30' : ''}`}
+      className={`rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${isDragging ? 'opacity-30' : ''}`}
       {...attributes}
       {...listeners}
     >

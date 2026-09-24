@@ -21,12 +21,12 @@ function ModeMenu({ mode, onSetActive, onEdit, onCopyDay, onDelete }) {
         aria-label={`More actions for ${mode.name}`}
         aria-haspopup="menu"
         aria-expanded={open}
-        className="p-3 md:p-2.5 rounded-2xl border border-white/10 bg-slate-900/60 text-slate-400 hover:text-white hover:bg-white/5 active:bg-white/10 transition-colors"
+        className="p-3 md:p-2.5 rounded-lg border border-line bg-slate-900/60 text-slate-400 hover:text-white hover:bg-white/5 active:bg-white/10 transition-colors"
       >
         <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><circle cx="5" cy="12" r="2" /><circle cx="12" cy="12" r="2" /><circle cx="19" cy="12" r="2" /></svg>
       </button>
       {open && (
-        <div role="menu" className="absolute right-0 top-full mt-1 z-30 w-52 md:w-48 rounded-xl bg-slate-900 border border-white/10 shadow-2xl py-1 text-base md:text-sm">
+        <div role="menu" className="absolute right-0 top-full mt-1 z-30 w-52 md:w-48 rounded-xl bg-slate-900 border border-line shadow-lg py-1 text-base md:text-sm">
           {!mode.active && (
             <button role="menuitem" onClick={choose(onSetActive)} className={`${MENU_ITEM} text-slate-300 hover:bg-white/5`}>Set as active</button>
           )}
@@ -60,7 +60,7 @@ function ModeSelector({ modes, selectedModeId, onSelect, onSetActive, onEdit, on
           aria-label={`Mode: ${selected.name}`}
           aria-haspopup="listbox"
           aria-expanded={open}
-          className="w-full flex items-center gap-2.5 px-3 py-3 md:py-2.5 rounded-2xl border border-white/10 bg-slate-900/60 hover:bg-white/5 transition-colors text-left"
+          className="w-full flex items-center gap-2.5 px-3 py-3 md:py-2.5 rounded-lg border border-line bg-slate-900/60 hover:bg-white/5 transition-colors text-left"
         >
           <span className="text-xl leading-none" aria-hidden="true">{selected.icon}</span>
           <span className="flex-1 min-w-0 font-semibold text-white truncate">{selected.name}</span>
@@ -70,7 +70,7 @@ function ModeSelector({ modes, selectedModeId, onSelect, onSetActive, onEdit, on
         </button>
 
         {open && (
-          <div className="absolute left-0 top-full mt-1 z-30 w-full min-w-[15rem] rounded-2xl bg-slate-900 border border-white/10 shadow-2xl py-1">
+          <div className="absolute left-0 top-full mt-1 z-30 w-full min-w-[15rem] rounded-lg bg-slate-900 border border-line shadow-lg py-1">
             <div role="listbox" aria-label="Switch mode" className="max-h-72 overflow-y-auto">
               {modes.map(mode => (
                 <button
@@ -95,7 +95,7 @@ function ModeSelector({ modes, selectedModeId, onSelect, onSetActive, onEdit, on
                 </button>
               ))}
             </div>
-            <div className="my-1 border-t border-white/5" />
+            <div className="my-1 border-t border-line" />
             <button
               type="button"
               onClick={() => {

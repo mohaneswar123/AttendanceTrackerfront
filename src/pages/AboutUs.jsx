@@ -71,10 +71,10 @@ function AboutUs() {
             </p>
             <div className="bg-dark-primary border-l-4 border-primary-500 p-4 rounded">
               <p className="text-light-primary">
-                Email us at <a href="mailto:attendanceinhand@gmail.com" className="text-primary-500 hover:underline">attendanceinhand@gmail.com</a>
+                Email us at <a href="mailto:attendanceinhand@gmail.com" className="text-primary-400 hover:underline">attendanceinhand@gmail.com</a>
               </p>
               <p className="text-light-primary mt-2">
-                Visit our <a href="/contact-us" className="text-primary-500 hover:underline">contact page</a> for more ways to reach us
+                Visit our <a href="/contact-us" className="text-primary-400 hover:underline">contact page</a> for more ways to reach us
               </p>
             </div>
           </section>

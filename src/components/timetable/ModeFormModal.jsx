@@ -36,7 +36,7 @@ function ModeFormModal({ mode, onSave, onClose }) {
   const shownIcons = allIcons ? MODE_ICONS : MODE_ICONS.slice(0, FIRST_ICONS);
 
   return (
-    <div className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm flex items-end md:items-center justify-center md:p-4" onMouseDown={onClose}>
+    <div className="fixed inset-0 z-[60] bg-black/60 flex items-end md:items-center justify-center md:p-4" onMouseDown={onClose}>
       <form
         role="dialog"
         aria-modal="true"
@@ -44,7 +44,7 @@ function ModeFormModal({ mode, onSave, onClose }) {
         noValidate
         onSubmit={handleSubmit}
         onMouseDown={(e) => e.stopPropagation()}
-        className="w-full md:max-w-md max-h-[92vh] overflow-y-auto rounded-t-3xl md:rounded-2xl bg-slate-900 border border-white/10 p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] md:pb-5 space-y-4 shadow-2xl animate-slide-up md:animate-fade-in"
+        className="w-full md:max-w-md max-h-[92vh] overflow-y-auto rounded-t-xl md:rounded-lg bg-slate-900 border border-line p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] md:pb-5 space-y-4 shadow-lg animate-slide-up md:animate-fade-in"
       >
         <SheetHeader id="mode-form-title" title={mode ? 'Edit Mode' : 'Create Mode'} onClose={onClose} />
 
@@ -114,7 +114,7 @@ function ModeFormModal({ mode, onSave, onClose }) {
         <button
           type="submit"
           disabled={saving}
-          className="w-full py-3.5 rounded-xl bg-primary-600 hover:bg-primary-500 text-white font-semibold disabled:opacity-50"
+          className="w-full py-3.5 rounded-xl bg-primary-600 hover:bg-primary-500 text-primary-foreground font-semibold disabled:opacity-50"
         >
           {saving ? 'Saving…' : mode ? 'Save Changes' : 'Create Mode'}
         </button>

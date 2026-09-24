@@ -2,6 +2,7 @@ import React, { useCallback, useState } from 'react';
 import useDismiss from '../../hooks/useDismiss';
 import { TYPE_STYLES } from './CalendarEventCard';
 import { formatShortTime, longDate, timeLabel } from '../../utils/calendarDate';
+import { BellIcon } from '../icons';
 
 // Taller on phones so each option is easy to tap
 const MENU_ITEM = 'w-full flex items-center gap-2.5 px-4 py-3 md:px-3 md:py-2.5 text-left active:bg-white/10';
@@ -27,7 +28,7 @@ function EventMenu({ event, open, onToggle, onClose, onEdit, onDelete }) {
         <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="5" r="2" /><circle cx="12" cy="12" r="2" /><circle cx="12" cy="19" r="2" /></svg>
       </button>
       {open && (
-        <div role="menu" className="absolute right-0 top-full mt-1 z-30 w-40 rounded-xl bg-slate-900 border border-white/10 shadow-2xl py-1 text-base md:text-sm">
+        <div role="menu" className="absolute right-0 top-full mt-1 z-30 w-40 rounded-xl bg-slate-900 border border-line shadow-lg py-1 text-base md:text-sm">
           <button role="menuitem" onClick={choose(onEdit)} className={`${MENU_ITEM} text-slate-300 hover:bg-white/5`}>
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
             Edit
@@ -51,7 +52,7 @@ function DayView({ currentDate, eventsByDate, onEventClick, onEdit, onDelete, on
 
   return (
     // Labelled "Day", like the Week grid, so it can't clash with the dated sections in the lists
-    <section className="glass-panel rounded-3xl p-3 md:p-5 space-y-4" aria-label="Day">
+    <section className="surface rounded-xl p-3 md:p-5 space-y-4" aria-label="Day">
       <h2 className="px-1 font-semibold text-white">{longDate(currentDate)}</h2>
 
       {entries.length === 0 ? (
@@ -60,7 +61,7 @@ function DayView({ currentDate, eventsByDate, onEventClick, onEdit, onDelete, on
           <button
             type="button"
             onClick={() => onAdd(currentDate)}
-            className="mt-4 px-5 py-3 md:py-2 rounded-xl bg-primary-600 hover:bg-primary-500 text-white text-sm font-semibold"
+            className="mt-4 px-5 py-3 md:py-2 rounded-xl bg-primary-600 hover:bg-primary-500 text-primary-foreground text-sm font-semibold"
           >
             + Add an event
           </button>
@@ -81,7 +82,7 @@ function DayView({ currentDate, eventsByDate, onEventClick, onEdit, onDelete, on
                       onClick={() => onEventClick(event)}
                       className="flex-1 min-w-0 text-left"
                     >
-                      <span className="block font-semibold break-words">{event.type === 'REMINDER' && '🔔 '}{event.title}</span>
+                      <span className="block font-semibold break-words">{event.type === 'REMINDER' && <BellIcon className="w-3.5 h-3.5 inline-block mr-1 -mt-0.5" />}{event.title}</span>
                       <span className="block mt-0.5 text-xs opacity-75">{timeLabel(event)}</span>
                     </button>
                     <EventMenu
@@ -100,7 +101,7 @@ function DayView({ currentDate, eventsByDate, onEventClick, onEdit, onDelete, on
           <button
             type="button"
             onClick={() => onAdd(currentDate)}
-            className="w-full py-3 rounded-xl border border-dashed border-white/15 text-sm font-semibold text-slate-300 hover:bg-white/5 active:bg-white/5"
+            className="w-full py-3 rounded-xl border border-dashed border-line text-sm font-semibold text-slate-300 hover:bg-white/5 active:bg-white/5"
           >
             + Add an event
           </button>
