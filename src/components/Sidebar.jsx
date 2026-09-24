@@ -49,6 +49,13 @@ const Sidebar = () => {
             )
         },
         {
+            to: '/timetable', label: 'Timetable', icon: (
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6a2 2 0 012-2h12a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM4 10h16M10 10v10M8 4v2m8-2v2" />
+                </svg>
+            )
+        },
+        {
             to: '/pomodoro', label: 'Pomodoro', icon: (
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <circle cx="12" cy="13" r="8" strokeWidth="2" />

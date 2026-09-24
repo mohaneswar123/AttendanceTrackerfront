@@ -12,7 +12,7 @@ const MobileBottomNav = () => {
                 </svg>
             )
         },
-        // History is reached from the Dashboard's "View All", keeping this bar to six items
+        // History is reached from the Dashboard's "View All", keeping this bar to seven items
         {
             to: '/tasks', label: 'Tasks', icon: (
                 <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -24,6 +24,13 @@ const MobileBottomNav = () => {
             to: '/calendar', label: 'Calendar', icon: (
                 <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+            )
+        },
+        {
+            to: '/timetable', label: 'Timetable', icon: (
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6a2 2 0 012-2h12a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM4 10h16M10 10v10M8 4v2m8-2v2" />
                 </svg>
             )
         },
@@ -54,8 +61,8 @@ const MobileBottomNav = () => {
 
     return (
         <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-background-paper/80 backdrop-blur-xl border-t border-white/5 pb-safe-area">
-            {/* Six equal items; labels stay on one line even on 360px phones */}
-            <div className="flex justify-around items-center h-16 px-1">
+            {/* Seven equal items; labels stay on one line even on 360px phones, where they shrink to 9px */}
+            <div className="flex justify-around items-center h-16 px-0.5">
                 {navLinks.map((link) => {
                     const isActive = location.pathname === link.to;
                     return (
@@ -73,7 +80,7 @@ const MobileBottomNav = () => {
                                     <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-primary-500 rounded-full shadow-[0_0_8px_rgba(139,92,246,0.8)]" />
                                 )}
                             </div>
-                            <span className={`text-[10px] font-medium tracking-tight whitespace-nowrap transition-colors ${isActive ? 'text-primary-300' : 'text-slate-500'
+                            <span className={`text-[10px] [@media(max-width:380px)]:text-[9px] font-medium tracking-tight whitespace-nowrap transition-colors ${isActive ? 'text-primary-300' : 'text-slate-500'
                                 }`}>
                                 {link.label}
                             </span>

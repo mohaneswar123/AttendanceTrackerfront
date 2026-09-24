@@ -299,6 +299,65 @@ export const calendarService = {
   }
 };
 
+// Timetable Services: reusable weekly routines grouped into modes.
+// Modes look like { id, name, icon, color, active, activityCount }, and activities like
+// { id, modeId, dayOfWeek, title, category, startTime, endTime, startMinutes, endMinutes }.
+export const timetableService = {
+  getModes: async () => {
+    const response = await apiClient.get('/timetable/modes');
+    return response.data;
+  },
+
+  // mode: { name, icon, color }
+  createMode: async (mode) => {
+    const response = await apiClient.post('/timetable/modes', mode);
+    return response.data;
+  },
+
+  updateMode: async (modeId, mode) => {
+    const response = await apiClient.put(`/timetable/modes/${modeId}`, mode);
+    return response.data;
+  },
+
+  // Both of these resolve to the full list of modes with their new state
+  activateMode: async (modeId) => {
+    const response = await apiClient.put(`/timetable/modes/${modeId}/activate`);
+    return response.data;
+  },
+
+  deleteMode: async (modeId) => {
+    const response = await apiClient.delete(`/timetable/modes/${modeId}`);
+    return response.data;
+  },
+
+  getActivities: async (modeId) => {
+    const response = await apiClient.get(`/timetable/modes/${modeId}/activities`);
+    return response.data;
+  },
+
+  // activity: { dayOfWeek, title, category, startTime, endTime }
+  createActivity: async (modeId, activity) => {
+    const response = await apiClient.post(`/timetable/modes/${modeId}/activities`, activity);
+    return response.data;
+  },
+
+  updateActivity: async (activityId, activity) => {
+    const response = await apiClient.put(`/timetable/activities/${activityId}`, activity);
+    return response.data;
+  },
+
+  deleteActivity: async (activityId) => {
+    const response = await apiClient.delete(`/timetable/activities/${activityId}`);
+    return response.data;
+  },
+
+  // Replaces each day in toDays with a copy of fromDay
+  copyDay: async (modeId, fromDay, toDays) => {
+    const response = await apiClient.post(`/timetable/modes/${modeId}/copy-day`, { fromDay, toDays });
+    return response.data;
+  }
+};
+
 // Reset Services
 export const resetService = {
   resetUserData: async (userId) => {
