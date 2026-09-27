@@ -110,9 +110,21 @@ export const adminService = {
     return response.data;
   },
 
-  // Activate a user for a number of days
+  // Access for a number of days counted from today, whatever the account had before
   activateUser: async (userId, days) => {
     const response = await apiClient.put(`/users/admin/activate/${userId}`, null, { params: { days } });
+    return response.data;
+  },
+
+  // Adds days on top of what is left, so renewing early doesn't throw days away
+  extendUser: async (userId, days) => {
+    const response = await apiClient.put(`/users/admin/extend/${userId}`, null, { params: { days } });
+    return response.data;
+  },
+
+  // What admins have done, newest first. Pass userId for one account's history.
+  getActivity: async ({ limit = 50, userId } = {}) => {
+    const response = await apiClient.get('/users/admin/activity', { params: { limit, userId } });
     return response.data;
   },
 
