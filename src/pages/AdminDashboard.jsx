@@ -1,597 +1,279 @@
-import React, { useState, useEffect, useContext, useMemo } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AttendanceContext } from '../contexts/AttendanceContext';
 import { adminService, errorMessage } from '../services/api';
+import AdminUserList from '../components/admin/AdminUserList';
+import AdminUserDetail from '../components/admin/AdminUserDetail';
+import AdminActivityLog from '../components/admin/AdminActivityLog';
+import ConfirmDialog from '../components/ConfirmDialog';
+import ThemeToggle from '../components/ThemeToggle';
+import { LogOutIcon } from '../components/icons';
+import { accessState } from '../utils/admin';
 
-// Backend users come back with `id`; the dashboard uses `_id`
-const normalizeUser = (user) => ({
-  ...user,
-  _id: user._id || user.id,
-  username: user.username || user.name
-});
+// Backend accounts come back with `id`; the portal uses `_id`
+const normalizeUser = (user) => ({ ...user, _id: user._id || user.id, username: user.username || user.name });
 
 function AdminDashboard() {
   const { logout } = useContext(AttendanceContext);
-  const [users, setUsers] = useState([]);
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [userSubjects, setUserSubjects] = useState([]);
-  const [userAttendance, setUserAttendance] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [daysToActivate, setDaysToActivate] = useState(30);
-  const [actionLoading, setActionLoading] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
-  const [newPassword, setNewPassword] = useState('');
-
-  // New: user status filter & email export panel
-  const [userStatusFilter, setUserStatusFilter] = useState('all'); // 'all' | 'active' | 'inactive'
-
-  // Filters for attendance records
-  const [subjectFilter, setSubjectFilter] = useState('all');
-  const [filterDate, setFilterDate] = useState('');
   const navigate = useNavigate();
 
-  // Fetch all users on component mount
+  const [users, setUsers] = useState([]);
+  const [activity, setActivity] = useState([]);
+  const [selectedId, setSelectedId] = useState(null);
+  const [subjects, setSubjects] = useState([]);
+  const [attendance, setAttendance] = useState([]);
+  const [history, setHistory] = useState([]);
+
+  const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  const [notice, setNotice] = useState('');
+  const [confirming, setConfirming] = useState(null); // { title, message, confirmLabel, run }
+
+  const [filter, setFilter] = useState('all');
+  const [query, setQuery] = useState('');
+
   useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        setLoading(true);
-        const response = await adminService.getAllUsers();
-        setUsers(response.map(normalizeUser));
-      } catch (err) {
-        setError(errorMessage(err, 'Failed to load users'));
-        console.error('Error fetching users:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchUsers();
+    if (!notice) return;
+    const timer = setTimeout(() => setNotice(''), 5000);
+    return () => clearTimeout(timer);
+  }, [notice]);
+
+  const loadUsers = useCallback(async () => {
+    const list = (await adminService.getAllUsers()).map(normalizeUser);
+    setUsers(list);
+    return list;
   }, []);
 
-  const handleRefreshUsers = async () => {
-    try {
-      setRefreshing(true);
-      setError(null);
-      const response = await adminService.getAllUsers();
-      const normalizedUsers = response.map(normalizeUser);
-      setUsers(normalizedUsers);
-      if (selectedUser) {
-        const updatedSel = normalizedUsers.find(u => u._id === (selectedUser._id || selectedUser.id));
-        if (updatedSel) setSelectedUser(updatedSel);
-      }
-    } catch (err) {
-      setError(errorMessage(err, 'Failed to refresh users'));
-    } finally {
-      setRefreshing(false);
-    }
-  };
+  const loadActivity = useCallback(async () => {
+    setActivity(await adminService.getActivity({ limit: 50 }));
+  }, []);
 
-  // Fetch user data when a user is selected
   useEffect(() => {
-    if (!selectedUser) {
-      setUserSubjects([]);
-      setUserAttendance([]);
-      setSubjectFilter('all');
-      setFilterDate('');
-      return;
-    }
-
-    const fetchUserData = async () => {
+    (async () => {
       try {
-        setLoading(true);
-        setError(null);
-
-        // Fetch subjects
-        const subjects = await adminService.getUserSubjects(selectedUser._id);
-        const normalizedSubjects = subjects.map(subject => ({
-          _id: subject._id || subject.id,
-          name: subject.name
-        }));
-        setUserSubjects(normalizedSubjects);
-
-        const subjectMap = normalizedSubjects.reduce((acc, s) => { acc[s._id] = s; return acc; }, {});
-
-        // Fetch attendance
-        const attendance = await adminService.getUserAttendance(selectedUser._id);
-        const normalizedAttendance = attendance.map(r => {
-          let resolvedSubject = null;
-          let subjId = null;
-
-          if (r.subject && typeof r.subject === 'object') {
-            subjId = r.subject._id || r.subject.id;
-            resolvedSubject = { _id: subjId, name: r.subject.name };
-          } else if (typeof r.subject === 'string') {
-            subjId = r.subject;
-            resolvedSubject = subjectMap[subjId] || null;
-          } else if (r.subjectId) {
-            subjId = r.subjectId;
-            resolvedSubject = subjectMap[subjId] || null;
-          }
-
-          if (!resolvedSubject && subjId) {
-            resolvedSubject = subjectMap[subjId] || normalizedSubjects.find(s => s._id === subjId) || null;
-          }
-
-          return {
-            ...r,
-            _id: r._id || r.id,
-            subject: resolvedSubject,
-            subjectId: subjId,
-            date: r.date,
-            status: r.status,
-            classNumber: r.classNumber || 1
-          };
-        });
-
-        setUserAttendance(normalizedAttendance);
+        await Promise.all([loadUsers(), loadActivity()]);
+        setError('');
       } catch (err) {
-        setError(errorMessage(err, 'Failed to load user data'));
+        setError(errorMessage(err, 'Failed to load accounts'));
       } finally {
         setLoading(false);
       }
-    };
+    })();
+  }, [loadUsers, loadActivity]);
 
-    fetchUserData();
-  }, [selectedUser]);
-
-  // Reset filters
+  // The chosen account's data
   useEffect(() => {
-    setSubjectFilter('all');
-    setFilterDate('');
-  }, [selectedUser?._id]);
+    if (!selectedId) {
+      setSubjects([]);
+      setAttendance([]);
+      setHistory([]);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      try {
+        const [subjectList, records, entries] = await Promise.all([
+          adminService.getUserSubjects(selectedId),
+          adminService.getUserAttendance(selectedId),
+          adminService.getActivity({ limit: 20, userId: selectedId })
+        ]);
+        if (cancelled) return;
 
-  const handleUserSelect = (userId) => {
-    const user = users.find(u => u._id === userId || u.id === userId);
-    if (user) setSelectedUser({ ...user, _id: user._id || user.id });
-    else setSelectedUser(null);
+        const normalizedSubjects = subjectList.map(s => ({ _id: s._id || s.id, name: s.name }));
+        const byId = Object.fromEntries(normalizedSubjects.map(s => [s._id, s]));
+        setSubjects(normalizedSubjects);
+        setAttendance(records.map(record => {
+          const subjectId = record.subject?._id || record.subject?.id
+            || (typeof record.subject === 'string' ? record.subject : record.subjectId);
+          return { ...record, _id: record._id || record.id, subjectId, subject: byId[subjectId] || null };
+        }));
+        setHistory(entries);
+      } catch (err) {
+        if (!cancelled) setError(errorMessage(err, 'Failed to load that account'));
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [selectedId]);
+
+  const selectedUser = users.find(user => user._id === selectedId) || null;
+
+  const counts = useMemo(() => {
+    const tally = { total: users.length, active: 0, expiring: 0, expired: 0, inactive: 0 };
+    users.forEach(user => { tally[accessState(user)] += 1; });
+    return tally;
+  }, [users]);
+
+  const visibleUsers = useMemo(() => {
+    const text = query.trim().toLowerCase();
+    return users.filter(user => {
+      const state = accessState(user);
+      if (filter === 'active' && state !== 'active') return false;
+      if (filter === 'expiring' && state !== 'expiring' && state !== 'expired') return false;
+      if (filter === 'inactive' && state !== 'inactive') return false;
+      if (!text) return true;
+      return user.username?.toLowerCase().includes(text) || user.email?.toLowerCase().includes(text);
+    });
+  }, [users, filter, query]);
+
+  // Every admin action goes through here: run it, refresh, say what happened
+  const act = async (run, success) => {
+    setBusy(true);
+    try {
+      await run();
+      await Promise.all([loadUsers(), loadActivity()]);
+      if (selectedId) setHistory(await adminService.getActivity({ limit: 20, userId: selectedId }));
+      setNotice(success);
+      setError('');
+    } catch (err) {
+      setError(errorMessage(err, 'That action failed'));
+    } finally {
+      setBusy(false);
+    }
   };
+
+  const confirmThen = (dialog) => setConfirming(dialog);
+
+  const handleActivate = (days) => confirmThen({
+    title: 'Set access from today?',
+    message: `${selectedUser.username} will have ${days} ${days === 1 ? 'day' : 'days'} from today. Any days left over are replaced.`,
+    confirmLabel: 'Set access',
+    run: () => act(() => adminService.activateUser(selectedId, days), `${selectedUser.username} now has ${days} days from today.`)
+  });
+
+  const handleExtend = (days) => act(
+    () => adminService.extendUser(selectedId, days),
+    `Added ${days} ${days === 1 ? 'day' : 'days'} for ${selectedUser.username}.`
+  );
+
+  const handleDeactivate = () => confirmThen({
+    title: 'Withdraw access?',
+    message: `${selectedUser.username} loses access immediately. Their data is kept.`,
+    confirmLabel: 'Deactivate',
+    danger: true,
+    run: () => act(() => adminService.deactivateUser(selectedId), `${selectedUser.username} was deactivated.`)
+  });
+
+  const handleSetPassword = (password, clear) => confirmThen({
+    title: 'Set a new password?',
+    message: `${selectedUser.username}'s current password stops working straight away. Send them the new one.`,
+    confirmLabel: 'Set password',
+    run: async () => {
+      await act(() => adminService.setUserPassword(selectedId, password), `Password set. Send it to ${selectedUser.email}.`);
+      clear();
+    }
+  });
+
+  const handleDelete = () => confirmThen({
+    title: 'Delete this account?',
+    message: `${selectedUser.username} (${selectedUser.email}) and everything they own will be removed. This cannot be undone.`,
+    confirmLabel: 'Delete account',
+    danger: true,
+    run: async () => {
+      const name = selectedUser.username;
+      await act(() => adminService.deleteUser(selectedId), `${name} was deleted.`);
+      setSelectedId(null);
+    }
+  });
 
   const handleLogout = () => {
     logout();
     navigate('/admin/login');
   };
 
-  // Copy emails
-  const handleCopyAllEmails = () => {
-    const emailsArr = Array.from(new Set(filteredUsers.map(u => u.email).filter(Boolean)));
-    const emails = emailsArr.join(',');
-    if (!emails) return alert('No filtered user emails available');
-
-    navigator.clipboard.writeText(emails).then(() => {
-      alert(`Copied ${emailsArr.length} filtered emails to clipboard`);
-    }).catch(() => {
-      window.prompt('Copy filtered emails (Ctrl+C):', emails);
-    });
-  };
-
-  // Clear the new-password field when switching users
-  useEffect(() => {
-    setNewPassword('');
-  }, [selectedUser?._id]);
-
-  // Actions
-  const handleSetPassword = async () => {
-    if (!selectedUser || !newPassword.trim()) return;
-    if (!window.confirm(`Set a new password for ${selectedUser.username}? Their old password will stop working.`)) return;
-
-    setActionLoading(true);
-    try {
-      await adminService.setUserPassword(selectedUser._id, newPassword);
-      alert(`Password updated. Send the new password to ${selectedUser.email}.`);
-      setNewPassword('');
-    } catch (e) {
-      alert(errorMessage(e, 'Failed to set password'));
-    } finally {
-      setActionLoading(false);
-    }
-  };
-
-  const handleActivate = async () => {
-    if (!selectedUser) return;
-    if (!window.confirm(`Activate ${selectedUser.username} for ${daysToActivate} days?`)) return;
-
-    setActionLoading(true);
-    try {
-      const updated = await adminService.activateUser(selectedUser._id, daysToActivate);
-      const normalized = { ...updated, _id: updated._id || updated.id };
-      setUsers(prev => prev.map(u => (u._id === normalized._id ? { ...u, ...normalized } : u)));
-      setSelectedUser(prev => ({ ...(prev || {}), ...normalized }));
-    } catch (e) {
-      alert(errorMessage(e, 'Failed to activate user'));
-    } finally {
-      setActionLoading(false);
-    }
-  };
-
-  const handleDeactivate = async () => {
-    if (!selectedUser) return;
-    if (!window.confirm(`Deactivate ${selectedUser.username}? This revokes access immediately.`)) return;
-
-    setActionLoading(true);
-    try {
-      const updated = await adminService.deactivateUser(selectedUser._id);
-      const normalized = { ...updated, _id: updated._id || updated.id };
-      setUsers(prev => prev.map(u => (u._id === normalized._id ? { ...u, ...normalized } : u)));
-      setSelectedUser(prev => ({ ...(prev || {}), ...normalized }));
-    } catch (e) {
-      alert(errorMessage(e, 'Failed to deactivate user'));
-    } finally {
-      setActionLoading(false);
-    }
-  };
-
-  const handleDeleteUser = async () => {
-    if (!selectedUser) return;
-    if (!window.confirm(`Permanently delete ${selectedUser.username}?`)) return;
-    const confirm2 = window.prompt("Type DELETE to confirm permanent removal.");
-    if (confirm2 !== 'DELETE') return;
-
-    setActionLoading(true);
-    try {
-      // Also deletes the user's subjects and attendance
-      await adminService.deleteUser(selectedUser._id);
-      setUsers(prev => prev.filter(u => u._id !== selectedUser._id));
-      setSelectedUser(null);
-      alert('User deleted.');
-    } catch (e) {
-      alert(errorMessage(e, 'Failed to delete user'));
-    } finally {
-      setActionLoading(false);
-    }
-  };
-
-  // Filtering
-  const filteredUsers = useMemo(() => {
-    let data = [...users];
-    if (userStatusFilter === 'active') data = data.filter(u => u.active);
-    else if (userStatusFilter === 'inactive') data = data.filter(u => !u.active);
-
-    if (searchQuery.trim()) {
-      const lowerQuery = searchQuery.toLowerCase();
-      data = data.filter(user =>
-        user.username?.toLowerCase().includes(lowerQuery) ||
-        user.email?.toLowerCase().includes(lowerQuery)
-      );
-    }
-    return data;
-  }, [users, searchQuery, userStatusFilter]);
-
-  // Statistics
-  const subjectStatistics = useMemo(() => {
-    if (!userSubjects.length || !userAttendance.length) return [];
-
-    return userSubjects.map(subject => {
-      const subjectRecords = userAttendance.filter(record => {
-        const recordSubjectId = record.subject?._id || record.subject?.id || record.subjectId;
-        const subjectId = subject._id || subject.id;
-        return recordSubjectId === subjectId;
-      });
-
-      // classNumber is the class length in hours
-      let totalHours = 0, attendedHours = 0, missedHours = 0;
-
-      subjectRecords.forEach(record => {
-        const hours = Number(record.classNumber) || 1;
-        if (record.status === 'Present') attendedHours += hours;
-        else if (record.status === 'Absent') missedHours += hours;
-        if (record.status !== 'No Class') totalHours += hours;
-      });
-
-      const percentage = totalHours > 0 ? Math.round((attendedHours / totalHours) * 100) : 0;
-
-      return { ...subject, totalHours, attendedHours, missedHours, percentage };
-    });
-  }, [userSubjects, userAttendance]);
-
-  // Options & filtering
-  const subjectOptions = useMemo(() => {
-    const names = (userSubjects || []).map(s => s.name).filter(Boolean);
-    return Array.from(new Set(names));
-  }, [userSubjects]);
-
-  const filteredAttendance = useMemo(() => {
-    let records = [...(userAttendance || [])];
-    if (subjectFilter !== 'all') records = records.filter(r => r.subject?.name === subjectFilter);
-    if (filterDate) {
-      const target = new Date(filterDate).toISOString().split('T')[0];
-      records = records.filter(r => new Date(r.date.split('T')[0]).toISOString().split('T')[0] === target);
-    }
-    return records;
-  }, [userAttendance, subjectFilter, filterDate]);
-
-  const sortedFilteredAttendance = useMemo(() => {
-    return [...filteredAttendance].sort((a, b) => new Date(b.date) - new Date(a.date));
-  }, [filteredAttendance]);
+  const stat = (label, value, tone = 'text-white') => (
+    <div className="surface px-4 py-3">
+      <p className="text-xs text-slate-500">{label}</p>
+      <p className={`text-xl font-semibold mt-0.5 tabular-nums ${tone}`}>{value}</p>
+    </div>
+  );
 
   return (
-    <div className="min-h-screen bg-dark-primary flex flex-col font-sans text-light-primary">
-
-      {/* Header */}
-      <header className="surface sticky top-0 z-30 border-b border-line px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-primary-foreground font-bold shadow-lg">
-            AD
+    <div className="min-h-screen bg-background">
+      <header className="sticky top-0 z-30 h-14 bg-background-paper border-b border-line">
+        <div className="h-full max-w-7xl mx-auto px-4 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <span className="w-6 h-6 rounded bg-primary-600 text-primary-foreground text-[11px] font-bold flex items-center justify-center shrink-0">AH</span>
+            <span className="font-semibold tracking-tight text-white truncate">Admin</span>
           </div>
-          <div>
-            <h1 className="text-xl font-semibold tracking-tight text-white leading-none">Admin Command</h1>
-            <p className="text-xs text-slate-400 font-medium tracking-wide">SYSTEM OVERVIEW</p>
+          <div className="flex items-center gap-1 shrink-0">
+            <ThemeToggle compact />
+            <button onClick={handleLogout} aria-label="Sign out" className="w-11 h-11 md:w-9 md:h-9 flex items-center justify-center rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors">
+              <LogOutIcon />
+            </button>
           </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <button onClick={handleRefreshUsers} disabled={refreshing} className="p-2 text-slate-400 hover:text-white transition-colors" title="Refresh Data">
-            <svg className={`w-5 h-5 ${refreshing ? 'animate-spin' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
-          </button>
-          <div className="h-6 w-px bg-white/10 mx-1"></div>
-          <button onClick={handleLogout} className="text-sm font-bold text-rose-400 hover:text-rose-300 transition-colors uppercase tracking-wider px-2">Logout</button>
         </div>
       </header>
 
-      <main className="flex-1 container mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
-
-        {/* Left Sidebar: User List */}
-        <div className="lg:col-span-4 xl:col-span-3 flex flex-col gap-4 h-[calc(100vh-140px)] sticky top-24">
-          <div className="surface p-4 rounded-xl flex flex-col h-full overflow-hidden border border-line">
-            <div className="flex items-center justify-between mb-4 px-2">
-              <h2 className="font-bold text-lg text-white">Users</h2>
-              <span className="text-xs font-bold bg-white/10 text-white px-2 py-1 rounded-full">{filteredUsers.length}</span>
-            </div>
-
-            <div className="space-y-3 mb-4">
-              <div className="relative">
-                <svg className="absolute left-3 top-3 w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-                <input
-                  type="text"
-                  placeholder="Find user..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-slate-900/50 border border-line rounded-xl py-2 pl-9 pr-4 text-sm text-white focus:outline-none focus:border-indigo-500 placeholder:text-slate-600 transition-colors"
-                />
-              </div>
-
-              <div className="flex gap-2">
-                <select
-                  value={userStatusFilter}
-                  onChange={(e) => setUserStatusFilter(e.target.value)}
-                  className="flex-1 bg-slate-900/50 border border-line rounded-xl px-3 py-2 text-xs font-medium text-slate-300 focus:outline-none"
-                >
-                  <option value="all">All Status</option>
-                  <option value="active">Active</option>
-                  <option value="inactive">Inactive</option>
-                </select>
-                <button onClick={handleCopyAllEmails} className="p-2 bg-slate-800 rounded-xl text-slate-400 hover:text-white" title="Copy Emails">
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" /></svg>
-                </button>
-              </div>
-            </div>
-
-            <div className="flex-1 overflow-y-auto custom-scrollbar space-y-2 pr-1">
-              {loading && !users.length ? (
-                <div className="text-center py-8 text-slate-500 text-sm">Loading database...</div>
-              ) : filteredUsers.length === 0 ? (
-                <div className="text-center py-8 text-slate-500 text-sm">No users found.</div>
-              ) : (
-                filteredUsers.map(user => (
-                  <button
-                    key={user._id}
-                    onClick={() => handleUserSelect(user._id)}
-                    className={`w-full text-left p-3 rounded-lg transition-all border ${selectedUser?._id === user._id
- ? 'bg-indigo-600 border-indigo-500'
-                        : 'bg-transparent border-transparent hover:bg-white/5 hover:border-line'
-                      }`}
-                  >
-                    <div className="flex items-center justify-between mb-1">
-                      <span className={`font-bold truncate ${selectedUser?._id === user._id ? 'text-white' : 'text-slate-200'}`}>{user.username}</span>
-                      <div className={`w-2 h-2 rounded-full ${user.active ? 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)]' : 'bg-rose-500'}`}></div>
-                    </div>
-                    <div className={`text-xs truncate ${selectedUser?._id === user._id ? 'text-indigo-200' : 'text-slate-500'}`}>{user.email}</div>
-                  </button>
-                ))
-              )}
-            </div>
-          </div>
+      <main className="max-w-7xl mx-auto px-4 py-5 space-y-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {stat('Accounts', counts.total)}
+          {stat('Active', counts.active, 'text-emerald-400')}
+          {stat(`Expiring or expired`, counts.expiring + counts.expired, 'text-amber-400')}
+          {stat('Inactive', counts.inactive, 'text-slate-400')}
         </div>
 
-        {/* Right Content: Details */}
-        <div className="lg:col-span-8 xl:col-span-9 flex flex-col gap-6 overflow-y-auto pb-20">
+        {notice && <div className="notice notice-success" role="status">{notice}</div>}
+        {error && (
+          <div className="notice notice-danger" role="alert">
+            <span className="flex-1">{error}</span>
+            <button onClick={() => setError('')} className="font-medium underline underline-offset-2">Dismiss</button>
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 lg:grid-cols-[20rem_minmax(0,1fr)] gap-4 items-start">
+          <div className="lg:sticky lg:top-20 h-[28rem] lg:h-[calc(100vh-8rem)]">
+            <AdminUserList
+              users={visibleUsers}
+              selectedId={selectedId}
+              onSelect={setSelectedId}
+              filter={filter}
+              onFilterChange={setFilter}
+              query={query}
+              onQueryChange={setQuery}
+              loading={loading}
+            />
+          </div>
+
           {selectedUser ? (
-            <>
-              {error && <div className="p-4 bg-rose-500/10 border border-rose-500/50 text-rose-200 rounded-xl">{error}</div>}
-
-              {/* User Overview Panel */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Info Card */}
-                <div className="surface p-6 rounded-xl border border-line flex flex-col justify-between">
-                  <div>
-                    <h2 className="text-2xl font-bold text-white mb-1">{selectedUser.username}</h2>
-                    <p className="text-slate-400 font-mono text-sm">{selectedUser.email}</p>
-                    <div className="mt-4 flex gap-2">
-                      <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide border ${selectedUser.active ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'bg-rose-500/10 border-rose-500/20 text-rose-400'}`}>
-                        {selectedUser.active ? 'Active Account' : 'Inactive'}
-                      </span>
-                      {selectedUser.paidTill && (
-                        <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide bg-amber-500/10 border border-amber-500/20 text-amber-400">
-                          Paid: {new Date(selectedUser.paidTill).toLocaleDateString()}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="mt-6 pt-4 border-t border-line">
-                    <label htmlFor="admin-new-password" className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-2">Set New Password</label>
-                    <div className="flex gap-2">
-                      <input
-                        id="admin-new-password"
-                        type="text"
-                        value={newPassword}
-                        onChange={(e) => setNewPassword(e.target.value)}
-                        placeholder="Temporary password"
-                        autoComplete="off"
-                        className="flex-1 min-w-0 bg-slate-900/50 border border-line rounded-lg px-3 py-2 text-sm text-slate-300 font-mono focus:border-indigo-500 focus:outline-none"
-                      />
-                      <button
-                        onClick={handleSetPassword}
-                        disabled={actionLoading || !newPassword.trim()}
-                        className="px-3 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-slate-300 text-xs font-bold uppercase disabled:opacity-50"
-                      >
-                        Set
-                      </button>
-                    </div>
-                    <p className="mt-2 text-xs text-slate-500">Passwords are stored encrypted and can't be viewed. Set a temporary one and email it to the user.</p>
-                  </div>
-                </div>
-
-                {/* Actions Card */}
-                <div className="surface p-6 rounded-xl border border-line flex flex-col justify-center">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-3">Quick Actions</label>
-                  <div className="space-y-3">
-                    <div className="flex gap-2">
-                      <input
-                        type="number"
-                        value={daysToActivate}
-                        onChange={(e) => setDaysToActivate(Number(e.target.value))}
-                        className="w-20 bg-slate-900/50 border border-line rounded-xl px-3 py-2 text-center text-white font-bold focus:border-indigo-500 focus:outline-none"
-                      />
-                      <button
-                        onClick={handleActivate}
-                        disabled={actionLoading}
-                        className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-primary-foreground font-bold py-2 rounded-xl transition-all shadow-lg disabled:opacity-50"
-                      >
-                        Activate Access
-                      </button>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3">
-                      <button
-                        onClick={handleDeactivate}
-                        disabled={actionLoading}
-                        className="bg-amber-600/20 hover:bg-amber-600/30 text-amber-400 border border-amber-600/30 font-bold py-2 rounded-xl transition-all disabled:opacity-50"
-                      >
-                        Deactivate
-                      </button>
-                      <button
-                        onClick={handleDeleteUser}
-                        disabled={actionLoading}
-                        className="bg-rose-600/20 hover:bg-rose-600/30 text-rose-400 border border-rose-600/30 font-bold py-2 rounded-xl transition-all disabled:opacity-50"
-                      >
-                        Delete User
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Sub-grids for data */}
-              <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-
-                {/* Subject Stats */}
-                <div className="surface p-6 rounded-xl border border-line">
-                  <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-blue-400"></span> Academic Performance
-                  </h3>
-
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left text-sm">
-                      <thead>
-                        <tr className="text-slate-500 border-b border-line">
-                          <th className="pb-3 pl-2 font-medium">Subject</th>
-                          <th className="pb-3 font-medium text-center">Present (h)</th>
-                          <th className="pb-3 font-medium text-center">Absent (h)</th>
-                          <th className="pb-3 pr-2 font-medium text-right">Rate</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-white/5">
-                        {subjectStatistics.length > 0 ? (
-                          subjectStatistics.map(sub => (
-                            <tr key={sub._id} className="group hover:bg-white/5 transition-colors">
-                              <td className="py-3 pl-2 font-medium text-slate-200">{sub.name}</td>
-                              <td className="py-3 text-center text-emerald-400 font-mono">{sub.attendedHours}</td>
-                              <td className="py-3 text-center text-rose-400 font-mono">{sub.missedHours}</td>
-                              <td className="py-3 pr-2 text-right">
-                                <div className="flex items-center justify-end gap-2">
-                                  <div className="w-16 h-1.5 bg-slate-800 rounded-full overflow-hidden">
-                                    <div className={`h-full rounded-full ${sub.percentage >= 75 ? 'bg-emerald-500' : sub.percentage >= 60 ? 'bg-amber-500' : 'bg-rose-500'}`} style={{ width: `${sub.percentage}%` }}></div>
-                                  </div>
-                                  <span className={`font-bold text-xs ${sub.percentage >= 75 ? 'text-emerald-400' : sub.percentage >= 60 ? 'text-amber-400' : 'text-rose-400'}`}>{sub.percentage}%</span>
-                                </div>
-                              </td>
-                            </tr>
-                          ))
-                        ) : (
-                          <tr><td colSpan="4" className="py-8 text-center text-slate-500 italic">No academic data available</td></tr>
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-
-                {/* Attendance Log */}
-                <div className="surface p-6 rounded-xl border border-line">
-                  <div className="flex flex-wrap items-center justify-between mb-4 gap-2">
-                    <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-purple-400"></span> Attendance Log
-                    </h3>
-                    <div className="flex max-w-[200px] gap-2">
-                      <select
-                        className="bg-slate-900/50 border-none rounded-lg text-xs text-slate-300 py-1"
-                        value={subjectFilter}
-                        onChange={(e) => setSubjectFilter(e.target.value)}
-                      >
-                        <option value="all">All Subs</option>
-                        {subjectOptions.map(n => <option key={n} value={n}>{n}</option>)}
-                      </select>
-                      <input
-                        type="date"
-                        className="bg-slate-900/50 border-none rounded-lg text-xs text-slate-300 py-1 w-28"
-                        value={filterDate}
-                        onChange={(e) => setFilterDate(e.target.value)}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="overflow-y-auto max-h-[300px] custom-scrollbar pr-1">
-                    <table className="w-full text-left text-sm">
-                      <tbody className="divide-y divide-white/5">
-                        {sortedFilteredAttendance.length > 0 ? (
-                          sortedFilteredAttendance.map(record => (
-                            <tr key={record._id} className="group hover:bg-white/5 transition-colors">
-                              <td className="py-3 pl-2">
-                                <div className="font-medium text-slate-200">{record.subject?.name || 'Unknown'}</div>
-                                <div className="text-[10px] text-slate-500">{new Date(record.date).toLocaleDateString()}</div>
-                              </td>
-                              <td className="py-3 text-right pr-2">
-                                <span className={`px-2 py-1 rounded-md text-xs font-bold uppercase ${record.status === 'Present' ? 'bg-emerald-500/10 text-emerald-400' :
-                                    record.status === 'Absent' ? 'bg-rose-500/10 text-rose-400' :
-                                      'bg-slate-500/10 text-slate-400'
-                                  }`}>
-                                  {record.status}
-                                </span>
-                              </td>
-                            </tr>
-                          ))
-                        ) : (
-                          <tr><td colSpan="2" className="py-8 text-center text-slate-500 italic">No matching records</td></tr>
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-
-              </div>
-
-            </>
+            <AdminUserDetail
+              user={selectedUser}
+              subjects={subjects}
+              attendance={attendance}
+              history={history}
+              busy={busy}
+              onActivate={handleActivate}
+              onExtend={handleExtend}
+              onDeactivate={handleDeactivate}
+              onDelete={handleDelete}
+              onSetPassword={handleSetPassword}
+            />
           ) : (
-            <div className="flex-1 flex flex-col items-center justify-center text-slate-500 min-h-[400px]">
-              <div className="w-24 h-24 rounded-full bg-slate-800/50 flex items-center justify-center mb-4">
-                <svg className="w-10 h-10 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+            <div className="space-y-4">
+              <div className="surface p-10 text-center">
+                <h2 className="font-semibold text-white">Pick an account</h2>
+                <p className="text-sm text-slate-400 mt-1">Its access, attendance and history appear here.</p>
               </div>
-              <p className="text-lg font-medium">Select a user to view details</p>
-              <p className="text-sm opacity-60">Manage permissions, subjects, and attendance</p>
+              <AdminActivityLog entries={activity} />
             </div>
           )}
         </div>
       </main>
+
+      {confirming && (
+        <ConfirmDialog
+          title={confirming.title}
+          message={confirming.message}
+          confirmLabel={confirming.confirmLabel}
+          danger={confirming.danger}
+          onConfirm={() => {
+            const { run } = confirming;
+            setConfirming(null);
+            run();
+          }}
+          onCancel={() => setConfirming(null)}
+        />
+      )}
     </div>
   );
 }
