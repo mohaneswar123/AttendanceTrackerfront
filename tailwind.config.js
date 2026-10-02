@@ -37,14 +37,14 @@ module.exports = {
           surface: v('bg-surface'),
         },
         primary: {
-          DEFAULT: '#6366F1', // Indigo 500
-          foreground: '#FFFFFF', // always white: it sits on a filled violet button
+          DEFAULT: '#2563EB', // Blue 600
+          foreground: '#FFFFFF', // always white: it sits on a filled blue button
           ...ramp('primary', TEXT_SHADES),
-          500: '#8B5CF6',
-          600: '#7C3AED',
-          700: '#6D28D9',
-          800: '#5B21B6',
-          900: '#4C1D95',
+          500: '#3B82F6',
+          600: '#2563EB',
+          700: '#1D4ED8',
+          800: '#1E40AF',
+          900: '#1E3A8A',
         },
         secondary: {
           DEFAULT: '#0EA5E9', // Sky 500

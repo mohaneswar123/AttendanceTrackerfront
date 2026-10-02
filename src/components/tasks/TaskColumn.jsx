@@ -25,9 +25,10 @@ function TaskColumn({ status, taskIds, loading, showHeader = true, children }) {
         <div ref={setNodeRef} className="flex-1 flex flex-col gap-3">
           {children}
           {taskIds.length === 0 && (
-            <p className="flex-1 flex items-center justify-center text-sm text-slate-500 border border-dashed border-line rounded-lg py-8">
-              {loading ? 'Loading…' : 'Nothing here yet.'}
-            </p>
+            <div className="flex-1 flex flex-col items-center justify-center gap-1 text-center border border-dashed border-line rounded-lg py-8 px-4">
+              <p className="text-sm text-slate-400">{loading ? 'Loading…' : status === 'TODO' ? 'No tasks yet' : 'Nothing here yet'}</p>
+              {!loading && status === 'TODO' && <p className="text-xs text-slate-500">Add one above to get started.</p>}
+            </div>
           )}
         </div>
       </SortableContext>

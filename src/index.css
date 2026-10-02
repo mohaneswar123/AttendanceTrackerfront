@@ -95,7 +95,7 @@
   }
 
   .segmented-item {
-    @apply h-10 md:h-8 px-3 rounded-md text-sm font-medium text-slate-400 transition-colors hover:text-slate-200;
+    @apply h-10 md:h-8 px-3 rounded-md text-sm font-medium text-slate-300 transition-colors hover:text-slate-100;
   }
 
   .segmented-item[aria-selected='true'],
@@ -104,19 +104,19 @@
   }
 
   .tile {
-    @apply w-9 h-9 shrink-0 rounded-lg flex items-center justify-center bg-primary-500/12 text-primary-300;
+    @apply w-9 h-9 shrink-0 rounded-lg flex items-center justify-center bg-primary-500/10 text-primary-300;
   }
 
   .tile-success {
-    @apply bg-emerald-500/12 text-emerald-400;
+    @apply bg-emerald-500/10 text-emerald-400;
   }
 
   .tile-warning {
-    @apply bg-amber-500/12 text-amber-400;
+    @apply bg-amber-500/10 text-amber-400;
   }
 
   .tile-danger {
-    @apply bg-rose-500/12 text-rose-400;
+    @apply bg-rose-500/10 text-rose-400;
   }
 
   .section-title {

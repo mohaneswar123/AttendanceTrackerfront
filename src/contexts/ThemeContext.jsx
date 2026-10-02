@@ -15,16 +15,16 @@ const readSaved = () => {
   }
 };
 
-// Dark is the default; a saved choice wins. index.html applies the same rule before the
+// Light is the default; a saved choice wins. index.html applies the same rule before the
 // first paint, so the page never flashes the wrong colours.
 export const applyTheme = (theme) => {
   document.documentElement.dataset.theme = theme;
   const meta = document.querySelector('meta[name="theme-color"]');
-  if (meta) meta.setAttribute('content', theme === 'light' ? '#FAF6EF' : '#020617');
+  if (meta) meta.setAttribute('content', theme === 'light' ? '#F2F4F7' : '#0A0E16');
 };
 
 export function ThemeProvider({ children }) {
-  const [theme, setThemeState] = useState(() => readSaved() || 'dark');
+  const [theme, setThemeState] = useState(() => readSaved() || 'light');
 
   useEffect(() => {
     applyTheme(theme);

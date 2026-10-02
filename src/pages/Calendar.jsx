@@ -25,7 +25,6 @@ import EventFormModal from '../components/calendar/EventFormModal';
 import EventDetailsModal from '../components/calendar/EventDetailsModal';
 import ConfirmDialog from '../components/ConfirmDialog';
 import LoginPrompt from '../components/LoginPrompt';
-import { PlusIcon } from '../components/icons';
 
 const UPCOMING_SHOWN = 8;
 const PERIOD_NAMES = { [VIEWS.MONTH]: 'month', [VIEWS.WEEK]: 'week', [VIEWS.DAY]: 'day' };
@@ -144,9 +143,12 @@ function CalendarPage() {
     setDetails(entry);
   };
 
-  const title = view === VIEWS.DAY && !isDesktop
-    ? `${shortDate(currentDate, true)}, ${currentDate.slice(0, 4)}`
-    : viewTitle(view, currentDate);
+  // The year is the eyebrow, so the big title only has to carry the month or the day
+  const headerTitle = view === VIEWS.MONTH
+    ? new Date(`${currentDate}T00:00:00`).toLocaleDateString('en-US', { month: 'long' })
+    : view === VIEWS.DAY
+      ? shortDate(currentDate, true)
+      : viewTitle(view, currentDate).replace(`, ${currentDate.slice(0, 4)}`, '');
 
   const results = calendar.results;
   const query = searchQuery.trim();
@@ -154,17 +156,17 @@ function CalendarPage() {
   return (
     <div className="space-y-4 md:space-y-5 pb-24 md:pb-0">
       <CalendarHeader
-        loading={calendar.loading}
+        eyebrow={currentDate.slice(0, 4)}
+        title={headerTitle}
         searchOpen={searchOpen}
         onToggleSearch={toggleSearch}
-        onAdd={() => openCreateOn(today)}
-        showAdd={isDesktop}
+        onAdd={() => openCreateOn(view === VIEWS.DAY ? currentDate : selectedDate)}
       />
 
       <CalendarToolbar
         view={view}
         onViewChange={setView}
-        title={title}
+        period={viewTitle(view, currentDate)}
         periodName={PERIOD_NAMES[view]}
         onToday={() => goTo(today)}
         onPrevious={() => goTo(stepDate(view, currentDate, -1))}
@@ -290,17 +292,6 @@ function CalendarPage() {
         </div>
       </div>
 
-      {/* Add button within thumb reach on phones, above the bottom navigation */}
-      {!isDesktop && !form && (
-        <button
-          type="button"
-          onClick={() => openCreateOn(view === VIEWS.MONTH ? selectedDate : view === VIEWS.DAY ? currentDate : today)}
-          aria-label="Add event"
-          className="fixed right-4 bottom-20 z-40 w-14 h-14 rounded-full bg-primary-600 hover:bg-primary-700 text-primary-foreground flex items-center justify-center shadow-lg transition-colors"
-        >
-          <PlusIcon className="w-6 h-6" />
-        </button>
-      )}
 
       {form && (
         <EventFormModal event={form.event} initial={form.initial} onSave={handleSave} onClose={closeForm} />

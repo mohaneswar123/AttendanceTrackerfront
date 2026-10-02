@@ -60,7 +60,7 @@ function AdminUserList({ users, selectedId, onSelect, filter, onFilterChange, qu
                     type="button"
                     onClick={() => onSelect(user._id)}
                     aria-current={selected ? 'true' : undefined}
-                    className={`w-full text-left px-3 py-2.5 transition-colors ${selected ? 'bg-primary-500/12' : 'hover:bg-white/5'}`}
+                    className={`w-full text-left px-3 py-2.5 transition-colors ${selected ? 'bg-primary-500/10' : 'hover:bg-white/5'}`}
                   >
                     <div className="flex items-center gap-2">
                       <span className="flex-1 min-w-0 text-sm font-medium text-slate-100 truncate">{user.username}</span>

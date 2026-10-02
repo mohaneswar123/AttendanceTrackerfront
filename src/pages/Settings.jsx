@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AttendanceContext } from '../contexts/AttendanceContext';
+import PageHeader from '../components/PageHeader';
 import ThemeToggle from '../components/ThemeToggle';
 import InstallApp from '../components/InstallApp';
 
@@ -65,75 +66,92 @@ function Settings() {
   };
 
   return (
-    <div className="space-y-6 pb-20 md:pb-0">
-      <div>
-        <h1 className="page-title">Settings</h1>
-        <p className="page-subtitle">Your account and this device.</p>
-      </div>
+    <div className="space-y-4">
+      <PageHeader eyebrow="Your account" title="Settings" />
 
       {message.text && (
-        <div className={`p-3 rounded-xl border text-sm ${message.type === 'error' ? 'bg-rose-500/10 border-rose-500/30 text-rose-200' : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-200'}`} role="status">
+        <div className={`notice ${message.type === 'error' ? 'notice-danger' : 'notice-success'}`} role="status">
           {message.text}
         </div>
       )}
 
-      <div className="surface p-6 rounded-xl flex items-center gap-5">
-        <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-primary-500 to-secondary-500 flex items-center justify-center text-2xl font-bold text-primary-foreground">
+      <section className="surface p-4 md:p-5 flex items-center gap-4">
+        <div className="w-12 h-12 shrink-0 rounded-full bg-primary-600 text-primary-foreground grid place-items-center text-lg font-semibold">
           {currentUser ? currentUser.email[0].toUpperCase() : 'G'}
         </div>
         <div className="min-w-0">
-          <h2 className="text-lg font-bold text-white">{currentUser ? 'Student Account' : 'Guest User'}</h2>
-          <p className="text-slate-400 text-sm truncate">{currentUser ? currentUser.email : 'Local usage only'}</p>
-          {!currentUser && <Link to="/login" className="text-primary-400 text-xs font-bold uppercase mt-2 block tracking-wider">Login to Sync</Link>}
+          <h2 className="font-semibold text-white truncate">{currentUser ? currentUser.username || 'Student account' : 'Guest'}</h2>
+          <p className="text-sm text-slate-500 truncate">{currentUser ? currentUser.email : 'Signed out — nothing is saved'}</p>
+          {!currentUser && <Link to="/login" className="text-sm font-semibold text-primary-400 hover:text-primary-300 mt-1 inline-block">Sign in</Link>}
         </div>
-      </div>
+      </section>
 
-      <div className="surface p-6 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <section className="surface p-4 md:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-lg font-bold text-white">Appearance</h2>
-          <p className="text-slate-400 text-sm mt-1">Remembered on this device only.</p>
+          <h2 className="font-semibold text-white">Appearance</h2>
+          <p className="text-sm text-slate-500 mt-0.5">Remembered on this device only.</p>
         </div>
         <ThemeToggle />
-      </div>
+      </section>
 
       <InstallApp />
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-        <div className="surface p-6 rounded-xl space-y-5">
-          <h2 className="text-lg font-bold text-white">Security</h2>
+      <div className="grid gap-4 lg:grid-cols-2 items-start">
+        <section className="surface p-4 md:p-5 space-y-5">
+          <h2 className="font-semibold text-white">Sign-in details</h2>
 
-          <div className="space-y-2">
-            <label htmlFor="settings-email" className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Update Email</label>
+          <div>
+            <label htmlFor="settings-email" className="label">Email address</label>
             <div className="flex gap-2">
               <input
                 id="settings-email"
-                value={newEmail} onChange={e => setNewEmail(e.target.value)} placeholder="New email address"
-                className="flex-1 bg-slate-900/50 border border-line rounded-xl px-4 py-2.5 text-white text-sm focus:border-primary-500 outline-none"
+                value={newEmail}
+                onChange={e => setNewEmail(e.target.value)}
+                placeholder="New email address"
+                className="input flex-1"
               />
-              <button onClick={() => handleUpdateProfile('email')} disabled={loading} className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-sm font-medium transition-colors">Update</button>
+              <button onClick={() => handleUpdateProfile('email')} disabled={loading} className="btn btn-secondary shrink-0">Update</button>
             </div>
           </div>
 
-          <div className="space-y-2 pt-4 border-t border-line">
-            <label htmlFor="settings-old-password" className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Change Password</label>
-            <input id="settings-old-password" type="password" value={oldPassword} onChange={e => setOldPassword(e.target.value)} placeholder="Current password"
-              className="w-full bg-slate-900/50 border border-line rounded-xl px-4 py-2.5 text-white text-sm focus:border-primary-500 outline-none" />
+          <div className="pt-5 border-t border-line space-y-2">
+            <label htmlFor="settings-old-password" className="label">Password</label>
+            <input
+              id="settings-old-password"
+              type="password"
+              value={oldPassword}
+              onChange={e => setOldPassword(e.target.value)}
+              placeholder="Current password"
+              className="input"
+            />
             <div className="grid grid-cols-2 gap-2">
-              <input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder="New password" aria-label="New password"
-                className="bg-slate-900/50 border border-line rounded-xl px-4 py-2.5 text-white text-sm focus:border-primary-500 outline-none" />
-              <input type="password" value={confirmPasswordField} onChange={e => setConfirmPasswordField(e.target.value)} placeholder="Confirm" aria-label="Confirm new password"
-                className="bg-slate-900/50 border border-line rounded-xl px-4 py-2.5 text-white text-sm focus:border-primary-500 outline-none" />
+              <input
+                type="password"
+                value={newPassword}
+                onChange={e => setNewPassword(e.target.value)}
+                placeholder="New password"
+                aria-label="New password"
+                className="input"
+              />
+              <input
+                type="password"
+                value={confirmPasswordField}
+                onChange={e => setConfirmPasswordField(e.target.value)}
+                placeholder="Confirm"
+                aria-label="Confirm new password"
+                className="input"
+              />
             </div>
-            <button onClick={() => handleUpdateProfile('password')} disabled={loading} className="w-full py-2.5 mt-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-sm font-medium transition-colors">
-              {loading ? 'Processing...' : 'Change Password'}
+            <button onClick={() => handleUpdateProfile('password')} disabled={loading} className="btn btn-secondary w-full mt-1">
+              {loading ? 'Saving…' : 'Change password'}
             </button>
           </div>
-        </div>
+        </section>
 
-        <div className="surface p-6 rounded-xl border border-rose-500/20">
-          <h2 className="text-lg font-bold text-rose-400 mb-2">Danger Zone</h2>
-          <p className="text-slate-400 text-sm mb-4">
-            Irreversible. Deletes your subjects and attendance records. Your tasks, calendar, timetable and focus history are not affected.
+        <section className="surface p-4 md:p-5">
+          <h2 className="font-semibold text-rose-400">Reset attendance</h2>
+          <p className="text-sm text-slate-500 mt-1 mb-4">
+            Deletes your subjects and every attendance record, and cannot be undone. Your tasks, calendar, timetable and focus history are not affected.
           </p>
 
           {isResetting ? (
@@ -143,28 +161,28 @@ function Settings() {
                 onChange={(e) => setResetConfirmText(e.target.value)}
                 placeholder='Type "reset all" to confirm'
                 aria-label='Type "reset all" to confirm'
-                className="w-full bg-slate-900/50 border border-line rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-slate-500 focus:border-rose-500 outline-none"
+                className="input"
               />
-              <div className="flex gap-3">
+              <div className="flex gap-2">
                 <button
                   onClick={handleReset}
                   disabled={resetConfirmText.trim().toLowerCase() !== 'reset all'}
-                  className="flex-1 py-2.5 bg-rose-600 text-primary-foreground rounded-xl font-semibold text-sm hover:bg-rose-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="btn btn-danger flex-1"
                 >
                   Reset everything
                 </button>
-                <button onClick={() => { setIsResetting(false); setResetConfirmText(''); }} className="px-4 py-2.5 bg-slate-800 text-slate-300 rounded-xl text-sm font-medium hover:bg-slate-700">Cancel</button>
+                <button onClick={() => { setIsResetting(false); setResetConfirmText(''); }} className="btn btn-secondary">Cancel</button>
               </div>
             </div>
           ) : (
             <button
               onClick={() => currentUser ? (setIsResetting(true), setResetConfirmText('')) : showMessage('Login required', 'error')}
-              className="w-full py-2.5 border border-rose-500/30 text-rose-400 rounded-xl text-sm font-medium hover:bg-rose-500/10 transition-colors"
+              className="btn w-full border border-rose-500/30 text-rose-400 hover:bg-rose-500/10"
             >
               Reset all attendance data
             </button>
           )}
-        </div>
+        </section>
       </div>
     </div>
   );

@@ -1,239 +1,181 @@
-import React, { useContext, useEffect, useMemo, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AttendanceContext } from '../../contexts/AttendanceContext';
 import { todayLocal } from '../../utils/date';
+import { dayLabel, initialOf, subjectTone } from '../../utils/attendance';
+import { CheckIcon, CloseIcon, PlusIcon } from '../icons';
 
 const STATUSES = [
-  { value: 'Present', selected: 'bg-emerald-500 text-primary-foreground border-emerald-500' },
-  { value: 'Absent', selected: 'bg-rose-500 text-primary-foreground border-rose-500' },
-  { value: 'No Class', selected: 'bg-slate-600 text-white border-slate-600' }
+  {
+    value: 'Present',
+    icon: <CheckIcon className="w-4 h-4" />,
+    on: 'bg-emerald-500/10 border-emerald-500 text-emerald-300',
+    dot: 'bg-emerald-500 text-white'
+  },
+  {
+    value: 'Absent',
+    icon: <CloseIcon className="w-4 h-4" />,
+    on: 'bg-rose-500/10 border-rose-500 text-rose-300',
+    dot: 'bg-rose-500 text-white'
+  },
+  {
+    value: 'No class',
+    stored: 'No Class',
+    icon: <span className="block w-3 h-0.5 rounded bg-current" />,
+    on: 'bg-background-surface border-slate-400 text-slate-400',
+    dot: 'bg-slate-400 text-white'
+  }
 ];
 
-const hoursLabel = (hours) => `${hours} ${Number(hours) === 1 ? 'hr' : 'hrs'}`;
+// Record one class: which subject, which day, what happened, how long.
+function MarkAttendance({ onAddSubject }) {
+  const { currentUser, subjects, addAttendanceRecord } = useContext(AttendanceContext);
 
-const choice = (isSelected, selectedClass) =>
-  `h-11 md:h-9 rounded-lg border text-sm font-medium transition-colors ${isSelected
-    ? selectedClass
-    : 'bg-white/5 text-slate-300 border-line hover:bg-white/10'}`;
-
-// Record one class, with the last few records beside it
-function MarkAttendance({ onViewHistory, onAddSubject }) {
-  const { currentUser, subjects, attendanceRecords, addAttendanceRecord } = useContext(AttendanceContext);
-
-  const [formData, setFormData] = useState({
-    subjectId: subjects[0]?._id || '',
-    date: todayLocal(),
-    status: 'Present',
-    classNumber: 1 // class length in hours
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [message, setMessage] = useState({ text: '', type: '' });
-
-  // Keep a valid subject selected as subjects load or get deleted
-  useEffect(() => {
-    if (!subjects.some(s => s._id === formData.subjectId)) {
-      setFormData(prev => ({ ...prev, subjectId: subjects[0]?._id || '' }));
-    }
-  }, [subjects, formData.subjectId]);
+  const [subjectId, setSubjectId] = useState(subjects[0]?._id || '');
+  const [date, setDate] = useState(todayLocal);
+  const [status, setStatus] = useState('Present');
+  const [classNumber, setClassNumber] = useState(1);
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState(null);
 
   useEffect(() => {
-    if (!message.text) return;
-    const timer = setTimeout(() => setMessage({ text: '', type: '' }), 4000);
+    if (!subjects.some(s => s._id === subjectId)) setSubjectId(subjects[0]?._id || '');
+  }, [subjects, subjectId]);
+
+  useEffect(() => {
+    if (!message) return;
+    const timer = setTimeout(() => setMessage(null), 4000);
     return () => clearTimeout(timer);
   }, [message]);
 
-  const handleChange = e => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    if (message.text) setMessage({ text: '', type: '' });
-  };
-
-  const handleSubmit = async e => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!currentUser) {
-      setMessage({ text: 'Sign in to record attendance.', type: 'error' });
-      return;
-    }
-    const subject = subjects.find(s => s._id === formData.subjectId);
-    if (!subject) {
-      setMessage({ text: 'Add a subject first.', type: 'error' });
-      return;
-    }
+    if (!currentUser) return setMessage({ text: 'Sign in to record attendance.', ok: false });
+    const subject = subjects.find(s => s._id === subjectId);
+    if (!subject) return setMessage({ text: 'Add a subject first.', ok: false });
 
-    setIsSubmitting(true);
-    const result = await addAttendanceRecord(formData);
-    setIsSubmitting(false);
+    const stored = STATUSES.find(s => s.value === status)?.stored || status;
+    setSaving(true);
+    const result = await addAttendanceRecord({ subjectId, date, status: stored, classNumber });
+    setSaving(false);
 
     if (result.success) {
-      setMessage({ text: `Recorded ${subject.name} as ${formData.status.toLowerCase()}.`, type: 'success' });
-      setFormData(prev => ({ ...prev, status: 'Present' }));
+      setMessage({ text: `Saved ${subject.name} as ${stored.toLowerCase()}.`, ok: true });
+      setStatus('Present');
     } else {
-      setMessage({ text: result.message || 'Could not save that record.', type: 'error' });
+      setMessage({ text: result.message || 'Could not save that record.', ok: false });
     }
   };
 
-  const recent = attendanceRecords.slice().reverse().slice(0, 6);
-
-  // The same weighting the reports use: counted in hours, and "No Class" counts for nothing
-  const summary = useMemo(() => {
-    let attended = 0, counted = 0, today = 0;
-    const isToday = todayLocal();
-    attendanceRecords.forEach(record => {
-      const hours = Number(record.classNumber) || 1;
-      if (record.status === 'Present') attended += hours;
-      if (record.status !== 'No Class') counted += hours;
-      if (record.date === isToday) today += 1;
-    });
-    return {
-      percentage: counted > 0 ? Math.round((attended / counted) * 100) : null,
-      today,
-      subjects: subjects.length
-    };
-  }, [attendanceRecords, subjects]);
-
-  const percentageTone = summary.percentage === null ? 'text-slate-500'
-    : summary.percentage >= 75 ? 'text-emerald-400'
-      : summary.percentage >= 60 ? 'text-amber-400' : 'text-rose-400';
-
-  const stat = (label, value, tone = 'text-white') => (
-    <div className="surface p-4">
-      <p className="text-xs text-slate-500">{label}</p>
-      <p className={`text-2xl font-semibold mt-1 tabular-nums ${tone}`}>{value}</p>
-    </div>
-  );
-
   return (
-    <div className="space-y-5">
-      <div className="grid grid-cols-3 gap-3">
-        {stat('Overall', summary.percentage === null ? '—' : `${summary.percentage}%`, percentageTone)}
-        {stat('Recorded today', summary.today)}
-        {stat('Subjects', summary.subjects)}
-      </div>
+    <form onSubmit={handleSubmit} className="surface p-4 space-y-4">
+      <h2 className="font-semibold text-white">Mark a class</h2>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 items-start">
-      <div className="surface p-5 lg:col-span-2 space-y-5">
-        {!currentUser && (
-          <div className="notice notice-warning">
-            <span className="flex-1">You are not signed in, so nothing is saved.</span>
-            <Link to="/login" className="font-medium underline underline-offset-2">Sign in</Link>
-          </div>
-        )}
-
-        {currentUser && subjects.length === 0 && (
-          <div className="notice notice-info">
-            <span className="flex-1">You have no subjects yet.</span>
-            <button type="button" onClick={onAddSubject} className="font-medium underline underline-offset-2">Add one</button>
-          </div>
-        )}
-
-        {message.text && (
-          <div className={`notice ${message.type === 'success' ? 'notice-success' : 'notice-danger'}`} role="status">
-            {message.text}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="attendance-subject" className="label">Subject</label>
-              <select
-                id="attendance-subject"
-                name="subjectId"
-                value={formData.subjectId}
-                onChange={handleChange}
-                className="input"
-                disabled={!currentUser || subjects.length === 0}
-              >
-                {subjects.length === 0 && <option value="">No subjects</option>}
-                {subjects.map(s => <option key={s._id} value={s._id}>{s.name}</option>)}
-              </select>
-            </div>
-
-            <div>
-              <label htmlFor="attendance-date" className="label">Date</label>
-              <input
-                id="attendance-date"
-                type="date"
-                name="date"
-                value={formData.date}
-                onChange={handleChange}
-                required
-                className="input [color-scheme:dark]"
-              />
-            </div>
-
-            <div>
-              <span className="label">Status</span>
-              <div className="grid grid-cols-3 gap-2" role="radiogroup" aria-label="Status">
-                {STATUSES.map(status => (
-                  <button
-                    key={status.value}
-                    type="button"
-                    role="radio"
-                    aria-checked={formData.status === status.value}
-                    onClick={() => setFormData(prev => ({ ...prev, status: status.value }))}
-                    className={choice(formData.status === status.value, status.selected)}
-                  >
-                    {status.value}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <span className="label">Class length</span>
-              <div className="grid grid-cols-3 gap-2" role="radiogroup" aria-label="Class length in hours">
-                {[1, 2, 3].map(num => (
-                  <button
-                    key={num}
-                    type="button"
-                    role="radio"
-                    aria-checked={formData.classNumber === num}
-                    onClick={() => setFormData(prev => ({ ...prev, classNumber: num }))}
-                    className={choice(formData.classNumber === num, 'bg-primary-600 text-primary-foreground border-primary-600')}
-                  >
-                    {num} {num === 1 ? 'hour' : 'hours'}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <button type="submit" disabled={isSubmitting || !currentUser} className="btn btn-primary w-full md:w-auto md:px-6">
-            {isSubmitting ? 'Saving…' : 'Record attendance'}
-          </button>
-        </form>
-      </div>
-
-      <aside className="surface p-5" aria-label="Recent records">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-sm font-semibold text-white">Recent</h2>
-          <button type="button" onClick={onViewHistory} className="text-xs font-medium text-primary-300 hover:text-primary-200">
-            View all
-          </button>
+      {!currentUser && (
+        <div className="notice notice-warning">
+          <span className="flex-1">You are not signed in, so nothing is saved.</span>
+          <Link to="/login" className="font-medium underline underline-offset-2">Sign in</Link>
         </div>
+      )}
 
-        {recent.length === 0 ? (
-          <p className="text-sm text-slate-500 py-6 text-center">Nothing recorded yet.</p>
-        ) : (
-          <ul className="divide-y divide-line -my-2">
-            {recent.map(record => (
-              <li key={record._id} className="flex items-center gap-3 py-2.5">
-                <span className={`w-6 h-6 shrink-0 rounded text-[11px] font-semibold flex items-center justify-center ${record.status === 'Present' ? 'bg-emerald-500/15 text-emerald-400'
-                  : record.status === 'Absent' ? 'bg-rose-500/15 text-rose-400' : 'bg-white/5 text-slate-400'}`}>
-                  {record.status === 'Present' ? 'P' : record.status === 'Absent' ? 'A' : '—'}
-                </span>
-                <span className="flex-1 min-w-0">
-                  <span className="block text-sm text-slate-200 truncate">{record.subject?.name || 'Unknown subject'}</span>
-                  <span className="block text-xs text-slate-500">{record.date} · {hoursLabel(record.classNumber)}</span>
-                </span>
-              </li>
-            ))}
-          </ul>
-        )}
-        </aside>
+      {message && (
+        <div className={`notice ${message.ok ? 'notice-success' : 'notice-danger'}`} role="status">{message.text}</div>
+      )}
+
+      {/* Subjects as chips, with a + that goes where they are managed */}
+      <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Subject">
+        {subjects.map(subject => {
+          const chosen = subject._id === subjectId;
+          const tone = subjectTone(subject.name);
+          return (
+            <button
+              key={subject._id}
+              type="button"
+              role="radio"
+              aria-checked={chosen}
+              onClick={() => setSubjectId(subject._id)}
+              className={`h-10 px-3.5 rounded-full border text-sm font-medium transition-colors flex items-center gap-2 ${chosen
+                ? 'border-emerald-500 bg-emerald-500/10 text-emerald-300'
+                : 'border-line bg-background-surface text-slate-300 hover:text-slate-100'}`}
+            >
+              {chosen && <span className={`w-5 h-5 rounded-full grid place-items-center text-[11px] font-bold ${tone.avatar}`}>{initialOf(subject.name)}</span>}
+              {subject.name}
+            </button>
+          );
+        })}
+        <button
+          type="button"
+          onClick={onAddSubject}
+          aria-label="Add a subject"
+          className="w-10 h-10 rounded-full border border-dashed border-line text-slate-500 grid place-items-center hover:text-slate-300"
+        >
+          <PlusIcon className="w-4 h-4" />
+        </button>
       </div>
-    </div>
+
+      <label className="flex items-center gap-3 h-12 px-3 rounded-xl bg-background-surface cursor-pointer">
+        <span className="text-slate-500">
+          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+            <rect x="3" y="5" width="18" height="16" rx="2" /><path d="M16 3v4M8 3v4M3 11h18" strokeLinecap="round" />
+          </svg>
+        </span>
+        <span className="flex-1 text-sm text-slate-200">{dayLabel(date, todayLocal())}</span>
+        <input
+          type="date"
+          value={date}
+          onChange={(e) => e.target.value && setDate(e.target.value)}
+          aria-label="Date"
+          className="w-6 bg-transparent text-transparent outline-none cursor-pointer"
+        />
+      </label>
+
+      <div className="grid grid-cols-3 gap-2" role="radiogroup" aria-label="What happened">
+        {STATUSES.map(option => {
+          const chosen = status === option.value;
+          return (
+            <button
+              key={option.value}
+              type="button"
+              role="radio"
+              aria-checked={chosen}
+              onClick={() => setStatus(option.value)}
+              className={`h-[74px] rounded-xl border flex flex-col items-center justify-center gap-1.5 text-sm font-medium transition-colors ${chosen
+                ? option.on
+                : 'border-line bg-background-surface text-slate-300 hover:text-slate-100'}`}
+            >
+              <span className={`w-6 h-6 rounded-full grid place-items-center ${chosen ? option.dot : 'bg-background-paper text-slate-500'}`}>
+                {option.icon}
+              </span>
+              {option.value}
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="flex items-center justify-between gap-3">
+        <span className="text-sm text-slate-400">Class length</span>
+        <div className="flex p-1 rounded-xl bg-background-surface" role="radiogroup" aria-label="Class length">
+          {[1, 2, 3].map(hours => (
+            <button
+              key={hours}
+              type="button"
+              role="radio"
+              aria-checked={classNumber === hours}
+              onClick={() => setClassNumber(hours)}
+              className={`w-12 h-9 rounded-lg text-sm font-medium transition-colors ${classNumber === hours
+                ? 'bg-background-paper text-white shadow-sm'
+                : 'text-slate-500'}`}
+            >
+              {hours}h
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <button type="submit" disabled={saving || !currentUser} className="btn btn-primary w-full h-12 text-[15px]">
+        {saving ? 'Saving…' : 'Save attendance'}
+      </button>
+    </form>
   );
 }
 

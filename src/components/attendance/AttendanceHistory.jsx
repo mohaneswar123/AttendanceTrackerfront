@@ -77,7 +77,7 @@ function AttendanceHistory() {
           value={filterDate}
           onChange={(e) => setFilterDate(e.target.value)}
           aria-label="Filter by date"
-          className="input w-auto [color-scheme:dark]"
+          className="input w-auto"
         />
         {filtered && (
           <button

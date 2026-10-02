@@ -1,5 +1,5 @@
 /* The two colour sets. Every colour below is a Tailwind name, so switching
-   data-theme on <html> re-paints the whole app. Dark is the default. */
+   data-theme on <html> re-paints the whole app. Light is the default. */
 @layer base {
   :root {
     --c-white: 255 255 255;
@@ -7,18 +7,18 @@
     --c-slate-100: 232 237 247;
     --c-slate-200: 211 219 234;
     --c-slate-300: 174 185 206;
-    --c-slate-400: 136 148 172;
-    --c-slate-500: 106 116 137;
+    --c-slate-400: 148 158 180;
+    --c-slate-500: 129 139 160;
     --c-slate-600: 74 82 101;
     --c-slate-700: 44 52 70;
     --c-slate-800: 27 34 48;
     --c-slate-900: 18 24 36;
     --c-slate-950: 10 14 22;
-    --c-primary-50: 245 243 255;
-    --c-primary-100: 237 233 254;
-    --c-primary-200: 221 214 254;
-    --c-primary-300: 196 181 253;
-    --c-primary-400: 167 139 250;
+    --c-primary-50: 239 246 255;
+    --c-primary-100: 219 234 254;
+    --c-primary-200: 191 219 254;
+    --c-primary-300: 147 197 253;
+    --c-primary-400: 96 165 250;
     --c-secondary-100: 207 250 254;
     --c-secondary-200: 165 243 252;
     --c-secondary-300: 103 232 249;
@@ -84,7 +84,7 @@
     --c-bg-paper: 18 24 36;
     --c-bg-surface: 27 34 48;
     --c-ink-base: 232 236 244;
-    --c-ink-muted: 136 148 172;
+    --c-ink-muted: 148 158 180;
     --c-line: 34 43 58;
 
     --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.30);
@@ -94,23 +94,23 @@
   }
 
   :root[data-theme='light'] {
-    --c-white: 18 21 27;
-    --c-slate-50: 16 19 25;
-    --c-slate-100: 24 28 36;
-    --c-slate-200: 36 41 50;
-    --c-slate-300: 60 67 79;
-    --c-slate-400: 91 100 115;
-    --c-slate-500: 120 129 143;
-    --c-slate-600: 179 183 190;
-    --c-slate-700: 221 219 213;
-    --c-slate-800: 239 237 232;
+    --c-white: 15 23 42;
+    --c-slate-50: 11 18 32;
+    --c-slate-100: 17 24 39;
+    --c-slate-200: 31 41 55;
+    --c-slate-300: 55 65 81;
+    --c-slate-400: 74 85 104;
+    --c-slate-500: 94 107 127;
+    --c-slate-600: 175 182 194;
+    --c-slate-700: 216 220 228;
+    --c-slate-800: 237 239 243;
     --c-slate-900: 255 255 255;
-    --c-slate-950: 247 245 241;
-    --c-primary-50: 76 29 149;
-    --c-primary-100: 91 33 182;
-    --c-primary-200: 91 33 182;
-    --c-primary-300: 109 40 217;
-    --c-primary-400: 109 40 217;
+    --c-slate-950: 242 244 247;
+    --c-primary-50: 30 58 138;
+    --c-primary-100: 30 64 175;
+    --c-primary-200: 29 78 216;
+    --c-primary-300: 29 78 216;
+    --c-primary-400: 37 99 235;
     --c-secondary-100: 22 78 99;
     --c-secondary-200: 21 94 117;
     --c-secondary-300: 14 116 144;
@@ -172,12 +172,12 @@
     --c-purple-200: 107 33 168;
     --c-purple-300: 126 34 206;
     --c-purple-400: 126 34 206;
-    --c-bg-base: 247 245 241;
+    --c-bg-base: 242 244 247;
     --c-bg-paper: 255 255 255;
-    --c-bg-surface: 241 238 232;
-    --c-ink-base: 24 28 36;
-    --c-ink-muted: 91 100 115;
-    --c-line: 231 227 219;
+    --c-bg-surface: 243 245 248;
+    --c-ink-base: 15 23 42;
+    --c-ink-muted: 74 85 104;
+    --c-line: 229 231 235;
 
     --shadow-card: 0 1px 2px rgba(23, 25, 35, 0.06);
     --shadow-overlay: 0 16px 40px -12px rgba(23, 25, 35, 0.18);

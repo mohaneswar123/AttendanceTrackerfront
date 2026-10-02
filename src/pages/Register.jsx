@@ -146,10 +146,7 @@ function Register() {
           <div>
             <button
               type="submit"
-              className={`w-full flex justify-center py-3 px-4 rounded-xl text-sm font-semibold text-white shadow-lg transition-all duration-300 ${loading
- ? 'bg-slate-700 cursor-not-allowed opacity-70'
-                  : 'bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-500 hover:to-primary-400 hover:'
-                }`}
+              className="btn btn-primary w-full h-12 md:h-11"
               disabled={loading}
             >
               {loading ? 'Creating account...' : 'Register'}

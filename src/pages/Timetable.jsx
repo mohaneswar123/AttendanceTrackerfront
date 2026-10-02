@@ -12,6 +12,8 @@ import CopyDayModal from '../components/timetable/CopyDayModal';
 import ConfirmDialog from '../components/ConfirmDialog';
 import LoginPrompt from '../components/LoginPrompt';
 import { PlusIcon } from '../components/icons';
+import PageHeader, { HeaderButton } from '../components/PageHeader';
+import TodayOverview from '../components/timetable/TodayOverview';
 
 const TRASH_ICON = (
   <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -115,18 +117,29 @@ function TimetablePage() {
 
   return (
     <div className="space-y-4 pb-24 md:pb-0">
-      <div className="flex items-center justify-between gap-4">
-        <div className="min-w-0">
-          <h1 className="page-title">Timetable</h1>
-          <p className="page-subtitle hidden md:block">A routine for each part of your life.</p>
-        </div>
+      {/* The mode sits where the page's context line goes, since it is what the
+          whole page is showing */}
+      <PageHeader
+        eyebrow={modes.length > 0 ? (
+          <ModeSelector
+            modes={modes}
+            selectedModeId={timetable.selectedModeId}
+            onSelect={timetable.selectMode}
+            onSetActive={handleSetActive}
+            onEdit={(mode) => setModeForm({ mode })}
+            onCopyDay={() => setCopying(true)}
+            onDelete={setDeletingMode}
+            onCreate={() => setModeForm({})}
+          />
+        ) : null}
+        title="Timetable"
+      >
         {modes.length > 0 && (
-          <button type="button" onClick={openNewActivity} aria-label="Add activity" className="btn btn-primary shrink-0 w-11 px-0 md:w-auto md:px-4">
-            <PlusIcon className="w-4 h-4" />
-            <span className="hidden md:inline">Add activity</span>
-          </button>
+          <HeaderButton label="Add activity" variant="primary" onClick={openNewActivity}>
+            <PlusIcon className="w-5 h-5" />
+          </HeaderButton>
         )}
-      </div>
+      </PageHeader>
 
       {notice && (
         <div className="notice notice-info" role="status">
@@ -158,20 +171,17 @@ function TimetablePage() {
 
       {modes.length > 0 && (
         <>
-          <ModeSelector
-            modes={modes}
-            selectedModeId={timetable.selectedModeId}
-            onSelect={timetable.selectMode}
-            onSetActive={handleSetActive}
-            onEdit={(mode) => setModeForm({ mode })}
-            onCopyDay={() => setCopying(true)}
-            onDelete={setDeletingMode}
-            onCreate={() => setModeForm({})}
+          {/* What is on now and what follows it, from the clock. It stays at the top
+              whichever day is being looked at, since that is the thing you glance at. */}
+          <TodayOverview
+            activities={activitiesByDay[todayDay()] || []}
+            onEdit={(activity) => setActivityForm({ activity })}
           />
 
-          <section className="surface rounded-xl p-3 md:p-5 space-y-4">
-            <DayTabs day={day} onChange={setDay} />
-            <h2 className="sr-only">{DAY_LONG[day]}</h2>
+          <DayTabs day={day} onChange={setDay} />
+          <h2 className="sr-only">{DAY_LONG[day]}</h2>
+
+          <section className="surface p-3 md:p-5">
             <DayTimeline
               activities={activitiesByDay[day] || []}
               onEdit={(activity) => setActivityForm({ activity })}

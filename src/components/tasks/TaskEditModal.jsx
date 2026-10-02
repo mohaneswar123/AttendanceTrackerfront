@@ -42,7 +42,7 @@ function TaskEditModal({ task, onSave, onClose }) {
         </label>
         <label className="block">
           <span className="label">Date</span>
-          <input type="date" value={taskDate} onChange={(e) => e.target.value && setTaskDate(e.target.value)} className="input [color-scheme:dark]" />
+          <input type="date" value={taskDate} onChange={(e) => e.target.value && setTaskDate(e.target.value)} className="input" />
         </label>
         <div>
           <span className="label">Priority</span>

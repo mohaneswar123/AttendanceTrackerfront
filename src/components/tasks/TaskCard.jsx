@@ -50,11 +50,29 @@ export function TaskCardBody({ task, dragging = false, onMoveTo, onEdit, onDelet
   };
 
   return (
-    // The glass effect makes each card its own layer, so lift the one whose menu is open
+    // Each card is its own layer, so lift the one whose menu is open
     <div
       className={`surface relative p-4 select-none [-webkit-touch-callout:none] ${menuOpen ? 'z-20' : ''} ${dragging ? ' rotate-1 cursor-grabbing' : 'cursor-grab'} ${done ? 'opacity-60' : ''}`}
     >
-      <div className="flex items-start gap-2">
+      <div className="flex items-start gap-3">
+        {/* One tap to finish a task, and the same tap to put it back */}
+        {!dragging && (
+          <div {...noDrag}>
+            <button
+              onClick={() => onMoveTo(done ? 'TODO' : 'DONE')}
+              aria-label={done ? `Mark "${task.title}" not done` : `Mark "${task.title}" done`}
+              title={done ? 'Move back to To Do' : 'Mark done'}
+              className={`w-5 h-5 mt-0.5 shrink-0 rounded-full border-2 grid place-items-center transition-colors ${done
+                ? 'bg-emerald-500 border-emerald-500 text-white'
+                : 'border-line hover:border-emerald-500'}`}
+            >
+              {done && (
+                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" /></svg>
+              )}
+            </button>
+          </div>
+        )}
+
         <div className="flex-1 min-w-0">
           {task.priority && (
             <span className={`inline-block mb-2 px-2 py-0.5 rounded-md border text-[11px] font-bold uppercase tracking-wide ${PRIORITY_STYLES[task.priority]}`}>
