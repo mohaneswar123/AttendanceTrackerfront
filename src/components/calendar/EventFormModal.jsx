@@ -131,7 +131,7 @@ function EventFormModal({ event, initial, onSave, onClose }) {
             value={date}
             onChange={(e) => setDate(e.target.value)}
             aria-invalid={Boolean(errors.date)}
-            className="input [color-scheme:dark]"
+            className="input"
           />
           {fieldError(errors.date, 'event-date-error')}
         </div>
@@ -160,7 +160,7 @@ function EventFormModal({ event, initial, onSave, onClose }) {
                 onChange={(e) => setStartTime(e.target.value)}
                 aria-invalid={Boolean(errors.startTime)}
                 aria-describedby={errors.startTime ? 'event-start-error' : undefined}
-                className="input [color-scheme:dark]"
+                className="input"
               />
             </div>
             <div>
@@ -172,7 +172,7 @@ function EventFormModal({ event, initial, onSave, onClose }) {
                 onChange={(e) => setEndTime(e.target.value)}
                 aria-invalid={Boolean(errors.endTime)}
                 aria-describedby={errors.endTime ? 'event-end-error' : undefined}
-                className="input [color-scheme:dark]"
+                className="input"
               />
             </div>
             <div className="col-span-2 -mt-2">

@@ -75,7 +75,7 @@ function Terms() {
             <h2 className="text-xl font-semibold mb-2">9. Contact Us</h2>
             <p>
               Questions? Email us at{' '}
-              <a href="mailto:attendanceinhand@gmail.com" className="text-primary-500 hover:underline">
+              <a href="mailto:attendanceinhand@gmail.com" className="text-primary-300 hover:underline">
                 attendanceinhand@gmail.com
               </a>
               .

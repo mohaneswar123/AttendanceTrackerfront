@@ -31,6 +31,9 @@ function MiniMonth({ currentDate, selectedDate, eventsByDate, onSelect, onStepMo
         {days.map(date => {
           const count = (eventsByDate[date] || []).length;
           const selected = date === selectedDate;
+          // Days from the neighbouring months step back with a quieter colour rather than
+          // with opacity, so the number stays readable in both colour sets
+          const outside = !isSameMonth(date, currentDate);
           return (
             <button
               key={date}
@@ -38,9 +41,9 @@ function MiniMonth({ currentDate, selectedDate, eventsByDate, onSelect, onStepMo
               onClick={() => onSelect(date)}
               aria-label={`${longDate(date)}, ${count} ${count === 1 ? 'entry' : 'entries'}`}
               aria-pressed={selected}
-              className={`h-8 flex flex-col items-center justify-center rounded-lg text-xs transition-colors ${isSameMonth(date, currentDate) ? '' : 'opacity-40'} ${selected ? 'ring-1 ring-primary-500/60' : 'hover:bg-white/5'}`}
+              className={`h-8 flex flex-col items-center justify-center rounded-lg text-xs transition-colors ${selected ? 'ring-1 ring-primary-500/60' : 'hover:bg-white/5'}`}
             >
-              <span className={`w-6 h-6 flex items-center justify-center rounded-full ${date === today ? 'bg-primary-500 text-primary-foreground font-bold' : 'text-slate-200'}`}>
+              <span className={`w-6 h-6 flex items-center justify-center rounded-full ${date === today ? 'bg-primary-500 text-primary-foreground font-bold' : outside ? 'text-slate-500' : 'text-slate-200'}`}>
                 {Number(date.slice(8))}
               </span>
               <span className="h-1 flex items-center" aria-hidden="true">

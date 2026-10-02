@@ -14,9 +14,13 @@ export const NAV_ITEMS = [
   { to: '/tasks', label: 'Tasks', Icon: ListIcon },
   { to: '/calendar', label: 'Calendar', Icon: CalendarIcon },
   { to: '/timetable', label: 'Timetable', Icon: TableIcon },
-  { to: '/pomodoro', label: 'Pomodoro', Icon: TimerIcon },
+  { to: '/pomodoro', label: 'Focus', Icon: TimerIcon },
   { to: '/settings', label: 'Settings', Icon: SettingsIcon }
 ];
+
+// The phone bar carries the five places you move between. Settings sits beside the page
+// title instead, so the bar stays wide enough to read at 360px.
+export const PHONE_NAV_ITEMS = NAV_ITEMS.filter(item => item.to !== '/settings');
 
 export const isNavActive = (to, pathname) =>
   (to === '/' ? ATTENDANCE_PATHS.includes(pathname) : pathname === to);
@@ -51,7 +55,7 @@ function Sidebar() {
               to={to}
               aria-current={active ? 'page' : undefined}
               className={`flex items-center gap-3 h-9 px-3 rounded-lg text-sm transition-colors ${active
-                ? 'bg-primary-500/12 text-white font-medium'
+                ? 'bg-primary-500/10 text-white font-medium'
                 : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'}`}
             >
               <Icon className={`w-[18px] h-[18px] ${active ? 'text-primary-400' : ''}`} />

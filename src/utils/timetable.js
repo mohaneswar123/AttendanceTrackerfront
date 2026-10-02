@@ -20,16 +20,16 @@ export const todayDay = () => DAYS[(new Date().getDay() + 6) % 7];
 // `block` colours the activity card in the day's timeline; the emoji labels the category
 // in the form's dropdown.
 export const CATEGORIES = [
-  { value: null, label: 'None', icon: '⚪', block: 'bg-slate-500/10 border-slate-400/30 text-slate-100' },
-  { value: 'CLASS', label: 'Class', icon: '📘', block: 'bg-violet-500/15 border-violet-500/40 text-violet-50' },
-  { value: 'STUDY', label: 'Study', icon: '📖', block: 'bg-sky-500/15 border-sky-500/40 text-sky-50' },
-  { value: 'BREAK', label: 'Break', icon: '☕', block: 'bg-orange-500/15 border-orange-500/40 text-orange-50' },
-  { value: 'MEAL', label: 'Meal', icon: '🍽️', block: 'bg-amber-500/15 border-amber-500/40 text-amber-50' },
-  { value: 'EXERCISE', label: 'Exercise', icon: '🏃', block: 'bg-rose-500/15 border-rose-500/40 text-rose-50' },
-  { value: 'SLEEP', label: 'Sleep', icon: '😴', block: 'bg-indigo-500/15 border-indigo-500/40 text-indigo-50' },
-  { value: 'TRAVEL', label: 'Travel', icon: '🚌', block: 'bg-teal-500/15 border-teal-500/40 text-teal-50' },
-  { value: 'PERSONAL', label: 'Personal', icon: '🧘', block: 'bg-emerald-500/15 border-emerald-500/40 text-emerald-50' },
-  { value: 'OTHER', label: 'Other', icon: '📌', block: 'bg-slate-500/15 border-slate-400/40 text-slate-50' }
+  { value: null, label: 'None', icon: '⚪', block: 'bg-slate-500/10 border-slate-400/30 text-slate-100', dot: 'bg-slate-400' },
+  { value: 'CLASS', label: 'Class', icon: '📘', block: 'bg-violet-500/15 border-violet-500/40 text-violet-50', dot: 'bg-violet-500' },
+  { value: 'STUDY', label: 'Study', icon: '📖', block: 'bg-sky-500/15 border-sky-500/40 text-sky-50', dot: 'bg-sky-500' },
+  { value: 'BREAK', label: 'Break', icon: '☕', block: 'bg-orange-500/15 border-orange-500/40 text-orange-50', dot: 'bg-orange-500' },
+  { value: 'MEAL', label: 'Meal', icon: '🍽️', block: 'bg-amber-500/15 border-amber-500/40 text-amber-50', dot: 'bg-amber-500' },
+  { value: 'EXERCISE', label: 'Exercise', icon: '🏃', block: 'bg-rose-500/15 border-rose-500/40 text-rose-50', dot: 'bg-rose-500' },
+  { value: 'SLEEP', label: 'Sleep', icon: '😴', block: 'bg-indigo-500/15 border-indigo-500/40 text-indigo-50', dot: 'bg-indigo-500' },
+  { value: 'TRAVEL', label: 'Travel', icon: '🚌', block: 'bg-teal-500/15 border-teal-500/40 text-teal-50', dot: 'bg-teal-500' },
+  { value: 'PERSONAL', label: 'Personal', icon: '🧘', block: 'bg-emerald-500/15 border-emerald-500/40 text-emerald-50', dot: 'bg-emerald-500' },
+  { value: 'OTHER', label: 'Other', icon: '📌', block: 'bg-slate-500/15 border-slate-400/40 text-slate-50', dot: 'bg-slate-500' }
 ];
 
 export const categoryOf = (value) => CATEGORIES.find(category => category.value === (value || null)) || CATEGORIES[0];

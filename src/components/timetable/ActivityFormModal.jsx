@@ -125,7 +125,7 @@ function ActivityFormModal({ activity, initial, activitiesByDay, onSave, onClose
             onChange={(e) => setStartTime(e.target.value)}
             aria-invalid={Boolean(errors.startTime)}
             aria-describedby={errors.startTime ? 'activity-start-error' : undefined}
-            className="input [color-scheme:dark]"
+            className="input"
           />
           {fieldError(errors.startTime, 'activity-start-error')}
         </div>
@@ -139,7 +139,7 @@ function ActivityFormModal({ activity, initial, activitiesByDay, onSave, onClose
             onChange={(e) => setEndTime(e.target.value)}
             aria-invalid={Boolean(errors.endTime)}
             aria-describedby={errors.endTime ? 'activity-end-error' : undefined}
-            className="input [color-scheme:dark]"
+            className="input"
           />
           {fieldError(errors.endTime, 'activity-end-error')}
         </div>

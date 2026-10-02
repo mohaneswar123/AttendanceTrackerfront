@@ -6,10 +6,12 @@ const GRID_COLUMNS = { 4: 'grid-cols-4', 5: 'grid-cols-5' };
 const chip = (active, textSize = 'text-sm') =>
   `py-3 md:py-2 rounded-xl ${textSize} font-semibold border transition-colors ${active
     ? 'bg-primary-500/25 text-white border-primary-500/50'
-    : 'bg-slate-800/50 text-slate-400 border-transparent hover:bg-slate-800 active:bg-slate-700'}`;
+    : 'bg-slate-800/50 text-slate-300 border-transparent hover:bg-slate-800 active:bg-slate-700'}`;
 
-// Choose a length in minutes: tap a preset, or pick Custom for any whole number from 1 to `max`
-function DurationPicker({ label, value, presets, max, onChange }) {
+// Choose a length in minutes: tap a preset, or pick Custom for any whole number from 1 to `max`.
+// `label` is what the student reads; `name` is the short form the controls are labelled with,
+// so a heading like "Focus length" doesn't become "Focus length length" to a screen reader.
+function DurationPicker({ label, name = label, value, presets, max, onChange }) {
   const [custom, setCustom] = useState(!presets.includes(value));
   const [draft, setDraft] = useState(String(value));
 
@@ -29,7 +31,7 @@ function DurationPicker({ label, value, presets, max, onChange }) {
         <span className="text-sm font-semibold text-slate-300">{label}</span>
         <span className="text-sm text-slate-400">{value} min</span>
       </div>
-      <div className={`grid ${GRID_COLUMNS[presets.length + 1]} gap-2`} role="radiogroup" aria-label={`${label} length`}>
+      <div className={`grid ${GRID_COLUMNS[presets.length + 1]} gap-2`} role="radiogroup" aria-label={`${name} length`}>
         {presets.map(minutes => (
           <button
             key={minutes}
@@ -58,7 +60,7 @@ function DurationPicker({ label, value, presets, max, onChange }) {
             type="button"
             onClick={() => onChange(clamp(value - 1))}
             disabled={value <= 1}
-            aria-label={`One minute less ${label.toLowerCase()}`}
+            aria-label={`One minute less ${name.toLowerCase()}`}
             className="w-12 h-12 rounded-xl bg-slate-800 text-2xl text-white active:bg-slate-700 disabled:opacity-40"
           >
             −
@@ -71,14 +73,14 @@ function DurationPicker({ label, value, presets, max, onChange }) {
             value={draft}
             onChange={(e) => typed(e.target.value)}
             onBlur={() => setDraft(String(value))}
-            aria-label={`${label} minutes`}
+            aria-label={`${name} minutes`}
             className="w-20 h-12 rounded-xl bg-slate-900/60 border border-line text-center text-xl font-bold text-white outline-none focus:border-primary-500"
           />
           <button
             type="button"
             onClick={() => onChange(clamp(value + 1))}
             disabled={value >= max}
-            aria-label={`One minute more ${label.toLowerCase()}`}
+            aria-label={`One minute more ${name.toLowerCase()}`}
             className="w-12 h-12 rounded-xl bg-slate-800 text-2xl text-white active:bg-slate-700 disabled:opacity-40"
           >
             +

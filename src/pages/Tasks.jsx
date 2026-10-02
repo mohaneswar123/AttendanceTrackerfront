@@ -9,11 +9,15 @@ import QuickAddTask from '../components/tasks/QuickAddTask';
 import TaskEditModal from '../components/tasks/TaskEditModal';
 import ConfirmDialog from '../components/ConfirmDialog';
 import LoginPrompt from '../components/LoginPrompt';
-import { PlusIcon } from '../components/icons';
+import { PlusIcon, TimerIcon } from '../components/icons';
+import PageHeader from '../components/PageHeader';
+import Tabs from '../components/Tabs';
+import StatTiles from '../components/StatTiles';
+import { longWeekday } from '../utils/attendance';
 
 const FILTERS = [
-  { type: 'today', label: 'Today' },
   { type: 'yesterday', label: 'Yesterday' },
+  { type: 'today', label: 'Today' },
   { type: 'upcoming', label: 'Upcoming' }
 ];
 
@@ -35,7 +39,8 @@ function TaskBoardPage() {
   const navigate = useNavigate();
   const isDesktop = useMediaQuery('(min-width: 768px)');
   const [filterType, setFilterType] = useState('today');
-  const [customDate, setCustomDate] = useState(todayLocal);
+  // The three tabs cover the days that matter; there is no pick-a-date filter any more
+  const customDate = todayLocal();
   const [adding, setAdding] = useState(false);
   const [editing, setEditing] = useState(null);
   const [deleting, setDeleting] = useState(null);
@@ -85,57 +90,50 @@ function TaskBoardPage() {
   };
 
   return (
-    <div className="space-y-6 pb-20 md:pb-0">
-      {/* Header */}
-      <div className="flex items-center md:items-end justify-between gap-4">
-        <div>
-          <h1 className="page-title">Tasks</h1>
-          <p className="page-subtitle hidden md:block">Plan your day and move tasks along.</p>
-        </div>
-        <div className="flex gap-2 shrink-0">
-          <button onClick={() => navigate('/pomodoro')} className="btn btn-secondary">
-            <span className="md:hidden">Pomodoro</span><span className="hidden md:inline">Start Pomodoro</span>
-          </button>
-          {/* Phones use the floating + button instead */}
-          <button onClick={() => setAdding(true)} className="hidden md:inline-flex btn btn-primary">
-            <PlusIcon className="w-4 h-4" />
-            Add task
-          </button>
-        </div>
-      </div>
+    <div className="space-y-4">
+      <PageHeader eyebrow={longWeekday(todayLocal())} title="Tasks">
+        <button onClick={() => navigate('/pomodoro')} className="btn btn-secondary rounded-full h-10 px-4">
+          <TimerIcon className="w-4 h-4" />
+          Focus
+        </button>
+      </PageHeader>
 
-      {/* Which day's tasks to show */}
-      <div className="flex flex-col sm:flex-row sm:items-center gap-2" role="group" aria-label="Show tasks for">
-        <div className="segmented grid grid-cols-3 sm:inline-flex">
-          {FILTERS.map(filter => (
-            <button
-              key={filter.type}
-              onClick={() => setFilterType(filter.type)}
-              aria-pressed={filterType === filter.type}
-              aria-checked={filterType === filter.type}
-              className="segmented-item"
-            >
-              {filter.label}
-            </button>
-          ))}
-        </div>
-        <input
-          type="date"
-          value={customDate}
-          aria-label="Show tasks for a date"
-          onFocus={() => setFilterType('custom')}
-          onChange={(e) => {
-            if (!e.target.value) return;
-            setCustomDate(e.target.value);
-            setFilterType('custom');
-          }}
-          className={`input w-auto [color-scheme:dark] ${filterType === 'custom' ? 'border-primary-500/60' : ''}`}
-        />
+      <Tabs
+        label="Show tasks for"
+        items={FILTERS.map(filter => ({ value: filter.type, label: filter.label }))}
+        value={filterType}
+        onChange={setFilterType}
+      />
+
+      <StatTiles items={[
+        { value: board.columns.TODO.length, label: 'To do', tone: 'primary' },
+        { value: board.columns.IN_PROGRESS.length, label: 'In progress', tone: 'warning' },
+        { value: board.columns.DONE.length, label: 'Done', tone: 'success' }
+      ]} />
+
+      {/* Adding a task is the first thing on the page, not hidden behind a button */}
+      <div className="flex gap-2">
+        <button
+          type="button"
+          onClick={() => setAdding(true)}
+          className="flex-1 h-12 px-4 rounded-xl surface text-left text-sm text-slate-500 flex items-center gap-3"
+        >
+          <span className="w-5 h-5 rounded-full border-2 border-line" aria-hidden="true" />
+          Add a task for {filterType === 'yesterday' ? 'yesterday' : filterType === 'upcoming' ? 'later' : 'today'}
+        </button>
+        <button
+          type="button"
+          onClick={() => setAdding(true)}
+          aria-label="Add task"
+          className="w-12 h-12 shrink-0 rounded-xl bg-primary-600 hover:bg-primary-700 text-primary-foreground grid place-items-center transition-colors"
+        >
+          <PlusIcon className="w-5 h-5" />
+        </button>
       </div>
 
       {adding && (
         <QuickAddTask
-          defaultDate={filterType === 'custom' ? customDate : todayLocal()}
+          defaultDate={todayLocal()}
           onAdd={handleAdd}
           onClose={closeQuickAdd}
         />
@@ -157,20 +155,13 @@ function TaskBoardPage() {
       {/* Phones show one column at a time */}
       {!isDesktop && (
         <div className="space-y-2">
-          <div className="grid grid-cols-3 gap-1 p-1 rounded-lg bg-slate-900/60 border border-line" role="tablist" aria-label="Columns">
-            {STATUSES.map(status => (
-              <button
-                key={status}
-                role="tab"
-                aria-selected={mobileColumn === status}
-                onClick={() => setMobileColumn(status)}
-                className={`py-3 rounded-xl text-xs font-semibold transition-colors ${mobileColumn === status ? 'bg-primary-500/25 text-white' : 'text-slate-400'}`}
-              >
-                {STATUS_LABELS[status]} · {board.columns[status].length}
-              </button>
-            ))}
-          </div>
-          <p className="text-xs text-slate-500 px-1">Press and hold a card to reorder it. Tap ⋯ to move it to another column.</p>
+          <Tabs
+            label="Columns"
+            items={STATUSES.map(status => ({ value: status, label: STATUS_LABELS[status] }))}
+            value={mobileColumn}
+            onChange={setMobileColumn}
+          />
+          <p className="text-xs text-slate-500 px-1">Press and hold a card to reorder it. Tap the card menu to move it.</p>
         </div>
       )}
 
@@ -181,17 +172,6 @@ function TaskBoardPage() {
         onMove={(task, status, index) => board.moveTask(task.id, status, index)}
         cardActions={cardActions}
       />
-
-      {/* Add button within thumb reach on phones, above the bottom navigation */}
-      {!isDesktop && !adding && (
-        <button
-          onClick={() => setAdding(true)}
-          aria-label="Add task"
-          className="fixed right-4 bottom-20 z-40 w-14 h-14 rounded-full bg-primary-600 hover:bg-primary-700 text-primary-foreground flex items-center justify-center shadow-lg transition-colors"
-        >
-          <PlusIcon className="w-6 h-6" />
-        </button>
-      )}
 
       {editing && <TaskEditModal task={editing} onSave={handleSaveEdit} onClose={closeEdit} />}
 

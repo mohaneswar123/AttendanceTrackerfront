@@ -66,7 +66,7 @@ function QuickAddTask({ defaultDate, onAdd, onClose }) {
             type="date"
             value={taskDate}
             onChange={(e) => e.target.value && setTaskDate(e.target.value)}
-            className="bg-slate-900/50 border border-line rounded-lg px-2 py-1.5 text-base md:text-sm text-slate-200 outline-none focus:border-primary-500 [color-scheme:dark]"
+            className="bg-white/5 border border-line rounded-lg px-2 py-1.5 text-base md:text-sm text-slate-200 outline-none focus:border-primary-500"
           />
         </label>
         <PriorityPicker value={priority} onChange={setPriority} />
