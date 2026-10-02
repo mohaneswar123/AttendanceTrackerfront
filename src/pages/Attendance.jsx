@@ -7,7 +7,6 @@ import ThemeToggle from '../components/ThemeToggle';
 import { SettingsIcon } from '../components/icons';
 import MarkAttendance from '../components/attendance/MarkAttendance';
 import AttendanceSummary from '../components/attendance/AttendanceSummary';
-import SubjectProgressList from '../components/attendance/SubjectProgressList';
 import AttendanceHistory from '../components/attendance/AttendanceHistory';
 import AttendanceReports from '../components/attendance/AttendanceReports';
 import SubjectManager from '../components/attendance/SubjectManager';
@@ -25,7 +24,7 @@ export const TABS = [
 function Attendance() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { subjects, attendanceRecords } = useContext(AttendanceContext);
+  const { attendanceRecords } = useContext(AttendanceContext);
 
   const tab = TABS.find(t => t.path === location.pathname) || TABS[0];
   const go = (key) => navigate(TABS.find(t => t.key === key).path);
@@ -36,12 +35,6 @@ function Attendance() {
     () => attendanceRecords.filter(record => String(record.date).slice(0, 10) === today).length,
     [attendanceRecords, today]
   );
-
-  const subjectRows = useMemo(() => subjects.map(subject => {
-    const records = attendanceRecords.filter(record =>
-      (record.subject?._id || record.subject?.id || record.subjectId) === subject._id);
-    return { ...subject, ...tally(records) };
-  }), [subjects, attendanceRecords]);
 
   return (
     <div className="space-y-4">
@@ -59,20 +52,19 @@ function Attendance() {
         onChange={go}
       />
 
+      {/* Record is only for recording. The figures live under Reports. */}
       {tab.key === 'mark' && (
-        <div className="space-y-4 md:grid md:grid-cols-2 md:gap-4 md:space-y-0 md:items-start">
-          <div className="space-y-4">
-            <AttendanceSummary totals={totals} todayCount={todayCount} />
-            <SubjectProgressList
-              subjects={subjectRows.map(row => ({ ...row, percentage: row.percentage ?? 0 }))}
-              onAdd={() => go('subjects')}
-            />
-          </div>
+        <div className="md:max-w-xl">
           <MarkAttendance onAddSubject={() => go('subjects')} />
         </div>
       )}
       {tab.key === 'history' && <AttendanceHistory />}
-      {tab.key === 'reports' && <AttendanceReports onAddSubject={() => go('subjects')} />}
+      {tab.key === 'reports' && (
+        <div className="space-y-4">
+          <AttendanceSummary totals={totals} todayCount={todayCount} />
+          <AttendanceReports onAddSubject={() => go('subjects')} />
+        </div>
+      )}
       {tab.key === 'subjects' && <SubjectManager autoFocus />}
     </div>
   );

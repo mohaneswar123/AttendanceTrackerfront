@@ -1,5 +1,5 @@
-// Attendance maths, in one place so the summary card, the subject rows and the reports
-// all agree. Everything is weighted by class length in hours, and "No Class" never counts.
+// Attendance maths, in one place so the summary card and the reports agree.
+// Everything is weighted by class length in hours, and "No Class" never counts.
 
 export const TARGET = 75;
 
@@ -48,14 +48,15 @@ export const needToAttend = ({ attended, counted }, target = TARGET) => {
 export const isOnTrack = (percentage, target = TARGET) => percentage !== null && percentage >= target;
 
 // A stable colour per subject, so the same subject always looks the same.
-// No red in here: a red bar would read as "failing" rather than "this is Chemistry".
+// No red in here: red would read as "failing" rather than "this is Chemistry".
+// The 300 shades are the theme-aware ones, so the initial stays readable in both colour sets.
 const SUBJECT_TONES = [
-  { avatar: 'bg-emerald-500/15 text-emerald-600', bar: 'bg-emerald-500' },
-  { avatar: 'bg-orange-500/15 text-orange-600', bar: 'bg-orange-500' },
-  { avatar: 'bg-primary-500/15 text-primary-600', bar: 'bg-primary-500' },
-  { avatar: 'bg-violet-500/15 text-violet-600', bar: 'bg-violet-500' },
-  { avatar: 'bg-teal-500/15 text-teal-600', bar: 'bg-teal-500' },
-  { avatar: 'bg-amber-500/15 text-amber-600', bar: 'bg-amber-500' }
+  { avatar: 'bg-emerald-500/15 text-emerald-300' },
+  { avatar: 'bg-orange-500/15 text-orange-300' },
+  { avatar: 'bg-primary-500/15 text-primary-300' },
+  { avatar: 'bg-violet-500/15 text-violet-300' },
+  { avatar: 'bg-teal-500/15 text-teal-300' },
+  { avatar: 'bg-amber-500/15 text-amber-300' }
 ];
 
 export const subjectTone = (name = '') => {

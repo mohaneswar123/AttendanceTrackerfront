@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { categoryOf, timeRange } from '../../utils/timetable';
-import { CheckIcon } from '../icons';
 
 const nowMinutes = () => {
   const now = new Date();
@@ -14,8 +13,26 @@ const minutesLabel = (minutes) => {
   return rest ? `${hours}h ${rest}m` : `${hours}h`;
 };
 
-// Today read as a clock rather than a list: what is on now, what is next, what is done.
-// It ticks every half minute so "8 min left" stays true without a reload.
+const startOf = (activity) => timeRange(activity).split(' – ')[0];
+
+// One row: the coloured block, the title, and when it is
+function Entry({ activity, note, onClick }) {
+  return (
+    <button type="button" onClick={() => onClick(activity)} className="w-full text-left flex items-center gap-3">
+      <span className={`w-9 h-9 shrink-0 rounded-xl border grid place-items-center ${categoryOf(activity.category).block}`} aria-hidden="true">
+        <span className="w-2 h-2 rounded-full bg-current" />
+      </span>
+      <span className="flex-1 min-w-0">
+        <span className="block font-semibold text-white truncate">{activity.title}</span>
+        <span className="block text-sm text-slate-500">{timeRange(activity)}</span>
+      </span>
+      <span className="shrink-0 text-sm font-medium text-slate-400 tabular-nums whitespace-nowrap">{note}</span>
+    </button>
+  );
+}
+
+// What is on right now and what follows it, read from the clock rather than the list.
+// It ticks every half minute, so "25 min left" stays true without a reload.
 function TodayOverview({ activities, onEdit }) {
   const [minute, setMinute] = useState(nowMinutes);
 
@@ -24,17 +41,26 @@ function TodayOverview({ activities, onEdit }) {
     return () => clearInterval(timer);
   }, []);
 
+  if (activities.length === 0) return null;
+
   const current = activities.find(a => a.startMinutes <= minute && a.endMinutes > minute) || null;
   const upcoming = activities.filter(a => a.startMinutes > minute);
   const next = upcoming[0] || null;
-  const done = activities.filter(a => a.endMinutes <= minute);
+  const later = upcoming.length - 1;
 
-  if (activities.length === 0) return null;
+  // Once the day is behind you there is no now and no next, so say that once
+  if (!current && !next) {
+    return (
+      <section className="surface px-4 py-3" aria-label="Now and next">
+        <p className="text-sm text-slate-500">Nothing left planned for today.</p>
+      </section>
+    );
+  }
 
   return (
-    <div className="space-y-3">
-      {current && (
-        <section className="rounded-xl border border-primary-500/30 bg-primary-500/10 p-4" aria-label="Happening now">
+    <section className="surface divide-y divide-line" aria-label="Now and next">
+      {current ? (
+        <div className="p-4">
           <div className="flex items-center justify-between gap-3 mb-2.5">
             <span className="flex items-center gap-2 text-sm font-medium text-primary-400">
               <span className="w-2 h-2 rounded-full bg-primary-600" aria-hidden="true" />
@@ -42,71 +68,38 @@ function TodayOverview({ activities, onEdit }) {
             </span>
             <span className="text-sm text-slate-500">{minutesLabel(current.endMinutes - minute)} left</span>
           </div>
-
-          <button type="button" onClick={() => onEdit(current)} className="w-full text-left flex items-center gap-3">
-            <span className={`w-10 h-10 shrink-0 rounded-xl border grid place-items-center ${categoryOf(current.category).block}`} aria-hidden="true">
-              <span className="w-2 h-2 rounded-full bg-current" />
-            </span>
-            <span className="min-w-0">
-              <span className="block font-semibold text-white truncate">{current.title}</span>
-              <span className="block text-sm text-slate-500">{timeRange(current)}</span>
-            </span>
-          </button>
-
-          <div className="mt-3 h-1.5 rounded-full bg-background-paper overflow-hidden">
+          <Entry activity={current} note="" onClick={onEdit} />
+          <div className="mt-3 h-1.5 rounded-full bg-background-surface overflow-hidden">
             <div
               className="h-full rounded-full bg-primary-600"
               style={{ width: `${Math.round(((minute - current.startMinutes) / (current.endMinutes - current.startMinutes)) * 100)}%` }}
             />
           </div>
-        </section>
+        </div>
+      ) : (
+        <div className="px-4 py-3">
+          <p className="text-sm text-slate-500">
+            {next ? `Nothing on right now · free until ${startOf(next)}` : 'Nothing on right now.'}
+          </p>
+        </div>
       )}
 
-      <section className="surface p-4" aria-label="Up next">
-        <h2 className="section-title mb-3">Up next</h2>
+      <div className="p-4">
+        <h2 className="section-title mb-2.5">Up next</h2>
         {next ? (
           <>
-            <button type="button" onClick={() => onEdit(next)} className="w-full text-left flex items-start gap-3">
-              <span className="w-16 shrink-0 pt-0.5 text-sm font-medium text-slate-500 tabular-nums whitespace-nowrap">
-                {timeRange(next).split(' – ')[0]}
-              </span>
-              <span className={`flex-1 min-w-0 rounded-lg border-l-4 border-y border-r px-3 py-2 ${categoryOf(next.category).block}`}>
-                <span className="block font-semibold truncate">{next.title}</span>
-                <span className="block text-xs opacity-75">{minutesLabel(next.endMinutes - next.startMinutes)}</span>
-              </span>
-            </button>
-            {upcoming.length > 1 && (
-              <p className="mt-3 pt-3 border-t border-line text-sm text-slate-500">
-                Later · {upcoming.length - 1} more {upcoming.length - 1 === 1 ? 'thing' : 'things'} planned today
+            <Entry activity={next} note={`in ${minutesLabel(next.startMinutes - minute)}`} onClick={onEdit} />
+            {later > 0 && (
+              <p className="mt-3 text-sm text-slate-500">
+                Then {later} more {later === 1 ? 'thing' : 'things'} before the day is out.
               </p>
             )}
           </>
         ) : (
-          <p className="text-sm text-slate-500">Nothing else planned today.</p>
+          <p className="text-sm text-slate-500">That's everything planned for today.</p>
         )}
-      </section>
-
-      {done.length > 0 && (
-        <section className="surface p-4" aria-label="Earlier today">
-          <div className="flex items-center justify-between gap-3 mb-3">
-            <h2 className="section-title">Earlier today</h2>
-            <span className="badge badge-success">{done.length} done</span>
-          </div>
-          <ul className="space-y-2.5">
-            {done.map(activity => (
-              <li key={activity.id} className="flex items-center gap-3">
-                <span className="w-16 shrink-0 text-sm text-slate-500 tabular-nums whitespace-nowrap">
-                  {timeRange(activity).split(' – ')[0]}
-                </span>
-                <span className={`w-2 h-2 shrink-0 rounded-full ${categoryOf(activity.category).dot}`} aria-hidden="true" />
-                <span className="flex-1 min-w-0 text-sm text-slate-400 truncate">{activity.title}</span>
-                <CheckIcon className="w-4 h-4 shrink-0 text-emerald-500" />
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-    </div>
+      </div>
+    </section>
   );
 }
 

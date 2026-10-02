@@ -171,26 +171,24 @@ function TimetablePage() {
 
       {modes.length > 0 && (
         <>
+          {/* What is on now and what follows it, from the clock. It stays at the top
+              whichever day is being looked at, since that is the thing you glance at. */}
+          <TodayOverview
+            activities={activitiesByDay[todayDay()] || []}
+            onEdit={(activity) => setActivityForm({ activity })}
+          />
+
           <DayTabs day={day} onChange={setDay} />
           <h2 className="sr-only">{DAY_LONG[day]}</h2>
 
-          {/* Today is read as a clock — what is on now, next, and done. Any other day is
-              just its list, because "now" means nothing there. */}
-          {day === todayDay() && (activitiesByDay[day] || []).length > 0 ? (
-            <TodayOverview
-              activities={activitiesByDay[day]}
+          <section className="surface p-3 md:p-5">
+            <DayTimeline
+              activities={activitiesByDay[day] || []}
               onEdit={(activity) => setActivityForm({ activity })}
+              onDelete={setDeletingActivity}
+              onAdd={openNewActivity}
             />
-          ) : (
-            <section className="surface p-3 md:p-5">
-              <DayTimeline
-                activities={activitiesByDay[day] || []}
-                onEdit={(activity) => setActivityForm({ activity })}
-                onDelete={setDeletingActivity}
-                onAdd={openNewActivity}
-              />
-            </section>
-          )}
+          </section>
 
           {selectedMode && !selectedMode.active && (
             <p className="text-xs text-slate-500 text-center">
