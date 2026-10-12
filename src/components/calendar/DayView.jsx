@@ -83,7 +83,7 @@ function DayView({ currentDate, eventsByDate, onEventClick, onEdit, onDelete, on
                       className="flex-1 min-w-0 text-left"
                     >
                       <span className="block font-semibold break-words">{event.type === 'REMINDER' && <BellIcon className="w-3.5 h-3.5 inline-block mr-1 -mt-0.5" />}{event.title}</span>
-                      <span className="block mt-0.5 text-xs opacity-75">{timeLabel(event)}</span>
+                      <span className="block mt-0.5 text-xs">{timeLabel(event)}</span>
                     </button>
                     <EventMenu
                       event={event}

@@ -43,7 +43,7 @@ function MiniMonth({ currentDate, selectedDate, eventsByDate, onSelect, onStepMo
               aria-pressed={selected}
               className={`h-8 flex flex-col items-center justify-center rounded-lg text-xs transition-colors ${selected ? 'ring-1 ring-primary-500/60' : 'hover:bg-white/5'}`}
             >
-              <span className={`w-6 h-6 flex items-center justify-center rounded-full ${date === today ? 'bg-primary-500 text-primary-foreground font-bold' : outside ? 'text-slate-500' : 'text-slate-200'}`}>
+              <span className={`w-6 h-6 flex items-center justify-center rounded-full ${date === today ? 'bg-primary-600 text-primary-foreground font-bold' : outside ? 'text-slate-500' : 'text-slate-200'}`}>
                 {Number(date.slice(8))}
               </span>
               <span className="h-1 flex items-center" aria-hidden="true">

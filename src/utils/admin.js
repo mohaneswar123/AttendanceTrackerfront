@@ -74,3 +74,30 @@ export const ACTION_BADGE = {
   SET_PASSWORD: 'badge-neutral',
   DELETE: 'badge-danger'
 };
+
+// What a student did. The log records the kind of thing and what happened to it,
+// never what they wrote, so these labels are all it can ever say.
+export const FEATURE_LABEL = {
+  ATTENDANCE: 'Attendance',
+  SUBJECT: 'Subjects',
+  TASK: 'Tasks',
+  CALENDAR: 'Calendar',
+  TIMETABLE: 'Timetable',
+  FOCUS: 'Focus'
+};
+
+// The order the features are shown in, so the panel reads the same every time
+export const FEATURE_ORDER = ['ATTENDANCE', 'SUBJECT', 'TASK', 'CALENDAR', 'TIMETABLE', 'FOCUS'];
+
+export const USER_ACTION_LABEL = { CREATE: 'Added', UPDATE: 'Changed', DELETE: 'Removed' };
+
+export const USER_ACTION_BADGE = {
+  CREATE: 'badge-success',
+  UPDATE: 'badge-info',
+  DELETE: 'badge-danger'
+};
+
+// { TASK: { CREATE: 2 } } -> 2
+export const totalActions = (counts) =>
+  Object.values(counts || {}).reduce(
+    (sum, perAction) => sum + Object.values(perAction).reduce((a, b) => a + b, 0), 0);
