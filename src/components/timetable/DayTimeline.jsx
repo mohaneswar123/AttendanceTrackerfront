@@ -76,7 +76,7 @@ function DayTimeline({ activities, onEdit, onDelete, onAdd }) {
             <div className={`flex-1 min-w-0 rounded-xl border p-3 flex items-start gap-2 ${categoryOf(activity.category).block}`}>
               <div className="flex-1 min-w-0">
                 <p className="font-semibold break-words">{activity.title}</p>
-                <p className="mt-0.5 text-xs opacity-75">{timeRange(activity)}</p>
+                <p className="mt-0.5 text-xs">{timeRange(activity)}</p>
               </div>
               <ActivityMenu
                 activity={activity}

@@ -1,13 +1,15 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { AttendanceContext } from '../contexts/AttendanceContext';
 import PageHeader from '../components/PageHeader';
 import ThemeToggle from '../components/ThemeToggle';
 import InstallApp from '../components/InstallApp';
+import { LogOutIcon } from '../components/icons';
 
 // The account and this device. Subjects live with the attendance they belong to.
 function Settings() {
-  const { currentUser, resetAllData, updateEmail, changePassword } = useContext(AttendanceContext);
+  const { currentUser, resetAllData, updateEmail, changePassword, logout } = useContext(AttendanceContext);
+  const navigate = useNavigate();
   const [message, setMessage] = useState({ text: '', type: '' });
   const [isResetting, setIsResetting] = useState(false);
   const [resetConfirmText, setResetConfirmText] = useState('');
@@ -25,6 +27,11 @@ function Settings() {
   }, [message]);
 
   const showMessage = (text, type = 'success') => setMessage({ text, type });
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   const handleReset = async () => {
     if (resetConfirmText.trim().toLowerCase() !== 'reset all') {
@@ -75,15 +82,23 @@ function Settings() {
         </div>
       )}
 
-      <section className="surface p-4 md:p-5 flex items-center gap-4">
+      <section className="surface p-4 md:p-5 flex flex-wrap items-center gap-4">
         <div className="w-12 h-12 shrink-0 rounded-full bg-primary-600 text-primary-foreground grid place-items-center text-lg font-semibold">
           {currentUser ? currentUser.email[0].toUpperCase() : 'G'}
         </div>
-        <div className="min-w-0">
+        <div className="flex-1 min-w-0">
           <h2 className="font-semibold text-white truncate">{currentUser ? currentUser.username || 'Student account' : 'Guest'}</h2>
           <p className="text-sm text-slate-500 truncate">{currentUser ? currentUser.email : 'Signed out — nothing is saved'}</p>
-          {!currentUser && <Link to="/login" className="text-sm font-semibold text-primary-400 hover:text-primary-300 mt-1 inline-block">Sign in</Link>}
         </div>
+        {/* The sidebar's sign-out is desktop-only, so this is the only one a phone has */}
+        {currentUser ? (
+          <button onClick={handleLogout} className="btn btn-secondary w-full sm:w-auto shrink-0">
+            <LogOutIcon className="w-4 h-4" />
+            Sign out
+          </button>
+        ) : (
+          <Link to="/login" className="btn btn-primary w-full sm:w-auto shrink-0">Sign in</Link>
+        )}
       </section>
 
       <section className="surface p-4 md:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">

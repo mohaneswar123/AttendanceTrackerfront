@@ -103,7 +103,7 @@ function TimeGrid({ days, eventsByDate, onSlotClick, onEventClick, onDayHeaderCl
             className="py-2 text-center disabled:cursor-default"
           >
             <span className="block text-[11px] uppercase text-slate-500 font-semibold">{WEEKDAYS[fromIsoDate(date).getDay()]}</span>
-            <span className={`mx-auto mt-0.5 w-8 h-8 flex items-center justify-center rounded-full text-sm font-semibold ${date === today ? 'bg-primary-500 text-primary-foreground' : 'text-slate-200'}`}>
+            <span className={`mx-auto mt-0.5 w-8 h-8 flex items-center justify-center rounded-full text-sm font-semibold ${date === today ? 'bg-primary-600 text-primary-foreground' : 'text-slate-200'}`}>
               {Number(date.slice(8))}
             </span>
           </button>
