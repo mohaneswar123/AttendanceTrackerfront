@@ -23,6 +23,8 @@ function AdminDashboard() {
   const [subjects, setSubjects] = useState([]);
   const [attendance, setAttendance] = useState([]);
   const [history, setHistory] = useState([]);
+  const [userActivity, setUserActivity] = useState(null);
+  const [userActivityLoading, setUserActivityLoading] = useState(false);
 
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
@@ -68,15 +70,18 @@ function AdminDashboard() {
       setSubjects([]);
       setAttendance([]);
       setHistory([]);
+      setUserActivity(null);
       return;
     }
+    setUserActivityLoading(true);
     let cancelled = false;
     (async () => {
       try {
-        const [subjectList, records, entries] = await Promise.all([
+        const [subjectList, records, entries, ownActivity] = await Promise.all([
           adminService.getUserSubjects(selectedId),
           adminService.getUserAttendance(selectedId),
-          adminService.getActivity({ limit: 20, userId: selectedId })
+          adminService.getActivity({ limit: 20, userId: selectedId }),
+          adminService.getUserActivity(selectedId, { limit: 50 })
         ]);
         if (cancelled) return;
 
@@ -89,8 +94,11 @@ function AdminDashboard() {
           return { ...record, _id: record._id || record.id, subjectId, subject: byId[subjectId] || null };
         }));
         setHistory(entries);
+        setUserActivity(ownActivity);
       } catch (err) {
         if (!cancelled) setError(errorMessage(err, 'Failed to load that account'));
+      } finally {
+        if (!cancelled) setUserActivityLoading(false);
       }
     })();
     return () => { cancelled = true; };
@@ -241,6 +249,8 @@ function AdminDashboard() {
               subjects={subjects}
               attendance={attendance}
               history={history}
+              activity={userActivity}
+              activityLoading={userActivityLoading}
               busy={busy}
               onActivate={handleActivate}
               onExtend={handleExtend}

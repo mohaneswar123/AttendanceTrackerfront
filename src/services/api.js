@@ -128,6 +128,12 @@ export const adminService = {
     return response.data;
   },
 
+  // What the student themselves has been doing: { counts, entries, keptForDays }
+  getUserActivity: async (userId, { limit = 50 } = {}) => {
+    const response = await apiClient.get('/users/admin/user-activity', { params: { userId, limit } });
+    return response.data;
+  },
+
   // Deactivate a user
   deactivateUser: async (userId) => {
     const response = await apiClient.put(`/users/admin/deactivate/${userId}`);

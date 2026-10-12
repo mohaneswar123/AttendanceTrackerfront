@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import AdminActivityLog from './AdminActivityLog';
+import UserActivityPanel from './UserActivityPanel';
 import {
   STATE_BADGE, STATE_LABEL, accessState, accessSummary, formatDate
 } from '../../utils/admin';
@@ -8,7 +9,7 @@ const PRESETS = [7, 30, 90, 180];
 
 // One account: who it is, what access it has, the actions, and its own history.
 function AdminUserDetail({
-  user, subjects, attendance, history, busy,
+  user, subjects, attendance, history, activity, activityLoading, busy,
   onActivate, onExtend, onDeactivate, onDelete, onSetPassword
 }) {
   const [days, setDays] = useState(30);
@@ -170,11 +171,15 @@ function AdminUserDetail({
         />
       </div>
 
+      {/* What the student did, as against what admins did to the account above */}
+      <UserActivityPanel activity={activity} loading={activityLoading} />
+
       <section className="surface p-5 border-rose-500/25" aria-label="Delete account">
         <h2 className="section-title text-rose-400">Delete account</h2>
         <p className="text-sm text-slate-400 mt-1 mb-4">
           Removes the account and everything it owns: subjects, attendance, tasks, calendar,
-          timetable and focus history. This cannot be undone. The audit log keeps a record.
+          timetable and focus history, and their activity log. This cannot be undone. The admin
+          log keeps a record of the deletion.
         </p>
         <button onClick={onDelete} disabled={busy} className="btn btn-danger">Delete account</button>
       </section>
