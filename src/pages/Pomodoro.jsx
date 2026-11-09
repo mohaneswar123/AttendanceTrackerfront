@@ -1,11 +1,15 @@
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { AttendanceContext } from '../contexts/AttendanceContext';
 import usePomodoro from '../hooks/usePomodoro';
 import ConfirmDialog from '../components/ConfirmDialog';
 import LoginPrompt from '../components/LoginPrompt';
-import PageHeader from '../components/PageHeader';
+import FeatureShell from '../components/FeatureShell';
+import ComingSoon from '../components/nav/ComingSoon';
 import Tabs from '../components/Tabs';
 import DurationPicker from '../components/pomodoro/DurationPicker';
+import CountsTowards from '../components/pomodoro/CountsTowards';
+import useFocusHabits from '../hooks/useFocusHabits';
 import { PlayIcon, ResetIcon, SkipIcon, SpeakerIcon } from '../components/icons';
 
 const RADIUS = 130;
@@ -17,6 +21,9 @@ const LONG_BREAK_PRESETS = [15, 20, 30];
 const MAX_FOCUS = 120;
 const MAX_BREAK = 30;
 const TIMES_KEY = 'pomodoroTimes';
+
+// Which section each address shows
+const SECTION_FOR_PATH = { '/focus': 'timer', '/focus/sessions': 'sessions', '/focus/settings': 'settings' };
 
 const formatClock = (seconds) => {
   const m = Math.floor(seconds / 60);
@@ -64,7 +71,10 @@ function Pomodoro() {
 }
 
 function PomodoroTimer() {
-  const pomodoro = usePomodoro(true);
+  // A finished focus period can credit its minutes to one time-based habit
+  const { pathname } = useLocation();
+  const focusHabits = useFocusHabits();
+  const pomodoro = usePomodoro(true, focusHabits.credit);
   const [times, setTimes] = useState(loadTimes);
   const [breakKind, setBreakKind] = useState('SHORT');
   const [confirmReset, setConfirmReset] = useState(false);
@@ -106,9 +116,22 @@ function PomodoroTimer() {
     return () => { document.title = title; };
   }, []);
 
+  const section = SECTION_FOR_PATH[pathname] || 'timer';
+
+  if (section === 'sessions') {
+    return (
+      <FeatureShell>
+        <ComingSoon title="Your past sessions" insteadLabel="Back to the timer" insteadPath="/focus">
+          A list of the focus sessions you have finished, and how long each one ran, will
+          live here. The daily total already feeds the Home screen.
+        </ComingSoon>
+      </FeatureShell>
+    );
+  }
+
   return (
-    <div className="space-y-4">
-      <PageHeader eyebrow="Pomodoro" title="Focus">
+    <FeatureShell
+      actions={(
         <button
           onClick={pomodoro.toggleMute}
           aria-pressed={pomodoro.muted}
@@ -118,8 +141,11 @@ function PomodoroTimer() {
           <SpeakerIcon className="w-4 h-4" muted={pomodoro.muted} />
           {pomodoro.muted ? 'Sound off' : 'Sound on'}
         </button>
-      </PageHeader>
+      )}
+    >
 
+      {section === 'timer' && (
+        <>
       {/* What the next break should be. The lengths are the student's own choice, so these
           two only decide which of them the next break uses. */}
       <Tabs
@@ -203,8 +229,23 @@ function PomodoroTimer() {
         </p>
       </div>
 
+      <CountsTowards
+        habits={focusHabits.habits}
+        value={focusHabits.chosenId}
+        onChange={focusHabits.choose}
+        lastCredited={focusHabits.lastCredited}
+      />
+        </>
+      )}
+
       {/* Choosing lengths, only before starting; the ring above shows the choice */}
-      {idle && timer && (
+      {section === 'settings' && !idle && (
+        <div className="notice notice-info" role="status">
+          Lengths can be changed once the timer is back to idle.
+        </div>
+      )}
+
+      {section === 'settings' && idle && timer && (
         <div className="surface p-4 space-y-4">
           <DurationPicker
             label="Focus length"
@@ -238,7 +279,7 @@ function PomodoroTimer() {
           onCancel={cancelReset}
         />
       )}
-    </div>
+    </FeatureShell>
   );
 }
 

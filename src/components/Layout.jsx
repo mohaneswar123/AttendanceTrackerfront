@@ -2,7 +2,6 @@ import React, { useContext, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { AttendanceContext } from '../contexts/AttendanceContext';
 import Sidebar from './Sidebar';
-import MobileBottomNav from './MobileBottomNav';
 import Footer from './Footer';
 
 function Layout({ children }) {
@@ -45,7 +44,6 @@ function Layout({ children }) {
         </div>
       </div>
 
-      <MobileBottomNav />
     </div>
   );
 }

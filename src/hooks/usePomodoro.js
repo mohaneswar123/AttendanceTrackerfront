@@ -45,9 +45,16 @@ function readMuted() {
   }
 }
 
-// The student's Pomodoro timer. The server keeps the state; this counts down between
-// updates and reports when a focus period ends.
-export default function usePomodoro(enabled) {
+/**
+ * The student's Pomodoro timer. The server keeps the state; this counts down between
+ * updates and reports when a focus period ends.
+ *
+ * `onFocusFinished` is called with the minutes once a focus period completes, so a
+ * time-based habit can be credited with them. It fires where the completion is noticed,
+ * which is when the page is open: a timer that ran out while the app was closed is
+ * completed on the next visit, and the minutes are credited then.
+ */
+export default function usePomodoro(enabled, onFocusFinished) {
   const [timer, setTimer] = useState(null);   // { phase, sessionId, remainingSeconds, totalSeconds, paused }
   const [endsAt, setEndsAt] = useState(null); // when the running phase ends, on this device's clock
   const [now, setNow] = useState(() => Date.now());
@@ -56,6 +63,8 @@ export default function usePomodoro(enabled) {
   const [muted, setMuted] = useState(readMuted);
   const finishing = useRef(false);
   const chimedFor = useRef(null);
+  const onFinished = useRef(onFocusFinished);
+  onFinished.current = onFocusFinished;
   const mutedRef = useRef(muted);
   mutedRef.current = muted;
 
@@ -107,10 +116,14 @@ export default function usePomodoro(enabled) {
     if (chimedFor.current !== phaseKey && !mutedRef.current) playChime();
     chimedFor.current = phaseKey;
 
+    const finishedMinutes = Math.round((timer.totalSeconds || 0) / 60);
     const next = timer.phase === 'FOCUS'
       ? pomodoroService.complete(timer.sessionId) // safe if it was already completed
       : pomodoroService.getCurrent();
-    next.then(apply)
+    next.then((state) => {
+      apply(state);
+      if (timer.phase === 'FOCUS' && finishedMinutes > 0) onFinished.current?.(finishedMinutes);
+    })
       .catch(() => refresh())
       .finally(() => { finishing.current = false; });
   }, [timer, endsAt, remainingSeconds, apply, refresh]);

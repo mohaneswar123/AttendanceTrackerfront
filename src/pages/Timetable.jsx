@@ -1,4 +1,5 @@
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { AttendanceContext } from '../contexts/AttendanceContext';
 import useTimetable from '../hooks/useTimetable';
 import { defaultTimes } from '../utils/calendarDate';
@@ -11,8 +12,8 @@ import ActivityFormModal from '../components/timetable/ActivityFormModal';
 import CopyDayModal from '../components/timetable/CopyDayModal';
 import ConfirmDialog from '../components/ConfirmDialog';
 import LoginPrompt from '../components/LoginPrompt';
-import { PlusIcon } from '../components/icons';
-import PageHeader, { HeaderButton } from '../components/PageHeader';
+import FeatureShell from '../components/FeatureShell';
+import ComingSoon from '../components/nav/ComingSoon';
 import TodayOverview from '../components/timetable/TodayOverview';
 
 const TRASH_ICON = (
@@ -41,6 +42,7 @@ function newActivityTimes(dayActivities) {
 }
 
 function TimetablePage() {
+  const { pathname } = useLocation();
   const timetable = useTimetable();
   const [day, setDay] = useState(todayDay);
   const [modeForm, setModeForm] = useState(null);          // { mode } to edit, or {} to create
@@ -116,30 +118,21 @@ function TimetablePage() {
   const { modes, selectedMode, loading } = timetable;
 
   return (
-    <div className="space-y-4 pb-24 md:pb-0">
-      {/* The mode sits where the page's context line goes, since it is what the
-          whole page is showing */}
-      <PageHeader
-        eyebrow={modes.length > 0 ? (
-          <ModeSelector
-            modes={modes}
-            selectedModeId={timetable.selectedModeId}
-            onSelect={timetable.selectMode}
-            onSetActive={handleSetActive}
-            onEdit={(mode) => setModeForm({ mode })}
-            onCopyDay={() => setCopying(true)}
-            onDelete={setDeletingMode}
-            onCreate={() => setModeForm({})}
-          />
-        ) : null}
-        title="Timetable"
-      >
-        {modes.length > 0 && (
-          <HeaderButton label="Add activity" variant="primary" onClick={openNewActivity}>
-            <PlusIcon className="w-5 h-5" />
-          </HeaderButton>
-        )}
-      </PageHeader>
+    <FeatureShell
+      onAdd={modes.length > 0 ? openNewActivity : undefined}
+      actions={modes.length > 0 ? (
+        <ModeSelector
+          modes={modes}
+          selectedModeId={timetable.selectedModeId}
+          onSelect={timetable.selectMode}
+          onSetActive={handleSetActive}
+          onEdit={(mode) => setModeForm({ mode })}
+          onCopyDay={() => setCopying(true)}
+          onDelete={setDeletingMode}
+          onCreate={() => setModeForm({})}
+        />
+      ) : null}
+    >
 
       {notice && (
         <div className="notice notice-info" role="status">
@@ -169,7 +162,21 @@ function TimetablePage() {
         </section>
       )}
 
-      {modes.length > 0 && (
+      {pathname === '/timetable/week' && (
+        <ComingSoon title="The whole week" insteadLabel="Back to today" insteadPath="/timetable">
+          All seven days side by side will live here. For now, Today has the day strip, and
+          tapping a day shows its plan.
+        </ComingSoon>
+      )}
+
+      {pathname === '/timetable/schedules' && (
+        <ComingSoon title="Your schedules" insteadLabel="Back to today" insteadPath="/timetable">
+          Managing College Mode, Home Mode and the rest will move here. For now they are in
+          the menu beside the timetable name at the top of this screen.
+        </ComingSoon>
+      )}
+
+      {pathname === '/timetable' && modes.length > 0 && (
         <>
           {/* What is on now and what follows it, from the clock. It stays at the top
               whichever day is being looked at, since that is the thing you glance at. */}
@@ -236,7 +243,7 @@ function TimetablePage() {
           onCancel={cancelDeleteActivity}
         />
       )}
-    </div>
+    </FeatureShell>
   );
 }
 

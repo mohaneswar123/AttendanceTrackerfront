@@ -252,6 +252,12 @@ export const pomodoroService = {
     return response.data;
   },
 
+  // { minutes, sessions } finished today, for the Home screen
+  getToday: async () => {
+    const response = await apiClient.get('/pomodoro/today');
+    return response.data;
+  },
+
   // Lengths in minutes: focus 1-120, break 1-30
   start: async (focusMinutes, breakMinutes) => {
     const response = await apiClient.post('/pomodoro/start', { focusMinutes, breakMinutes });
@@ -380,6 +386,64 @@ export const timetableService = {
 export const resetService = {
   resetUserData: async (userId) => {
     const response = await apiClient.delete(`/reset/user/${userId}`);
+    return response.data;
+  }
+};
+
+// Habits and the days marked against them. Every streak and rate is worked out by the
+// server, so the page never has to agree with it about the maths.
+export const habitService = {
+  getHabits: async ({ includeArchived = false } = {}) => {
+    const response = await apiClient.get('/habits', { params: { includeArchived } });
+    return response.data;
+  },
+
+  // The marked days in a range, for the month grid
+  getEntries: async (from, to) => {
+    const response = await apiClient.get('/habits/entries', { params: { from, to } });
+    return response.data;
+  },
+
+  // Last week in review: { weekStart, weekEnd, overallRate, bestName, slippedName, suggestion }
+  getSummary: async () => {
+    const response = await apiClient.get('/habits/summary');
+    return response.data;
+  },
+
+  createHabit: async (habit) => {
+    const response = await apiClient.post('/habits', habit);
+    return response.data;
+  },
+
+  updateHabit: async (habitId, habit) => {
+    const response = await apiClient.put(`/habits/${habitId}`, habit);
+    return response.data;
+  },
+
+  // Archiving keeps the history behind the streak
+  archiveHabit: async (habitId) => {
+    const response = await apiClient.put(`/habits/${habitId}/archive`);
+    return response.data;
+  },
+
+  unarchiveHabit: async (habitId) => {
+    const response = await apiClient.put(`/habits/${habitId}/unarchive`);
+    return response.data;
+  },
+
+  // Refused with 409 HABIT_HAS_HISTORY once the habit has any marked days
+  deleteHabit: async (habitId) => {
+    await apiClient.delete(`/habits/${habitId}`);
+  },
+
+  // entry: { status, amount, skipReason }; resolves to the habit with its new figures
+  mark: async (habitId, date, entry) => {
+    const response = await apiClient.put(`/habits/${habitId}/entries/${date}`, entry);
+    return response.data;
+  },
+
+  clearMark: async (habitId, date) => {
+    const response = await apiClient.delete(`/habits/${habitId}/entries/${date}`);
     return response.data;
   }
 };

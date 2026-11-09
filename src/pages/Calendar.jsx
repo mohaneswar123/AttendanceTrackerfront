@@ -1,4 +1,5 @@
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { AttendanceContext } from '../contexts/AttendanceContext';
 import useCalendar, { MAX_SEARCH_RESULTS } from '../hooks/useCalendar';
 import useMediaQuery from '../hooks/useMediaQuery';
@@ -14,7 +15,8 @@ import {
   viewTitle,
   visibleRange
 } from '../utils/calendarDate';
-import CalendarHeader from '../components/calendar/CalendarHeader';
+import FeatureShell from '../components/FeatureShell';
+import { SearchIcon } from '../components/icons';
 import CalendarToolbar from '../components/calendar/CalendarToolbar';
 import MiniMonth from '../components/calendar/MiniMonth';
 import MonthView from '../components/calendar/MonthView';
@@ -27,6 +29,14 @@ import ConfirmDialog from '../components/ConfirmDialog';
 import LoginPrompt from '../components/LoginPrompt';
 
 const UPCOMING_SHOWN = 8;
+
+// Which view each address shows. Events is the upcoming list with the grid left off.
+const VIEW_FOR_PATH = {
+  '/calendar': VIEWS.MONTH,
+  '/calendar/week': VIEWS.WEEK,
+  '/calendar/day': VIEWS.DAY,
+  '/calendar/events': 'EVENTS'
+};
 const PERIOD_NAMES = { [VIEWS.MONTH]: 'month', [VIEWS.WEEK]: 'week', [VIEWS.DAY]: 'day' };
 
 function Calendar() {
@@ -49,8 +59,12 @@ function newEntryTimes(date) {
 }
 
 function CalendarPage() {
+  const { pathname } = useLocation();
+  const navigate = useNavigate();
+  const routeView = VIEW_FOR_PATH[pathname] || VIEWS.MONTH;
+  const eventsOnly = routeView === 'EVENTS';
+  const view = eventsOnly ? VIEWS.MONTH : routeView;
   const isDesktop = useMediaQuery('(min-width: 768px)');
-  const [view, setView] = useState(VIEWS.MONTH);
   const [currentDate, setCurrentDate] = useState(todayLocal);
   const [selectedDate, setSelectedDate] = useState(todayLocal); // the phone month's chosen day
   const [searchOpen, setSearchOpen] = useState(false);
@@ -86,8 +100,8 @@ function CalendarPage() {
     setSelectedDate(date);
   };
   const goToDay = (date) => {
-    setView(VIEWS.DAY);
     goTo(date);
+    navigate('/calendar/day');
   };
 
   const openCreate = (initial) => setForm({ initial });
@@ -143,38 +157,36 @@ function CalendarPage() {
     setDetails(entry);
   };
 
-  // The year is the eyebrow, so the big title only has to carry the month or the day
-  const headerTitle = view === VIEWS.MONTH
-    ? new Date(`${currentDate}T00:00:00`).toLocaleDateString('en-US', { month: 'long' })
-    : view === VIEWS.DAY
-      ? shortDate(currentDate, true)
-      : viewTitle(view, currentDate).replace(`, ${currentDate.slice(0, 4)}`, '');
-
   const results = calendar.results;
   const query = searchQuery.trim();
 
   return (
-    <div className="space-y-4 md:space-y-5 pb-24 md:pb-0">
-      <CalendarHeader
-        eyebrow={currentDate.slice(0, 4)}
-        title={headerTitle}
-        searchOpen={searchOpen}
-        onToggleSearch={toggleSearch}
-        onAdd={() => openCreateOn(view === VIEWS.DAY ? currentDate : selectedDate)}
-      />
-
-      <CalendarToolbar
-        view={view}
-        onViewChange={setView}
-        period={viewTitle(view, currentDate)}
-        periodName={PERIOD_NAMES[view]}
-        onToday={() => goTo(today)}
-        onPrevious={() => goTo(stepDate(view, currentDate, -1))}
-        onNext={() => goTo(stepDate(view, currentDate, 1))}
-        searchOpen={searchOpen}
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-      />
+    <FeatureShell
+      onAdd={() => openCreateOn(view === VIEWS.DAY ? currentDate : selectedDate)}
+      actions={(
+        <button
+          type="button"
+          onClick={toggleSearch}
+          aria-label="Search"
+          aria-expanded={searchOpen}
+          className="w-11 h-11 md:w-10 md:h-10 rounded-full grid place-items-center bg-background-paper border border-line text-slate-400 hover:text-slate-200 transition-colors"
+        >
+          <SearchIcon className="w-[18px] h-[18px]" />
+        </button>
+      )}
+    >
+      {!eventsOnly && (
+        <CalendarToolbar
+          period={viewTitle(view, currentDate)}
+          periodName={PERIOD_NAMES[view]}
+          onToday={() => goTo(today)}
+          onPrevious={() => goTo(stepDate(view, currentDate, -1))}
+          onNext={() => goTo(stepDate(view, currentDate, 1))}
+          searchOpen={searchOpen}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+        />
+      )}
 
       {notice && (
         <div className="notice notice-info" role="status">
@@ -190,8 +202,8 @@ function CalendarPage() {
       )}
 
       {/* The side panel sits beside Month and Day on wide screens; Week keeps the full width for its seven columns */}
-      <div className={`grid gap-5 items-start ${view === VIEWS.WEEK ? '' : 'lg:grid-cols-[minmax(0,1fr)_20rem]'}`}>
-        <div className="space-y-4 min-w-0">
+      <div className={`grid gap-5 items-start ${view === VIEWS.WEEK || eventsOnly ? '' : 'lg:grid-cols-[minmax(0,1fr)_20rem]'}`}>
+        <div className={`space-y-4 min-w-0 ${eventsOnly ? 'hidden' : ''}`}>
           {searching ? (
             <section aria-label="Search results" className="surface rounded-xl p-4 md:p-6">
               <div className="flex items-center justify-between gap-3 mb-4">
@@ -264,7 +276,7 @@ function CalendarPage() {
         </div>
 
         <div className="space-y-4">
-          {isDesktop && (
+          {isDesktop && !eventsOnly && (
             <MiniMonth
               currentDate={currentDate}
               selectedDate={selectedDate}
@@ -319,7 +331,7 @@ function CalendarPage() {
           onCancel={cancelDelete}
         />
       )}
-    </div>
+    </FeatureShell>
   );
 }
 

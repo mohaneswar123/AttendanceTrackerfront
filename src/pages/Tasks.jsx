@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { AttendanceContext } from '../contexts/AttendanceContext';
 import useTaskBoard, { STATUSES, STATUS_LABELS } from '../hooks/useTaskBoard';
 import useMediaQuery from '../hooks/useMediaQuery';
@@ -9,17 +9,18 @@ import QuickAddTask from '../components/tasks/QuickAddTask';
 import TaskEditModal from '../components/tasks/TaskEditModal';
 import ConfirmDialog from '../components/ConfirmDialog';
 import LoginPrompt from '../components/LoginPrompt';
-import { PlusIcon, TimerIcon } from '../components/icons';
-import PageHeader from '../components/PageHeader';
-import Tabs from '../components/Tabs';
+import { PlusIcon } from '../components/icons';
+import FeatureShell from '../components/FeatureShell';
 import StatTiles from '../components/StatTiles';
-import { longWeekday } from '../utils/attendance';
 
-const FILTERS = [
-  { type: 'yesterday', label: 'Yesterday' },
-  { type: 'today', label: 'Today' },
-  { type: 'upcoming', label: 'Upcoming' }
-];
+// The address decides what is shown. Today and Upcoming are date filters over the whole
+// board; Board is everything at once; Done is the finished column on its own.
+const VIEW_FOR_PATH = {
+  '/tasks': { filter: 'today', columns: null },
+  '/tasks/upcoming': { filter: 'upcoming', columns: null },
+  '/tasks/board': { filter: 'today', columns: null },
+  '/tasks/done': { filter: 'today', columns: ['DONE'] }
+};
 
 
 function Tasks() {
@@ -36,9 +37,10 @@ function Tasks() {
 }
 
 function TaskBoardPage() {
-  const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const view = VIEW_FOR_PATH[pathname] || VIEW_FOR_PATH['/tasks'];
   const isDesktop = useMediaQuery('(min-width: 768px)');
-  const [filterType, setFilterType] = useState('today');
+  const filterType = view.filter;
   // The three tabs cover the days that matter; there is no pick-a-date filter any more
   const customDate = todayLocal();
   const [adding, setAdding] = useState(false);
@@ -89,23 +91,12 @@ function TaskBoardPage() {
     onDelete: setDeleting
   };
 
+  // Done is the finished column on its own; everything else shows the whole board
+  const columns = view.columns || (isDesktop ? STATUSES : [mobileColumn]);
+
   return (
-    <div className="space-y-4">
-      <PageHeader eyebrow={longWeekday(todayLocal())} title="Tasks">
-        <button onClick={() => navigate('/pomodoro')} className="btn btn-secondary rounded-full h-10 px-4">
-          <TimerIcon className="w-4 h-4" />
-          Focus
-        </button>
-      </PageHeader>
-
-      <Tabs
-        label="Show tasks for"
-        items={FILTERS.map(filter => ({ value: filter.type, label: filter.label }))}
-        value={filterType}
-        onChange={setFilterType}
-      />
-
-      <StatTiles items={[
+    <FeatureShell onAdd={() => setAdding(true)}>
+      <StatTiles label="Totals" items={[
         { value: board.columns.TODO.length, label: 'To do', tone: 'primary' },
         { value: board.columns.IN_PROGRESS.length, label: 'In progress', tone: 'warning' },
         { value: board.columns.DONE.length, label: 'Done', tone: 'success' }
@@ -119,7 +110,7 @@ function TaskBoardPage() {
           className="flex-1 h-12 px-4 rounded-xl surface text-left text-sm text-slate-500 flex items-center gap-3"
         >
           <span className="w-5 h-5 rounded-full border-2 border-line" aria-hidden="true" />
-          Add a task for {filterType === 'yesterday' ? 'yesterday' : filterType === 'upcoming' ? 'later' : 'today'}
+          Add a task for {filterType === 'upcoming' ? 'later' : 'today'}
         </button>
         <button
           type="button"
@@ -152,22 +143,32 @@ function TaskBoardPage() {
         </div>
       )}
 
-      {/* Phones show one column at a time */}
-      {!isDesktop && (
+      {/* Phones show one column at a time, except on Done, which is one column already */}
+      {!isDesktop && !view.columns && (
         <div className="space-y-2">
-          <Tabs
-            label="Columns"
-            items={STATUSES.map(status => ({ value: status, label: STATUS_LABELS[status] }))}
-            value={mobileColumn}
-            onChange={setMobileColumn}
-          />
+          <div className="flex p-1 rounded-xl bg-background-surface border border-line" role="tablist" aria-label="Columns">
+            {STATUSES.map(status => (
+              <button
+                key={status}
+                type="button"
+                role="tab"
+                aria-selected={mobileColumn === status}
+                onClick={() => setMobileColumn(status)}
+                className={`flex-1 h-9 px-2 rounded-lg text-sm font-medium transition-colors ${mobileColumn === status
+                  ? 'bg-background-paper text-white shadow-sm'
+                  : 'text-slate-500 hover:text-slate-300'}`}
+              >
+                {STATUS_LABELS[status]}
+              </button>
+            ))}
+          </div>
           <p className="text-xs text-slate-500 px-1">Press and hold a card to reorder it. Tap the card menu to move it.</p>
         </div>
       )}
 
       <TaskBoard
         columns={board.columns}
-        visibleStatuses={isDesktop ? STATUSES : [mobileColumn]}
+        visibleStatuses={columns}
         loading={board.loading}
         onMove={(task, status, index) => board.moveTask(task.id, status, index)}
         cardActions={cardActions}
@@ -185,7 +186,7 @@ function TaskBoardPage() {
           onCancel={cancelDelete}
         />
       )}
-    </div>
+    </FeatureShell>
   );
 }
 

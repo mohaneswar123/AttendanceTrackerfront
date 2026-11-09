@@ -13,6 +13,8 @@ const Tasks = lazy(() => import('./pages/Tasks'));
 const Pomodoro = lazy(() => import('./pages/Pomodoro'));
 const Calendar = lazy(() => import('./pages/Calendar'));
 const Timetable = lazy(() => import('./pages/Timetable'));
+const Home = lazy(() => import('./pages/Home'));
+const Habits = lazy(() => import('./pages/Habits'));
 const Login = lazy(() => import('./pages/Login'));
 const Register = lazy(() => import('./pages/Register'));
 const AdminLogin = lazy(() => import('./pages/AdminLogin'));
@@ -59,38 +61,38 @@ function AppContent() {
               </AdminRoute>
             } />
 
-            {/* Attendance is one page; each section keeps its own address */}
-            {['/', '/history', '/reports', '/subjects'].map(path => (
+            {/* Home is the first screen; each feature owns a path and its sections
+                hang off it, so the bottom bar inside a feature can be built from them */}
+            <Route path="/" element={
+              <ProtectedRoute>
+                <Layout><Home /></Layout>
+              </ProtectedRoute>
+            } />
+
+            {[
+              ['/attendance', Attendance], ['/attendance/history', Attendance],
+              ['/attendance/reports', Attendance], ['/attendance/subjects', Attendance],
+              ['/tasks', Tasks], ['/tasks/upcoming', Tasks], ['/tasks/board', Tasks], ['/tasks/done', Tasks],
+              ['/habits', Habits], ['/habits/all', Habits], ['/habits/progress', Habits],
+              ['/calendar', Calendar], ['/calendar/week', Calendar],
+              ['/calendar/day', Calendar], ['/calendar/events', Calendar],
+              ['/timetable', Timetable], ['/timetable/week', Timetable], ['/timetable/schedules', Timetable],
+              ['/focus', Pomodoro], ['/focus/sessions', Pomodoro], ['/focus/settings', Pomodoro]
+            ].map(([path, Page]) => (
               <Route key={path} path={path} element={
                 <ProtectedRoute>
-                  <Layout><Attendance /></Layout>
+                  <Layout><Page /></Layout>
                 </ProtectedRoute>
               } />
             ))}
 
-            <Route path="/tasks" element={
-              <ProtectedRoute>
-                <Layout><Tasks /></Layout>
-              </ProtectedRoute>
-            } />
-
-            <Route path="/calendar" element={
-              <ProtectedRoute>
-                <Layout><Calendar /></Layout>
-              </ProtectedRoute>
-            } />
-
-            <Route path="/timetable" element={
-              <ProtectedRoute>
-                <Layout><Timetable /></Layout>
-              </ProtectedRoute>
-            } />
-
-            <Route path="/pomodoro" element={
-              <ProtectedRoute>
-                <Layout><Pomodoro /></Layout>
-              </ProtectedRoute>
-            } />
+            {/* Where the sections used to live, so old links and bookmarks still work */}
+            {[
+              ['/history', '/attendance/history'], ['/reports', '/attendance/reports'],
+              ['/subjects', '/attendance/subjects'], ['/pomodoro', '/focus']
+            ].map(([from, to]) => (
+              <Route key={from} path={from} element={<Navigate to={to} replace />} />
+            ))}
 
             <Route path="/settings" element={
               <ProtectedRoute>
