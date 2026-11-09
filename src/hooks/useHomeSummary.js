@@ -1,0 +1,73 @@
+import { useCallback, useEffect, useState } from 'react';
+import {
+  habitService, pomodoroService, taskService, timetableService
+} from '../services/api';
+import { todayLocal } from '../utils/date';
+import { todayDay } from '../utils/timetable';
+
+/**
+ * The live lines on the Home screen: enough from each feature to say whether it needs
+ * attention today, and nothing more.
+ *
+ * Each feature is fetched on its own and allowed to fail on its own. A timetable that
+ * will not load should leave its tile saying nothing, not take the whole screen down.
+ */
+export default function useHomeSummary() {
+  const [data, setData] = useState({});
+  const [loading, setLoading] = useState(true);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    const today = todayLocal();
+
+    const settle = async (key, run) => {
+      try {
+        return [key, await run()];
+      } catch {
+        return [key, null];
+      }
+    };
+
+    const results = await Promise.all([
+      settle('tasks', async () => {
+        const tasks = await taskService.getTasks({ from: today, to: today });
+        return {
+          due: tasks.filter(task => task.status !== 'DONE').length,
+          done: tasks.filter(task => task.status === 'DONE').length
+        };
+      }),
+      settle('habits', async () => {
+        const habits = await habitService.getHabits();
+        const due = habits.filter(habit => habit.dueToday);
+        return { due: due.length, done: due.filter(habit => habit.today?.status === 'DONE').length };
+      }),
+      settle('timetable', async () => {
+        const modes = await timetableService.getModes();
+        const active = modes.find(mode => mode.active) || modes[0];
+        if (!active) return { classes: 0, modeName: null };
+        const activities = await timetableService.getActivities(active.id);
+        const day = todayDay();
+        return {
+          classes: activities.filter(activity => activity.dayOfWeek === day).length,
+          modeName: active.name
+        };
+      }),
+      settle('focus', async () => {
+        const [state, totals] = await Promise.all([
+          pomodoroService.getCurrent(),
+          pomodoroService.getToday().catch(() => ({ minutes: 0 }))
+        ]);
+        return { phase: state.phase, remainingSeconds: state.remainingSeconds, minutes: totals.minutes ?? 0 };
+      })
+    ]);
+
+    setData(Object.fromEntries(results));
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  return { ...data, loading, reload: load };
+}

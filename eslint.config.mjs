@@ -27,7 +27,7 @@ export default [
       // Pages hold prose with plain apostrophes and quotes
       'react/no-unescaped-entities': 'off',
       // Files import React by convention; the JSX runtime doesn't need it
-      'no-unused-vars': ['error', { varsIgnorePattern: '^React$' }],
+      'no-unused-vars': ['error', { varsIgnorePattern: '^React$', ignoreRestSiblings: true }],
     },
   },
   {

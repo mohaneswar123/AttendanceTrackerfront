@@ -80,6 +80,14 @@ module.exports = {
         },
         border: v('line'),
         line: v('line'),
+        // One colour per feature, each with the quiet tint that sits behind it
+        attendance: { DEFAULT: v('attendance'), tint: v('attendance-tint') },
+        tasks: { DEFAULT: v('tasks'), tint: v('tasks-tint') },
+        calendar: { DEFAULT: v('calendar'), tint: v('calendar-tint') },
+        timetable: { DEFAULT: v('timetable'), tint: v('timetable-tint') },
+        focus: { DEFAULT: v('focus'), tint: v('focus-tint') },
+        habits: { DEFAULT: v('habits'), tint: v('habits-tint') },
+        streak: v('streak'),
         // Names used by the older pages (About, Contact, legal pages, 404, Inactive, mobile header)
         dark: {
           primary: v('bg-base'),    // same as background
@@ -92,10 +100,10 @@ module.exports = {
       borderRadius: {
         DEFAULT: '0.375rem',
         md: '0.5rem',
-        lg: '0.625rem',
-        xl: '0.75rem',
-        '2xl': '1rem',
-        '3xl': '1.25rem',
+        lg: '0.75rem',
+        xl: '1rem',
+        '2xl': '1.25rem',
+        '3xl': '1.5rem',
       },
       fontFamily: {
         sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],

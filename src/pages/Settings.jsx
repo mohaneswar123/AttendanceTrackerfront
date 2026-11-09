@@ -166,7 +166,7 @@ function Settings() {
         <section className="surface p-4 md:p-5">
           <h2 className="font-semibold text-rose-400">Reset attendance</h2>
           <p className="text-sm text-slate-500 mt-1 mb-4">
-            Deletes your subjects and every attendance record, and cannot be undone. Your tasks, calendar, timetable and focus history are not affected.
+            Deletes your subjects and every attendance record, and cannot be undone. Your tasks, habits, calendar, timetable and focus history are not affected.
           </p>
 
           {isResetting ? (

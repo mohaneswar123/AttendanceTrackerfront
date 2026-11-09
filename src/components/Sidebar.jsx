@@ -2,28 +2,24 @@ import React, { useContext } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AttendanceContext } from '../contexts/AttendanceContext';
 import ThemeToggle from './ThemeToggle';
-import {
-  CalendarIcon, ClipboardCheckIcon, ListIcon, LogOutIcon, SettingsIcon, TableIcon, TimerIcon
-} from './icons';
+import { GridIcon, LogOutIcon, SettingsIcon } from './icons';
+import { FEATURES } from '../features/registry';
 
-// Attendance is one page with four addresses, so all of them mark its item
-const ATTENDANCE_PATHS = ['/', '/history', '/reports', '/subjects'];
 
+
+// Home first, then one entry per app, built from the same registry the phone nav uses
 export const NAV_ITEMS = [
-  { to: '/', label: 'Attendance', Icon: ClipboardCheckIcon },
-  { to: '/tasks', label: 'Tasks', Icon: ListIcon },
-  { to: '/calendar', label: 'Calendar', Icon: CalendarIcon },
-  { to: '/timetable', label: 'Timetable', Icon: TableIcon },
-  { to: '/pomodoro', label: 'Focus', Icon: TimerIcon },
+  { to: '/', label: 'Home', Icon: GridIcon },
+  ...FEATURES.map(feature => ({ to: feature.tabs[0].path, label: feature.name, Icon: feature.Icon })),
   { to: '/settings', label: 'Settings', Icon: SettingsIcon }
 ];
 
 // The phone bar carries the five places you move between. Settings sits beside the page
 // title instead, so the bar stays wide enough to read at 360px.
-export const PHONE_NAV_ITEMS = NAV_ITEMS.filter(item => item.to !== '/settings');
 
+// An app's item stays lit on every one of its sections, Home only on Home itself
 export const isNavActive = (to, pathname) =>
-  (to === '/' ? ATTENDANCE_PATHS.includes(pathname) : pathname === to);
+  (to === '/' ? pathname === '/' : pathname === to || pathname.startsWith(`${to.split('/').slice(0, 2).join('/')}/`));
 
 function Sidebar() {
   const { currentUser, logout } = useContext(AttendanceContext);

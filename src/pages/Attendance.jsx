@@ -1,24 +1,21 @@
 import React, { useContext, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { AttendanceContext } from '../contexts/AttendanceContext';
-import PageHeader, { HeaderButton } from '../components/PageHeader';
-import Tabs from '../components/Tabs';
-import ThemeToggle from '../components/ThemeToggle';
-import { SettingsIcon } from '../components/icons';
+import FeatureShell from '../components/FeatureShell';
 import MarkAttendance from '../components/attendance/MarkAttendance';
 import AttendanceSummary from '../components/attendance/AttendanceSummary';
 import AttendanceHistory from '../components/attendance/AttendanceHistory';
 import AttendanceReports from '../components/attendance/AttendanceReports';
 import SubjectManager from '../components/attendance/SubjectManager';
-import { longWeekday, tally } from '../utils/attendance';
+import { tally } from '../utils/attendance';
 import { todayLocal } from '../utils/date';
 
 // One page, four sections. Each keeps its own address so links and the back button work.
 export const TABS = [
-  { key: 'mark', label: 'Record', path: '/' },
-  { key: 'history', label: 'History', path: '/history' },
-  { key: 'reports', label: 'Reports', path: '/reports' },
-  { key: 'subjects', label: 'Subjects', path: '/subjects' }
+  { key: 'mark', label: 'Record', path: '/attendance' },
+  { key: 'history', label: 'History', path: '/attendance/history' },
+  { key: 'reports', label: 'Reports', path: '/attendance/reports' },
+  { key: 'subjects', label: 'Subjects', path: '/attendance/subjects' }
 ];
 
 function Attendance() {
@@ -37,21 +34,7 @@ function Attendance() {
   );
 
   return (
-    <div className="space-y-4">
-      <PageHeader eyebrow={longWeekday(today)} title="Attendance">
-        <ThemeToggle compact />
-        <HeaderButton label="Settings" onClick={() => navigate('/settings')}>
-          <SettingsIcon />
-        </HeaderButton>
-      </PageHeader>
-
-      <Tabs
-        label="Attendance sections"
-        items={TABS.map(t => ({ value: t.key, label: t.label }))}
-        value={tab.key}
-        onChange={go}
-      />
-
+    <FeatureShell onAdd={() => go('mark')}>
       {/* Record is only for recording. The figures live under Reports. */}
       {tab.key === 'mark' && (
         <div className="md:max-w-xl">
@@ -66,7 +49,7 @@ function Attendance() {
         </div>
       )}
       {tab.key === 'subjects' && <SubjectManager autoFocus />}
-    </div>
+    </FeatureShell>
   );
 }
 

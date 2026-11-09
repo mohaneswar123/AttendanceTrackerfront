@@ -1,7 +1,7 @@
 import React from 'react';
 
 // One icon set: 24px box, 1.5 stroke, no fill. Used instead of emoji in the app's chrome.
-const Icon = ({ path, className = 'w-5 h-5', ...rest }) => (
+const Icon = ({ path, className = 'w-5 h-5', filled, ...rest }) => (
   <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" {...rest}>
     {path}
   </svg>
@@ -9,7 +9,7 @@ const Icon = ({ path, className = 'w-5 h-5', ...rest }) => (
 
 // A solid version, drawn in place of the outline when the page is the one you are on.
 // Only the five navigation icons need it; the rest ignore `filled`.
-const Solid = ({ path, className = 'w-5 h-5', ...rest }) => (
+const Solid = ({ path, className = 'w-5 h-5', filled, ...rest }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...rest}>
     {path}
   </svg>
@@ -77,6 +77,43 @@ export const TimerIcon = ({ filled, ...props }) => (filled ? (
   </>} />
 ));
 
+export const ChartIcon = (props) => <Icon {...props} path={<><path d="M3 21h18" /><path d="M7 21V11M12 21V4M17 21v-6" /></>} />;
+export const ColumnsIcon = (props) => <Icon {...props} path={<><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M9 4v16M15 4v16" /></>} />;
+export const SlidersIcon = (props) => <Icon {...props} path={<><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h10M18 18h2" /><circle cx="16" cy="6" r="2" /><circle cx="10" cy="12" r="2" /><circle cx="16" cy="18" r="2" /></>} />;
+export const LayersIcon = (props) => <Icon {...props} path={<><path d="m12 3 9 5-9 5-9-5 9-5Z" /><path d="m3 13 9 5 9-5" /></>} />;
+export const InboxIcon = (props) => <Icon {...props} path={<><path d="M3 12h5l2 3h4l2-3h5" /><path d="M5 5h14l2 7v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-5l2-7Z" /></>} />;
+export const SunriseIcon = (props) => <Icon {...props} path={<><path d="M12 3v5M5.6 10.6 4.2 9.2M18.4 10.6l1.4-1.4M3 18h18M7 18a5 5 0 0 1 10 0" /></>} />;
+
+export const GridIcon = ({ filled, ...props }) => (filled ? (
+  <Solid {...props} path={<>
+    <rect x="3" y="3" width="8" height="8" rx="2" />
+    <rect x="13" y="3" width="8" height="8" rx="2" />
+    <rect x="3" y="13" width="8" height="8" rx="2" />
+    <rect x="13" y="13" width="8" height="8" rx="2" />
+  </>} />
+) : (
+  <Icon {...props} path={<>
+    <rect x="3" y="3" width="8" height="8" rx="2" />
+    <rect x="13" y="3" width="8" height="8" rx="2" />
+    <rect x="3" y="13" width="8" height="8" rx="2" />
+    <rect x="13" y="13" width="8" height="8" rx="2" />
+  </>} />
+));
+
+export const TargetIcon = ({ filled, ...props }) => (filled ? (
+  <Solid {...props} path={<>
+    <path fillRule="evenodd" clipRule="evenodd" d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Zm0 2a7 7 0 1 1 0 14 7 7 0 0 1 0-14Z" />
+    <path fillRule="evenodd" clipRule="evenodd" d="M12 7.5a4.5 4.5 0 1 0 0 9 4.5 4.5 0 0 0 0-9Zm0 2a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5Z" />
+    <circle cx="12" cy="12" r="1.5" />
+  </>} />
+) : (
+  <Icon {...props} path={<>
+    <circle cx="12" cy="12" r="9" />
+    <circle cx="12" cy="12" r="4.5" />
+    <circle cx="12" cy="12" r="1" />
+  </>} />
+));
+
 export const SettingsIcon = (props) => (
   <Icon {...props} path={<>
     <circle cx="12" cy="12" r="3" />
@@ -85,6 +122,8 @@ export const SettingsIcon = (props) => (
 );
 
 export const PlusIcon = (props) => <Icon {...props} path={<path d="M12 5v14M5 12h14" />} />;
+export const MinusIcon = (props) => <Icon {...props} path={<path d="M5 12h14" />} />;
+export const FlameIcon = (props) => <Icon {...props} path={<path d="M12 2c1 3-1 4-2 6a4 4 0 0 0 .5 5 3 3 0 0 1 1-4c1 2 3 2.5 3 5a4.5 4.5 0 1 1-9 0c0-4 3-5.5 3-9 0-1.5.5-2.5 3.5-3Z" />} />;
 export const SearchIcon = (props) => <Icon {...props} path={<><circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3" /></>} />;
 export const ChevronLeftIcon = (props) => <Icon {...props} path={<path d="m15 18-6-6 6-6" />} />;
 export const ChevronRightIcon = (props) => <Icon {...props} path={<path d="m9 18 6-6-6-6" />} />;
