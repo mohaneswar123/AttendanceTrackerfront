@@ -21,6 +21,9 @@ export function filterRange(filterType, customDate) {
       return { from: addDays(today, 1) };
     case 'custom':
       return { from: customDate, to: customDate };
+    // Everything, whatever its date. This is what finds work left over from a day
+    // that has already passed.
+    case 'all':
     default:
       return {};
   }

@@ -3,14 +3,16 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AttendanceContext } from '../contexts/AttendanceContext';
 import ThemeToggle from './ThemeToggle';
 import { GridIcon, LogOutIcon, SettingsIcon } from './icons';
-import { FEATURES } from '../features/registry';
+import { FEATURES, toneOf } from '../features/registry';
 
 
 
 // Home first, then one entry per app, built from the same registry the phone nav uses
 export const NAV_ITEMS = [
   { to: '/', label: 'Home', Icon: GridIcon },
-  ...FEATURES.map(feature => ({ to: feature.tabs[0].path, label: feature.name, Icon: feature.Icon })),
+  ...FEATURES.map(feature => ({
+    to: feature.tabs[0].path, label: feature.name, Icon: feature.Icon, id: feature.id
+  })),
   { to: '/settings', label: 'Settings', Icon: SettingsIcon }
 ];
 
@@ -43,18 +45,20 @@ function Sidebar() {
       </div>
 
       <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto custom-scrollbar" aria-label="Main">
-        {NAV_ITEMS.map(({ to, label, Icon }) => {
+        {NAV_ITEMS.map(({ to, label, Icon, id }) => {
           const active = isNavActive(to, location.pathname);
+          // An app's own colour marks it here too, so the sidebar and the screen agree
+          const tone = id ? toneOf(id) : null;
           return (
             <Link
               key={to}
               to={to}
               aria-current={active ? 'page' : undefined}
               className={`flex items-center gap-3 h-9 px-3 rounded-lg text-sm transition-colors ${active
-                ? 'bg-primary-500/10 text-white font-medium'
+                ? `${tone ? `${tone.tint} ${tone.text}` : 'bg-primary-500/10 text-white'} font-medium`
                 : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'}`}
             >
-              <Icon className={`w-[18px] h-[18px] ${active ? 'text-primary-400' : ''}`} />
+              <Icon className="w-[18px] h-[18px]" filled={active} />
               {label}
             </Link>
           );

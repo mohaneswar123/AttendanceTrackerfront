@@ -18,8 +18,10 @@ import StatTiles from '../components/StatTiles';
 const VIEW_FOR_PATH = {
   '/tasks': { filter: 'today', columns: null },
   '/tasks/upcoming': { filter: 'upcoming', columns: null },
-  '/tasks/board': { filter: 'today', columns: null },
-  '/tasks/done': { filter: 'today', columns: ['DONE'] }
+  // Board and Done are not limited to today, so nothing left over from an earlier day
+  // becomes invisible once its date has passed
+  '/tasks/board': { filter: 'all', columns: null },
+  '/tasks/done': { filter: 'all', columns: ['DONE'] }
 };
 
 

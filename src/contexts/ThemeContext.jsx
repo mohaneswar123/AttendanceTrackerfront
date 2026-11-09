@@ -20,7 +20,7 @@ const readSaved = () => {
 export const applyTheme = (theme) => {
   document.documentElement.dataset.theme = theme;
   const meta = document.querySelector('meta[name="theme-color"]');
-  if (meta) meta.setAttribute('content', theme === 'light' ? '#F2F4F7' : '#0A0E16');
+  if (meta) meta.setAttribute('content', theme === 'light' ? '#F3F4F7' : '#0A0E16');
 };
 
 export function ThemeProvider({ children }) {

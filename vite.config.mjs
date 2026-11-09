@@ -62,10 +62,10 @@ export default defineConfig({
 
         // Long-press the installed icon to jump straight to one of these
         shortcuts: [
-          { name: 'Record attendance', short_name: 'Record', url: '/', icons: [{ src: '/pwa-192x192.png', sizes: '192x192' }] },
-          { name: 'Tasks', short_name: 'Tasks', url: '/tasks', icons: [{ src: '/pwa-192x192.png', sizes: '192x192' }] },
-          { name: 'Timetable', short_name: 'Timetable', url: '/timetable', icons: [{ src: '/pwa-192x192.png', sizes: '192x192' }] },
-          { name: 'Pomodoro', short_name: 'Pomodoro', url: '/pomodoro', icons: [{ src: '/pwa-192x192.png', sizes: '192x192' }] }
+          { name: 'Record attendance', short_name: 'Record', url: '/attendance', icons: [{ src: '/pwa-192x192.png', sizes: '192x192' }] },
+          { name: 'Tasks for today', short_name: 'Tasks', url: '/tasks', icons: [{ src: '/pwa-192x192.png', sizes: '192x192' }] },
+          { name: 'Habits', short_name: 'Habits', url: '/habits', icons: [{ src: '/pwa-192x192.png', sizes: '192x192' }] },
+          { name: 'Focus timer', short_name: 'Focus', url: '/focus', icons: [{ src: '/pwa-192x192.png', sizes: '192x192' }] }
         ]
       }
     })
