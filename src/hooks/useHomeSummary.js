@@ -24,6 +24,8 @@ export default function useHomeSummary() {
   const load = useCallback(async () => {
     setLoading(true);
     const today = todayLocal();
+    const clock = new Date();
+    const nowTime = `${String(clock.getHours()).padStart(2, '0')}:${String(clock.getMinutes()).padStart(2, '0')}`;
 
     const settle = async (key, run) => {
       try {
@@ -36,7 +38,15 @@ export default function useHomeSummary() {
     const results = await Promise.all([
       settle('calendar', async () => {
         const events = await calendarService.getEvents({ from: today, to: today });
-        return { today: events.length };
+        // The next one still to come, so the tile names something rather than counting
+        const timed = events
+          .filter(event => !event.allDay && event.startTime)
+          .sort((a, b) => String(a.startTime).localeCompare(String(b.startTime)));
+        const next = timed.find(event => String(event.startTime) >= nowTime) || timed[0] || events[0] || null;
+        return {
+          today: events.length,
+          next: next ? { title: next.title, time: next.allDay ? null : next.startTime } : null
+        };
       }),
       // Everything up to and including today, not just today: work left unfinished on an
       // earlier day is still waiting, and the tile would otherwise say the day was clear.
@@ -52,7 +62,13 @@ export default function useHomeSummary() {
       settle('habits', async () => {
         const habits = await habitService.getHabits();
         const due = habits.filter(habit => habit.dueToday);
-        return { due: due.length, done: due.filter(habit => habit.today?.status === 'DONE').length };
+        const left = due.filter(habit => habit.today?.status !== 'DONE');
+        return {
+          due: due.length,
+          done: due.filter(habit => habit.today?.status === 'DONE').length,
+          // Named, so the Home digest can say which ones are still waiting
+          left: left.map(habit => habit.name)
+        };
       }),
       settle('timetable', async () => {
         const modes = await timetableService.getModes();
