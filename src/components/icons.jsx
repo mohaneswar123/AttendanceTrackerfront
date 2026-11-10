@@ -84,6 +84,12 @@ export const LayersIcon = (props) => <Icon {...props} path={<><path d="m12 3 9 5
 export const InboxIcon = (props) => <Icon {...props} path={<><path d="M3 12h5l2 3h4l2-3h5" /><path d="M5 5h14l2 7v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-5l2-7Z" /></>} />;
 export const SunriseIcon = (props) => <Icon {...props} path={<><path d="M12 3v5M5.6 10.6 4.2 9.2M18.4 10.6l1.4-1.4M3 18h18M7 18a5 5 0 0 1 10 0" /></>} />;
 
+export const StarIcon = ({ filled, ...props }) => (filled ? (
+  <Solid {...props} path={<path d="m12 3.5 2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8L3.5 9.7l5.9-.9L12 3.5Z" />} />
+) : (
+  <Icon {...props} path={<path d="m12 3.5 2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8L3.5 9.7l5.9-.9L12 3.5Z" />} />
+));
+
 export const GridIcon = ({ filled, ...props }) => (filled ? (
   <Solid {...props} path={<>
     <rect x="3" y="3" width="8" height="8" rx="2" />

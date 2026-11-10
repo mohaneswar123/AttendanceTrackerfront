@@ -213,15 +213,15 @@ export const attendanceService = {
   }
 };
 
-// Task Services (the signed-in student's Kanban board; the server takes the student from the token)
+// The signed-in student's to-do list; the server takes the student from the token
 export const taskService = {
-  // from/to are "YYYY-MM-DD" and inclusive; leave both out for all tasks
+  // from/to are "YYYY-MM-DD" and inclusive; leave both out for every task
   getTasks: async ({ from, to } = {}) => {
     const response = await apiClient.get('/tasks', { params: { from, to } });
     return response.data;
   },
 
-  // task: { title, taskDate, priority } where priority may be null
+  // task: { title, taskDate, important, note, steps } where steps replace the task's own
   createTask: async (task) => {
     const response = await apiClient.post('/tasks', task);
     return response.data;
@@ -232,9 +232,17 @@ export const taskService = {
     return response.data;
   },
 
-  // Places the task in `status` between the two neighbouring task ids (either may be null)
-  moveTask: async (taskId, status, afterTaskId, beforeTaskId) => {
-    const response = await apiClient.put(`/tasks/${taskId}/move`, { status, afterTaskId, beforeTaskId });
+  // Ticking a task off is one tap, so it is its own call rather than a whole save
+  setDone: async (taskId, done) => {
+    const response = done
+      ? await apiClient.put(`/tasks/${taskId}/done`)
+      : await apiClient.delete(`/tasks/${taskId}/done`);
+    return response.data;
+  },
+
+  // Puts the task in the gap between two task ids; either may be null for an end
+  moveTask: async (taskId, { afterTaskId, beforeTaskId }) => {
+    const response = await apiClient.put(`/tasks/${taskId}/move`, { afterTaskId, beforeTaskId });
     return response.data;
   },
 

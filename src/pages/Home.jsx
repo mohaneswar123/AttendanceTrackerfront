@@ -26,9 +26,12 @@ const statusOf = (id, summary) => {
         : 'Nothing to mark yet';
     case 'tasks': {
       if (!summary.tasks) return '';
-      return summary.tasks.due === 0
-        ? summary.tasks.done > 0 ? 'All done today' : 'Nothing due today'
-        : `${summary.tasks.due} due today`;
+      const { due, overdue, done } = summary.tasks;
+      if (due + overdue === 0) return done > 0 ? 'All done today' : 'Nothing due today';
+      // Overdue is named rather than folded into the total, so the tile cannot imply that
+      // a day is clear when something from last week is still waiting.
+      return [due > 0 ? `${due} due today` : '', overdue > 0 ? `${overdue} overdue` : '']
+        .filter(Boolean).join(' · ');
     }
     case 'habits': {
       if (!summary.habits) return '';
@@ -84,7 +87,7 @@ function HomeHub() {
     {
       id: 'tasks',
       label: 'Tasks due',
-      value: summary.tasks ? summary.tasks.due : '—',
+      value: summary.tasks ? summary.tasks.due + summary.tasks.overdue : '—',
       path: '/tasks'
     },
     {

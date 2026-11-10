@@ -1,29 +1,25 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { AttendanceContext } from '../contexts/AttendanceContext';
-import useTaskBoard, { STATUSES, STATUS_LABELS } from '../hooks/useTaskBoard';
-import useMediaQuery from '../hooks/useMediaQuery';
-import { dateLabel, todayLocal } from '../utils/date';
-import TaskBoard from '../components/tasks/TaskBoard';
-import QuickAddTask from '../components/tasks/QuickAddTask';
-import TaskEditModal from '../components/tasks/TaskEditModal';
+import useTasks from '../hooks/useTasks';
+import { todayLocal } from '../utils/date';
+import {
+  doneGroups, emptyFor, importantGroups, todayGroups, upcomingGroups
+} from '../utils/tasks';
+import FeatureShell from '../components/FeatureShell';
 import ConfirmDialog from '../components/ConfirmDialog';
 import LoginPrompt from '../components/LoginPrompt';
-import { PlusIcon } from '../components/icons';
-import FeatureShell from '../components/FeatureShell';
-import StatTiles from '../components/StatTiles';
+import TaskList from '../components/tasks/TaskList';
+import TaskDetail from '../components/tasks/TaskDetail';
+import AddTask from '../components/tasks/AddTask';
 
-// The address decides what is shown. Today and Upcoming are date filters over the whole
-// board; Board is everything at once; Done is the finished column on its own.
+// Which view each address shows
 const VIEW_FOR_PATH = {
-  '/tasks': { filter: 'today', columns: null },
-  '/tasks/upcoming': { filter: 'upcoming', columns: null },
-  // Board and Done are not limited to today, so nothing left over from an earlier day
-  // becomes invisible once its date has passed
-  '/tasks/board': { filter: 'all', columns: null },
-  '/tasks/done': { filter: 'all', columns: ['DONE'] }
+  '/tasks': 'today',
+  '/tasks/upcoming': 'upcoming',
+  '/tasks/important': 'important',
+  '/tasks/done': 'done'
 };
-
 
 function Tasks() {
   const { currentUser } = useContext(AttendanceContext);
@@ -31,51 +27,67 @@ function Tasks() {
     return (
       <LoginPrompt
         title="Plan your study tasks"
-        message="Log in to add tasks and move them from To Do to Done."
+        message="Log in to keep a list of what you need to do."
       />
     );
   }
-  return <TaskBoardPage />;
+  return <TasksPage />;
 }
 
-function TaskBoardPage() {
+function TasksPage() {
   const { pathname } = useLocation();
-  const view = VIEW_FOR_PATH[pathname] || VIEW_FOR_PATH['/tasks'];
-  const isDesktop = useMediaQuery('(min-width: 768px)');
-  const filterType = view.filter;
-  // The three tabs cover the days that matter; there is no pick-a-date filter any more
-  const customDate = todayLocal();
-  const [adding, setAdding] = useState(false);
-  const [editing, setEditing] = useState(null);
+  const view = VIEW_FOR_PATH[pathname] || 'today';
+  const tasks = useTasks();
+  const [open, setOpen] = useState(null);
   const [deleting, setDeleting] = useState(null);
-  const [mobileColumn, setMobileColumn] = useState('TODO');
   const [notice, setNotice] = useState('');
-
-  const board = useTaskBoard(filterType, customDate, true);
+  const [busy, setBusy] = useState(false);
+  const today = todayLocal();
 
   useEffect(() => {
-    if (!notice) return;
+    if (!notice) return undefined;
     const timer = setTimeout(() => setNotice(''), 5000);
     return () => clearTimeout(timer);
   }, [notice]);
 
-  const closeQuickAdd = useCallback(() => setAdding(false), []);
-  const closeEdit = useCallback(() => setEditing(null), []);
+  const closeDetail = useCallback(() => setOpen(null), []);
   const cancelDelete = useCallback(() => setDeleting(null), []);
 
-  const handleAdd = async (fields) => {
-    const result = await board.createTask(fields);
-    if (result.success && !result.visible) {
-      setNotice(`Added for ${dateLabel(result.task.taskDate)}. It isn't shown under this filter.`);
+  const groups = useMemo(() => ({
+    today: todayGroups(tasks.tasks, today),
+    upcoming: upcomingGroups(tasks.tasks, today),
+    important: importantGroups(tasks.tasks),
+    done: doneGroups(tasks.tasks)
+  }[view]), [tasks.tasks, view, today]);
+
+  const overdue = useMemo(
+    () => tasks.tasks.filter(task => task.status !== 'DONE' && task.taskDate < today).length,
+    [tasks.tasks, today]
+  );
+
+  const withBusy = async (action) => {
+    setBusy(true);
+    const result = await action();
+    setBusy(false);
+    return result;
+  };
+
+  const handleToggle = (task) => withBusy(() => tasks.setDone(task.id, task.status !== 'DONE'));
+  const handleStar = (task) => withBusy(() => tasks.saveTask(task.id, { ...task, important: !task.important }));
+  const handleReorder = (activeId, overId) => withBusy(() => tasks.reorder(activeId, overId));
+
+  const handleSave = async (fields) => {
+    const result = await tasks.saveTask(open.id, { ...open, ...fields });
+    if (result.success && fields.taskDate !== open.taskDate) {
+      setNotice(`Moved to ${fields.taskDate === today ? 'today' : fields.taskDate}.`);
     }
     return result;
   };
 
-  const handleSaveEdit = async (fields) => {
-    const result = await board.updateTask(editing.id, fields);
-    if (result.success) {
-      setEditing(null);
-      if (!result.visible) setNotice(`Moved to ${dateLabel(result.task.taskDate)}. It isn't shown under this filter.`);
+  const handleAdd = async (fields) => {
+    const result = await tasks.createTask(fields);
+    if (result.success && fields.taskDate !== today && view === 'today') {
+      setNotice(`Added for ${fields.taskDate}. It is not shown under Today.`);
     }
     return result;
   };
@@ -83,100 +95,55 @@ function TaskBoardPage() {
   const handleDelete = async () => {
     const task = deleting;
     setDeleting(null);
-    const result = await board.deleteTask(task.id);
-    if (!result.success) setNotice(result.message);
+    setOpen(null);
+    const result = await tasks.deleteTask(task.id);
+    setNotice(result.success ? `"${task.title}" deleted.` : result.message);
   };
-
-  const cardActions = {
-    onMoveTo: (task, status) => board.moveTaskToColumn(task.id, status),
-    onEdit: setEditing,
-    onDelete: setDeleting
-  };
-
-  // Done is the finished column on its own; everything else shows the whole board
-  const columns = view.columns || (isDesktop ? STATUSES : [mobileColumn]);
 
   return (
-    <FeatureShell onAdd={() => setAdding(true)}>
-      <StatTiles label="Totals" items={[
-        { value: board.columns.TODO.length, label: 'To do', tone: 'primary' },
-        { value: board.columns.IN_PROGRESS.length, label: 'In progress', tone: 'warning' },
-        { value: board.columns.DONE.length, label: 'Done', tone: 'success' }
-      ]} />
+    <FeatureShell onAdd={view === 'done' ? undefined : () => document.getElementById('add-task')?.focus()}>
+      {notice && <div className="notice notice-info" role="status">{notice}</div>}
 
-      {/* Adding a task is the first thing on the page, not hidden behind a button */}
-      <div className="flex gap-2">
-        <button
-          type="button"
-          onClick={() => setAdding(true)}
-          className="flex-1 h-12 px-4 rounded-xl surface text-left text-sm text-slate-500 flex items-center gap-3"
-        >
-          <span className="w-5 h-5 rounded-full border-2 border-line" aria-hidden="true" />
-          Add a task for {filterType === 'upcoming' ? 'later' : 'today'}
-        </button>
-        <button
-          type="button"
-          onClick={() => setAdding(true)}
-          aria-label="Add task"
-          className="w-12 h-12 shrink-0 rounded-xl bg-primary-600 hover:bg-primary-700 text-primary-foreground grid place-items-center transition-colors"
-        >
-          <PlusIcon className="w-5 h-5" />
-        </button>
-      </div>
+      {tasks.error && (
+        <div className="notice notice-danger" role="alert">
+          <span className="flex-1">{tasks.error}</span>
+          <button onClick={tasks.clearError} className="text-rose-300 hover:text-white text-xs font-semibold">
+            Dismiss
+          </button>
+        </div>
+      )}
 
-      {adding && (
-        <QuickAddTask
-          defaultDate={todayLocal()}
-          onAdd={handleAdd}
-          onClose={closeQuickAdd}
+      {/* Anything left over from an earlier day is said out loud, on every view */}
+      {overdue > 0 && view !== 'today' && view !== 'done' && (
+        <p className="text-xs text-rose-400 px-1">
+          {overdue} {overdue === 1 ? 'task is' : 'tasks are'} overdue. They are waiting under Today.
+        </p>
+      )}
+
+      {view !== 'done' && <AddTask defaultDate={today} onAdd={handleAdd} />}
+
+      {tasks.loading && tasks.tasks.length === 0
+        ? <p className="text-slate-400">Loading your tasks…</p>
+        : (
+          <TaskList
+            groups={groups}
+            busy={busy}
+            empty={emptyFor(view)}
+            onToggle={handleToggle}
+            onStar={handleStar}
+            onOpen={setOpen}
+            onReorder={handleReorder}
+          />
+        )}
+
+      {open && (
+        <TaskDetail
+          task={open}
+          onSave={handleSave}
+          onDelete={setDeleting}
+          onClose={closeDetail}
         />
       )}
-
-      {notice && (
-        <div className="notice notice-info" role="status">
-          {notice}
-        </div>
-      )}
-
-      {board.error && (
-        <div className="notice notice-danger" role="alert">
-          <span className="flex-1">{board.error}</span>
-          <button onClick={board.clearError} className="text-rose-300 hover:text-white text-xs font-semibold">Dismiss</button>
-        </div>
-      )}
-
-      {/* Phones show one column at a time, except on Done, which is one column already */}
-      {!isDesktop && !view.columns && (
-        <div className="space-y-2">
-          <div className="flex p-1 rounded-xl bg-background-surface border border-line" role="tablist" aria-label="Columns">
-            {STATUSES.map(status => (
-              <button
-                key={status}
-                type="button"
-                role="tab"
-                aria-selected={mobileColumn === status}
-                onClick={() => setMobileColumn(status)}
-                className={`flex-1 h-9 px-2 rounded-lg text-sm font-medium transition-colors ${mobileColumn === status
-                  ? 'bg-background-paper text-white shadow-sm'
-                  : 'text-slate-500 hover:text-slate-300'}`}
-              >
-                {STATUS_LABELS[status]}
-              </button>
-            ))}
-          </div>
-          <p className="text-xs text-slate-500 px-1">Press and hold a card to reorder it. Tap the card menu to move it.</p>
-        </div>
-      )}
-
-      <TaskBoard
-        columns={board.columns}
-        visibleStatuses={columns}
-        loading={board.loading}
-        onMove={(task, status, index) => board.moveTask(task.id, status, index)}
-        cardActions={cardActions}
-      />
-
-      {editing && <TaskEditModal task={editing} onSave={handleSaveEdit} onClose={closeEdit} />}
 
       {deleting && (
         <ConfirmDialog

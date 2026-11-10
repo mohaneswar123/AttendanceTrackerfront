@@ -1,6 +1,7 @@
 import {
   BookIcon, CalendarIcon, ChartIcon, CheckIcon, ClipboardCheckIcon, ClockIcon, ColumnsIcon,
-  InboxIcon, LayersIcon, ListIcon, SlidersIcon, SunriseIcon, TableIcon, TargetIcon, TimerIcon
+  InboxIcon, LayersIcon, ListIcon, SlidersIcon, StarIcon, SunriseIcon, TableIcon, TargetIcon,
+  TimerIcon
 } from '../components/icons';
 
 /**
@@ -65,7 +66,7 @@ export const FEATURES = [
     tabs: [
       { id: 'today', label: 'Today', path: '/tasks', Icon: SunriseIcon },
       { id: 'upcoming', label: 'Upcoming', path: '/tasks/upcoming', Icon: InboxIcon },
-      { id: 'board', label: 'Board', path: '/tasks/board', Icon: ColumnsIcon },
+      { id: 'important', label: 'Important', path: '/tasks/important', Icon: StarIcon },
       { id: 'done', label: 'Done', path: '/tasks/done', Icon: CheckIcon }
     ]
   },
