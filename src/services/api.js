@@ -175,8 +175,16 @@ export const subjectService = {
     return response.data;
   },
 
-  addSubject: async (userId, subjectName) => {
-    const response = await apiClient.post('/subjects/add', null, { params: { userId, name: subjectName } });
+  addSubject: async (userId, subjectName, color) => {
+    const response = await apiClient.post('/subjects/add', null, {
+      params: { userId, name: subjectName, ...(color ? { color } : {}) }
+    });
+    return response.data;
+  },
+
+  // Rename, recolour, or both. A field left out is left alone.
+  updateSubject: async (subjectId, userId, { name, color } = {}) => {
+    const response = await apiClient.put(`/subjects/${subjectId}/user/${userId}`, { name, color });
     return response.data;
   },
 

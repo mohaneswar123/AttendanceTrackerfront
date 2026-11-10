@@ -15,7 +15,12 @@ export const AttendanceContext = createContext();
 // The backend sends `id`; the UI uses `_id`
 const withUnderscoreId = ({ id, ...rest }) => ({ ...rest, _id: rest._id || id });
 
-const toSubject = (subject) => ({ _id: subject._id || subject.id, name: subject.name });
+const toSubject = (subject) => ({
+  _id: subject._id || subject.id,
+  name: subject.name,
+  // null for a subject saved before colours could be chosen; the page works one out
+  color: subject.color ?? null
+});
 
 const toRecord = (record, subject) => ({
   ...withUnderscoreId(record),
@@ -184,10 +189,10 @@ export const AttendanceProvider = ({ children }) => {
   };
 
   // Subject methods
-  const addSubject = async (subjectName) => {
+  const addSubject = async (subjectName, color) => {
     setLoading(true);
     try {
-      const newSubject = await subjectService.addSubject(userId, subjectName);
+      const newSubject = await subjectService.addSubject(userId, subjectName, color);
       setSubjects(prev => [...prev, toSubject(newSubject)]);
       return { success: true };
     } catch (err) {
@@ -195,6 +200,27 @@ export const AttendanceProvider = ({ children }) => {
       return { success: false, message: errorMessage(err, 'Failed to add subject') };
     } finally {
       setLoading(false);
+    }
+  };
+
+  /**
+   * Rename a subject, recolour it, or both.
+   *
+   * Records hold their subject by id and carry a copy for display, so the copies are
+   * refreshed here too: without that, History would keep showing the old name until the
+   * page was reloaded.
+   */
+  const updateSubject = async (subjectId, fields) => {
+    try {
+      const updated = toSubject(await subjectService.updateSubject(subjectId, userId, fields));
+      setSubjects(prev => prev.map(subject => (subject._id === subjectId ? updated : subject)));
+      setAttendanceRecords(prev => prev.map(record => (
+        record.subjectId === subjectId ? { ...record, subject: updated } : record
+      )));
+      return { success: true };
+    } catch (err) {
+      console.error('Error updating subject:', err);
+      return { success: false, message: errorMessage(err, 'Failed to save that subject') };
     }
   };
 
@@ -241,6 +267,23 @@ export const AttendanceProvider = ({ children }) => {
     }
   };
 
+  /**
+   * Correct a record that was marked wrong — the common fix on History, where a student
+   * spots a mis-tap days later. Only the fields passed are changed.
+   */
+  const updateAttendanceRecord = async (id, changes) => {
+    try {
+      const updated = await attendanceService.updateRecord(id, changes);
+      setAttendanceRecords(prev => prev.map(record => (record._id === id
+        ? toRecord(updated, subjects.find(s => s._id === (updated.subjectId || record.subjectId)) || record.subject)
+        : record)));
+      return { success: true };
+    } catch (err) {
+      console.error('Error updating attendance:', err);
+      return { success: false, message: errorMessage(err, 'Failed to change that record') };
+    }
+  };
+
   const deleteAttendanceRecord = async (id) => {
     setLoading(true);
     try {
@@ -284,8 +327,10 @@ export const AttendanceProvider = ({ children }) => {
     changePassword,
     logout,
     addAttendanceRecord,
+    updateAttendanceRecord,
     deleteAttendanceRecord,
     addSubject,
+    updateSubject,
     removeSubject,
     resetAllData
   };
