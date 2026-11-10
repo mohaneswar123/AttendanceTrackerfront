@@ -5,13 +5,35 @@ import { addDays, fromIsoDate, toIsoDate } from './date';
 export const VIEWS = { MONTH: 'MONTH', WEEK: 'WEEK' };
 
 // Weeks start on Sunday everywhere in the calendar
-export const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+// Weeks start on Monday, which is how the habit weeks already run and how the designs read
+export const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
 export const HOUR_HEIGHT = 48; // px per hour in the Week time grid
 // Entries without an end time, or shorter than this, are drawn this long so they stay tappable
 export const MIN_BLOCK_MINUTES = 30;
 
-export const startOfWeek = (iso) => addDays(iso, -fromIsoDate(iso).getDay());
+export const startOfWeek = (iso) => addDays(iso, -((fromIsoDate(iso).getDay() + 6) % 7));
+
+/** Where a date sits in a Monday-first week, 0 for Monday */
+export const weekdayIndex = (iso) => (fromIsoDate(iso).getDay() + 6) % 7;
+
+/**
+ * What an entry is about. The colours are fills and quiet tints, never the only thing
+ * carrying the meaning: every entry also says its category in words.
+ */
+export const CATEGORIES = {
+  CLASS: { label: 'Class', dot: 'bg-primary-500', tint: 'bg-primary-500/15', text: 'text-primary-300' },
+  STUDY: { label: 'Study', dot: 'bg-violet-500', tint: 'bg-violet-500/15', text: 'text-violet-300' },
+  EXAM: { label: 'Exam', dot: 'bg-rose-500', tint: 'bg-rose-500/15', text: 'text-rose-300' },
+  DEADLINE: { label: 'Deadline', dot: 'bg-orange-500', tint: 'bg-orange-500/15', text: 'text-orange-300' },
+  PERSONAL: { label: 'Personal', dot: 'bg-emerald-500', tint: 'bg-emerald-500/15', text: 'text-emerald-300' }
+};
+
+export const CATEGORY_NAMES = Object.keys(CATEGORIES);
+
+/** An entry saved before categories existed still has to be drawn, so it falls back */
+export const categoryOf = (event) => CATEGORIES[event?.category]
+  || { label: event?.type === 'REMINDER' ? 'Reminder' : 'Entry', dot: 'bg-slate-400', tint: 'bg-slate-500/15', text: 'text-slate-300' };
 
 export const isSameMonth = (a, b) => a.slice(0, 7) === b.slice(0, 7);
 
@@ -111,6 +133,25 @@ export const eventDuration = (event) => {
   if (hours) parts.push(`${hours} hour${hours === 1 ? '' : 's'}`);
   if (rest) parts.push(`${rest} minute${rest === 1 ? '' : 's'}`);
   return parts.join(' ') || null;
+};
+
+// "2 hr", "30 min", "1 hr 30 min", or null when it has no end
+export const shortDuration = (event) => {
+  if (event.allDay || !event.endTime) return null;
+  const minutes = toMinutes(event.endTime) - toMinutes(event.startTime);
+  const hours = Math.floor(minutes / 60);
+  const rest = minutes % 60;
+  return [hours ? `${hours} hr` : '', rest ? `${rest} min` : ''].filter(Boolean).join(' ') || null;
+};
+
+/** "Today", "Tomorrow", "In 5 days", "3 days ago" */
+export const relativeDay = (iso, today) => {
+  const diff = Math.round((fromIsoDate(iso) - fromIsoDate(today)) / 86400000);
+  if (diff === 0) return 'Today';
+  if (diff === 1) return 'Tomorrow';
+  if (diff === -1) return 'Yesterday';
+  if (diff > 0) return `In ${diff} days`;
+  return `${Math.abs(diff)} days ago`;
 };
 
 export const toMinutes = (hhmm) => {

@@ -106,6 +106,7 @@ export const GridIcon = ({ filled, ...props }) => (filled ? (
   </>} />
 ));
 
+export const UserIcon = (props) => <Icon {...props} path={<><circle cx="12" cy="8" r="4" /><path d="M4 21a8 8 0 0 1 16 0" /></>} />;
 export const TargetIcon = ({ filled, ...props }) => (filled ? (
   <Solid {...props} path={<>
     <path fillRule="evenodd" clipRule="evenodd" d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Zm0 2a7 7 0 1 1 0 14 7 7 0 0 1 0-14Z" />
