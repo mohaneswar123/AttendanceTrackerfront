@@ -38,9 +38,31 @@ export const dayLabel = (iso, today = todayLocal()) => {
 export const todayGroups = (tasks, today = todayLocal()) => {
   const open = tasks.filter(task => !isDone(task));
   return [
-    { id: 'overdue', title: 'Overdue', tone: 'overdue', tasks: open.filter(task => task.taskDate < today) },
-    { id: 'today', title: 'Today', tone: 'plain', tasks: open.filter(task => task.taskDate === today) }
+    {
+      id: 'overdue',
+      title: 'Overdue',
+      tone: 'overdue',
+      // The only group with an action on it: everything here can be dragged into today at once
+      action: 'moveToToday',
+      tasks: open.filter(task => task.taskDate < today)
+    },
+    { id: 'today', title: 'Today', tone: 'plain', tasks: open.filter(task => task.taskDate === today) },
+    // Today's finished work stays in sight rather than vanishing to another screen: it is
+    // what makes "1 of 6 done" believable
+    {
+      id: 'done',
+      title: 'Done',
+      tone: 'plain',
+      tasks: tasks.filter(task => isDone(task) && task.taskDate === today)
+    }
   ].filter(group => group.tasks.length > 0);
+};
+
+/** How much of today is behind you: finished over everything that was due */
+export const todayProgress = (tasks, today = todayLocal()) => {
+  const mine = tasks.filter(task => task.taskDate <= today && (isDone(task) ? task.taskDate === today : true));
+  const done = mine.filter(isDone).length;
+  return { done, total: mine.length };
 };
 
 /** Starred and not yet done, oldest day first */
@@ -55,16 +77,28 @@ export const importantGroups = (tasks) => {
   }];
 };
 
-/** Finished tasks, most recently finished first */
-export const doneGroups = (tasks) => {
+/**
+ * Finished tasks, newest day first.
+ *
+ * Grouped by the day they were for rather than one long list, so "Clear all" can mean a
+ * day's worth rather than everything ever finished.
+ */
+export const doneGroups = (tasks, today = todayLocal()) => {
   const done = tasks.filter(isDone);
-  if (done.length === 0) return [];
-  return [{
-    id: 'done',
-    title: 'Completed',
-    tone: 'plain',
-    tasks: [...done].sort((a, b) => String(b.completedAt || '').localeCompare(String(a.completedAt || '')))
-  }];
+  const byDay = new Map();
+  done.forEach(task => {
+    if (!byDay.has(task.taskDate)) byDay.set(task.taskDate, []);
+    byDay.get(task.taskDate).push(task);
+  });
+  return [...byDay.entries()]
+    .sort(([a], [b]) => b.localeCompare(a))
+    .map(([date, group]) => ({
+      id: date,
+      title: dayLabel(date, today),
+      tone: 'plain',
+      action: 'clearAll',
+      tasks: [...group].sort((a, b) => String(b.completedAt || '').localeCompare(String(a.completedAt || '')))
+    }));
 };
 
 /** What a section says when there is nothing in it */

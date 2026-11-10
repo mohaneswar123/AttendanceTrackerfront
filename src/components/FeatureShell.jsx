@@ -25,7 +25,7 @@ export const lastTabs = readLastTabs;
  * Sections are the bottom bar on a phone and a row of tabs on a wider screen, because a
  * bar pinned to the bottom of a desktop window is a long way from where you are reading.
  */
-function FeatureShell({ onAdd, actions, children }) {
+function FeatureShell({ onAdd, actions, subtitle, children }) {
   const { pathname } = useLocation();
   const { feature, tab } = featureForPath(pathname);
   const [switching, setSwitching] = useState(false);
@@ -51,6 +51,7 @@ function FeatureShell({ onAdd, actions, children }) {
         <FeatureHeader
           feature={feature}
           tabLabel={tab?.label || feature.name}
+          subtitle={subtitle}
           onSwitch={() => setSwitching(true)}
           onAdd={onAdd}
         >

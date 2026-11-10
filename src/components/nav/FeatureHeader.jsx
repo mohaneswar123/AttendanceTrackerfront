@@ -11,7 +11,7 @@ import { todayLocal } from '../../utils/date';
  * The feature name is a button rather than a label, because it is also how you leave for
  * another feature, and a chevron is the usual way to say so.
  */
-function FeatureHeader({ feature, tabLabel, onSwitch, onAdd, children }) {
+function FeatureHeader({ feature, tabLabel, subtitle, onSwitch, onAdd, children }) {
   const tone = toneOf(feature.id);
 
   return (
@@ -45,9 +45,11 @@ function FeatureHeader({ feature, tabLabel, onSwitch, onAdd, children }) {
         </div>
       </div>
 
+      {/* The name of the section first, then what today makes of it: the title is what
+          someone is looking for, and the date only means something once they have found it */}
       <div className="min-w-0">
-        <p className="text-sm text-slate-500">{longWeekday(todayLocal())}</p>
-        <h1 className="text-[28px] leading-8 font-bold tracking-tight text-white">{tabLabel}</h1>
+        <h1 className="text-[34px] leading-[1.1] font-bold tracking-tight text-white">{tabLabel}</h1>
+        <p className="text-sm text-slate-500 mt-1">{subtitle ?? longWeekday(todayLocal())}</p>
       </div>
     </div>
   );

@@ -11,7 +11,7 @@ import TaskRow from './TaskRow';
  * Overdue is a heading like any other rather than a separate screen, so unfinished work
  * from an earlier day sits directly above today's and is impossible to miss.
  */
-function TaskList({ groups, onToggle, onStar, onOpen, onReorder, busy, empty }) {
+function TaskList({ groups, onToggle, onStar, onOpen, onReorder, onGroupAction, busy, empty }) {
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
     useSensor(TouchSensor, { activationConstraint: { delay: 180, tolerance: 6 } })
@@ -40,11 +40,22 @@ function TaskList({ groups, onToggle, onStar, onOpen, onReorder, busy, empty }) 
       <div className="space-y-5">
         {groups.map(group => (
           <section key={group.id} aria-label={group.title}>
-            <div className="flex items-baseline gap-2 px-1 mb-2">
-              <h2 className={`text-sm font-semibold ${group.tone === 'overdue' ? 'text-rose-400' : 'text-white'}`}>
+            <div className="flex items-center gap-2 px-1 mb-2">
+              <h2 className={`text-xl font-bold ${group.tone === 'overdue' ? 'text-rose-400' : 'text-white'}`}>
                 {group.title}
               </h2>
-              <span className="text-xs text-slate-500">{group.tasks.length}</span>
+              <span className="text-sm text-slate-500 flex-1">{group.tasks.length}</span>
+              {/* The group's own way out: move a pile of overdue work, or clear a finished day */}
+              {group.action && onGroupAction && (
+                <button
+                  type="button"
+                  onClick={() => onGroupAction(group)}
+                  disabled={busy}
+                  className="h-9 px-3.5 shrink-0 rounded-full bg-background-paper text-sm font-bold text-slate-200 hover:text-white disabled:opacity-50"
+                >
+                  {group.action === 'moveToToday' ? 'Move to today' : 'Clear all'}
+                </button>
+              )}
             </div>
             <SortableContext items={group.tasks.map(task => task.id)} strategy={verticalListSortingStrategy}>
               <ul className="space-y-2">

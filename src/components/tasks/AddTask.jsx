@@ -7,7 +7,7 @@ import { PlusIcon } from '../icons';
  * It stays on the screen and keeps focus after each one, because tasks arrive in threes,
  * and the date it uses is the day being looked at, so adding from Today means today.
  */
-function AddTask({ defaultDate, onAdd }) {
+function AddTask({ defaultDate, onAdd, label = 'Add a task', important = false }) {
   const [title, setTitle] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -18,7 +18,7 @@ function AddTask({ defaultDate, onAdd }) {
     if (!text) return;
     setSaving(true);
     setError('');
-    const result = await onAdd({ title: text, taskDate: defaultDate, important: false, note: null, steps: [] });
+    const result = await onAdd({ title: text, taskDate: defaultDate, important, note: null, steps: [] });
     setSaving(false);
     if (result?.success) setTitle('');
     else setError(result?.message || 'Could not add that task');
@@ -26,14 +26,14 @@ function AddTask({ defaultDate, onAdd }) {
 
   return (
     <form onSubmit={submit}>
-      <div className="surface flex items-center gap-3 p-3">
+      <div className="surface flex items-center gap-3 p-3 h-[60px]">
         <PlusIcon className="w-5 h-5 shrink-0 text-tasks" aria-hidden="true" />
         <input
           id="add-task"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder="Add a task"
-          aria-label="Add a task"
+          placeholder={label}
+          aria-label={label}
           maxLength={200}
           className="flex-1 min-w-0 bg-transparent border-0 p-0 text-base md:text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none"
         />
