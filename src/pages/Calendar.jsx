@@ -164,22 +164,32 @@ function CalendarPage() {
     <FeatureShell
       onAdd={() => openCreateOn(view === VIEWS.DAY ? currentDate : selectedDate)}
       actions={(
-        <button
-          type="button"
-          onClick={toggleSearch}
-          aria-label="Search"
-          aria-expanded={searchOpen}
-          className="w-11 h-11 md:w-10 md:h-10 rounded-full grid place-items-center bg-background-paper border border-line text-slate-400 hover:text-slate-200 transition-colors"
-        >
-          <SearchIcon className="w-[18px] h-[18px]" />
-        </button>
+        <>
+          {!eventsOnly && (
+            <button
+              type="button"
+              onClick={() => goTo(today)}
+              className="h-11 md:h-10 px-3 rounded-full bg-background-paper border border-line text-sm font-semibold text-calendar"
+            >
+              Today
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={toggleSearch}
+            aria-label="Search"
+            aria-expanded={searchOpen}
+            className="w-11 h-11 md:w-10 md:h-10 rounded-full grid place-items-center bg-background-paper border border-line text-slate-400 hover:text-slate-200 transition-colors"
+          >
+            <SearchIcon className="w-[18px] h-[18px]" />
+          </button>
+        </>
       )}
     >
       {!eventsOnly && (
         <CalendarToolbar
           period={viewTitle(view, currentDate)}
           periodName={PERIOD_NAMES[view]}
-          onToday={() => goTo(today)}
           onPrevious={() => goTo(stepDate(view, currentDate, -1))}
           onNext={() => goTo(stepDate(view, currentDate, 1))}
           searchOpen={searchOpen}

@@ -7,7 +7,7 @@ const stepButton = 'w-9 h-9 rounded-lg border border-line bg-background-paper te
 // Month / Week / Day themselves are sections now, so they live in the feature's nav.
 // The search field appears underneath once the header's search button is pressed.
 function CalendarToolbar({
-  period, periodName, onToday, onPrevious, onNext,
+  period, periodName, onPrevious, onNext,
   searchOpen, searchQuery, onSearchChange
 }) {
   const searchRef = useRef(null);
@@ -23,12 +23,11 @@ function CalendarToolbar({
         <button type="button" onClick={onPrevious} aria-label={`Previous ${periodName}`} className={stepButton}>
           <ChevronLeftIcon className="w-[18px] h-[18px]" />
         </button>
-        <span data-testid="calendar-period" className="text-sm font-semibold text-white truncate">{period}</span>
+        <span data-testid="calendar-period" className="flex-1 min-w-0 text-center text-sm font-semibold text-white truncate">
+          {period}
+        </span>
         <button type="button" onClick={onNext} aria-label={`Next ${periodName}`} className={stepButton}>
           <ChevronRightIcon className="w-[18px] h-[18px]" />
-        </button>
-        <button type="button" onClick={onToday} className="h-9 px-3 rounded-lg surface text-sm font-semibold text-calendar shrink-0">
-          Today
         </button>
       </div>
 

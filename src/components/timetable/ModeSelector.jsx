@@ -71,7 +71,7 @@ function ModeSelector({ modes, selectedModeId, onSelect, onSetActive, onEdit, on
         </button>
 
         {open && (
-          <div className="absolute right-0 top-full mt-1 z-30 w-64 max-w-[calc(100vw-2rem)] overlay py-1">
+          <div className="absolute left-0 top-full mt-1 z-30 w-64 max-w-[calc(100vw-2rem)] overlay py-1">
             <div role="listbox" aria-label="Switch mode" className="max-h-72 overflow-y-auto">
               {modes.map(mode => (
                 <button

@@ -29,7 +29,7 @@ function FeatureHeader({ feature, tabLabel, onSwitch, onAdd, children }) {
           <ChevronDownIcon className="w-4 h-4 opacity-70" />
         </button>
 
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-2 shrink-0 min-w-0">
           {children}
           {onAdd && (
             <button

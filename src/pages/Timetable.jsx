@@ -118,9 +118,8 @@ function TimetablePage() {
   const { modes, selectedMode, loading } = timetable;
 
   return (
-    <FeatureShell
-      onAdd={modes.length > 0 ? openNewActivity : undefined}
-      actions={modes.length > 0 ? (
+    <FeatureShell onAdd={modes.length > 0 ? openNewActivity : undefined}>
+      {modes.length > 0 && (
         <ModeSelector
           modes={modes}
           selectedModeId={timetable.selectedModeId}
@@ -131,8 +130,7 @@ function TimetablePage() {
           onDelete={setDeletingMode}
           onCreate={() => setModeForm({})}
         />
-      ) : null}
-    >
+      )}
 
       {notice && (
         <div className="notice notice-info" role="status">
