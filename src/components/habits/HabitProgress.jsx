@@ -33,6 +33,8 @@ function HabitProgress({ habits, entries, selectedId, onSelect, onToggleDay }) {
 
   return (
     <div className="space-y-3">
+      <h3 className="font-bold text-white px-1">Habit calendar</h3>
+
       {habits.length > 1 && (
         <div className="flex gap-2 overflow-x-auto custom-scrollbar pb-1 -mx-1 px-1" role="tablist" aria-label="Choose a habit">
           {habits.map(item => (
@@ -66,7 +68,7 @@ function HabitProgress({ habits, entries, selectedId, onSelect, onToggleDay }) {
         </div>
         <div className="surface px-3 py-2.5">
           <p className="text-xl font-bold tabular-nums text-teal-300">{rateLabel(habit.last30Rate)}</p>
-          <p className="text-xs text-slate-500 mt-0.5">Done, 30 days</p>
+          <p className="text-xs text-slate-500 mt-0.5">Kept, 30 days</p>
         </div>
       </div>
 
@@ -118,7 +120,7 @@ function HabitProgress({ habits, entries, selectedId, onSelect, onToggleDay }) {
         </div>
 
         <p className="text-xs text-slate-500 mt-3">
-          Best run so far: {streakUnit(habit, habit.bestStreak)}. Tap any day to mark it.
+          Best run so far: {streakUnit(habit, habit.bestStreak)}. Tap a past day to change it.
         </p>
       </section>
     </div>

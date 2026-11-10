@@ -72,12 +72,11 @@ function AppContent() {
             {[
               ['/attendance', Attendance], ['/attendance/history', Attendance],
               ['/attendance/reports', Attendance], ['/attendance/subjects', Attendance],
-              ['/tasks', Tasks], ['/tasks/upcoming', Tasks], ['/tasks/board', Tasks], ['/tasks/done', Tasks],
+              ['/tasks', Tasks], ['/tasks/important', Tasks], ['/tasks/done', Tasks],
               ['/habits', Habits], ['/habits/all', Habits], ['/habits/progress', Habits],
-              ['/calendar', Calendar], ['/calendar/week', Calendar],
-              ['/calendar/day', Calendar], ['/calendar/events', Calendar],
-              ['/timetable', Timetable], ['/timetable/week', Timetable], ['/timetable/schedules', Timetable],
-              ['/focus', Pomodoro], ['/focus/sessions', Pomodoro], ['/focus/settings', Pomodoro]
+              ['/calendar', Calendar], ['/calendar/week', Calendar], ['/calendar/events', Calendar],
+              ['/timetable', Timetable], ['/timetable/schedules', Timetable],
+              ['/focus', Pomodoro], ['/focus/settings', Pomodoro]
             ].map(([path, Page]) => (
               <Route key={path} path={path} element={
                 <ProtectedRoute>
@@ -89,7 +88,12 @@ function AppContent() {
             {/* Where the sections used to live, so old links and bookmarks still work */}
             {[
               ['/history', '/attendance/history'], ['/reports', '/attendance/reports'],
-              ['/subjects', '/attendance/subjects'], ['/pomodoro', '/focus']
+              ['/subjects', '/attendance/subjects'], ['/pomodoro', '/focus'],
+              // The board is gone; its tasks are all in the list
+              ['/tasks/board', '/tasks'], ['/tasks/upcoming', '/tasks'],
+              // Sections that were taken out, pointing at the one that replaced them
+              ['/calendar/day', '/calendar'], ['/timetable/week', '/timetable'],
+              ['/focus/sessions', '/focus']
             ].map(([from, to]) => (
               <Route key={from} path={from} element={<Navigate to={to} replace />} />
             ))}

@@ -1,6 +1,6 @@
 # Attendance In Hand (frontend)
 
-Students record attendance per subject (Present, Absent or No Class, plus the class length in hours) and see their history and attendance percentage. They can also plan tasks on a simple Kanban board, keep a calendar, build weekly routines and focus with a Pomodoro timer. Built with React 18, Vite, Tailwind CSS 3, React Router and dnd-kit, and installable as a PWA.
+Students record attendance per subject (Present, Absent or No Class, plus the class length in hours) and see their history and attendance percentage. They can also keep a to-do list, build habits, keep a calendar, build weekly routines and focus with a Pomodoro timer. Built with React 18, Vite, Tailwind CSS 3, React Router and dnd-kit, and installable as a PWA.
 
 Live at https://momentum-six-ivory.vercel.app. The backend lives in the separate `AttendanceTrackerBackend-mongo` repository.
 

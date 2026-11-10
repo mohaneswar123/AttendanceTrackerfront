@@ -1,13 +1,13 @@
-import React, { useContext } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useContext, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { AttendanceContext } from '../contexts/AttendanceContext';
 import useHomeSummary from '../hooks/useHomeSummary';
 import { FEATURES, toneOf } from '../features/registry';
 import { lastTabs } from '../components/FeatureShell';
 import ThemeToggle from '../components/ThemeToggle';
 import LoginPrompt from '../components/LoginPrompt';
-import { SettingsIcon } from '../components/icons';
-import { longWeekday } from '../utils/attendance';
+import { ChevronRightIcon, SettingsIcon } from '../components/icons';
+import { longWeekday, tally } from '../utils/attendance';
 import { todayLocal } from '../utils/date';
 
 const greeting = () => {
@@ -17,40 +17,133 @@ const greeting = () => {
   return 'Good evening';
 };
 
-/** The line under each tile: what that feature wants from the student today */
-const statusOf = (id, summary) => {
+/** The part of the day the card is about, so "left today" has an edge to it */
+const partOfDay = () => {
+  const hour = new Date().getHours();
+  if (hour < 12) return 'This morning';
+  if (hour < 17) return 'This afternoon';
+  return 'Tonight';
+};
+
+/** Up to three names, then "and N more", so a subtitle never runs away */
+const nameList = (names, limit = 2) => {
+  if (names.length <= limit) return names.join(', ');
+  return `${names.slice(0, limit).join(', ')} and ${names.length - limit} more`;
+};
+
+/**
+ * What each feature puts on its tile: one figure, its unit, and a line under it.
+ *
+ * Each entry reads its own feature and nothing else. The attendance tile in particular
+ * counts what has been marked, not what the timetable says should be marked — a student
+ * with no timetable set up would otherwise see a tile about a feature they never opened.
+ */
+const tileOf = (id, summary) => {
   switch (id) {
-    case 'attendance':
-      return summary.timetable?.classes
-        ? `${summary.timetable.classes} ${summary.timetable.classes === 1 ? 'class' : 'classes'} to mark`
-        : 'Nothing to mark yet';
+    case 'attendance': {
+      const { percentage, markedToday } = summary.attendance;
+      if (percentage === null) return { value: '—', unit: '', caption: 'Nothing recorded yet' };
+      return {
+        value: percentage,
+        unit: '%',
+        caption: markedToday > 0
+          ? `${markedToday} marked today`
+          : 'Nothing marked today'
+      };
+    }
     case 'tasks': {
-      if (!summary.tasks) return '';
-      return summary.tasks.due === 0
-        ? summary.tasks.done > 0 ? 'All done today' : 'Nothing due today'
-        : `${summary.tasks.due} due today`;
+      if (!summary.tasks) return { value: '—', unit: '', caption: '' };
+      const { due, overdue, done } = summary.tasks;
+      if (due + overdue === 0) {
+        return { value: done, unit: 'done', caption: done > 0 ? 'All done today' : 'Nothing due today' };
+      }
+      return {
+        value: due,
+        unit: 'due',
+        caption: overdue > 0 ? `${overdue} overdue` : 'due today'
+      };
     }
     case 'habits': {
-      if (!summary.habits) return '';
-      return summary.habits.due === 0
-        ? 'Nothing due today'
-        : `${summary.habits.done} of ${summary.habits.due} done today`;
+      if (!summary.habits) return { value: '—', unit: '', caption: '' };
+      const { due, done } = summary.habits;
+      if (due === 0) return { value: '0', unit: '', caption: 'Nothing due today' };
+      return { value: done, unit: `/${due}`, caption: 'done today' };
     }
-    case 'calendar':
-      return 'Exams, deadlines and dates';
-    case 'timetable':
-      return summary.timetable?.modeName
-        ? `${summary.timetable.modeName} · ${summary.timetable.classes} today`
-        : 'No routine set up yet';
+    case 'calendar': {
+      if (!summary.calendar) return { value: '—', unit: '', caption: '' };
+      const { today: count, next } = summary.calendar;
+      if (count === 0) return { value: 0, unit: 'today', caption: 'Nothing on today' };
+      return {
+        value: count,
+        unit: 'today',
+        caption: next ? [next.title, next.time].filter(Boolean).join(', ') : 'Entries today'
+      };
+    }
+    case 'timetable': {
+      if (!summary.timetable) return { value: '—', unit: '', caption: '' };
+      const { classes, modeName } = summary.timetable;
+      return {
+        value: classes,
+        unit: classes === 1 ? 'class' : 'classes',
+        caption: modeName || 'No routine set up yet'
+      };
+    }
     case 'focus': {
-      if (!summary.focus) return '';
-      if (summary.focus.phase === 'FOCUS') return 'Focusing now';
-      if (summary.focus.phase === 'BREAK') return 'On a break';
-      return summary.focus.minutes > 0 ? `${summary.focus.minutes} min today` : 'Ready when you are';
+      if (!summary.focus) return { value: '—', unit: '', caption: '' };
+      if (summary.focus.phase === 'FOCUS') return { value: 'Now', unit: '', caption: 'Focusing' };
+      if (summary.focus.phase === 'BREAK') return { value: 'Now', unit: '', caption: 'On a break' };
+      return {
+        value: summary.focus.minutes,
+        unit: 'min',
+        caption: summary.focus.minutes > 0 ? 'focused today' : 'Start a session'
+      };
     }
     default:
-      return '';
+      return { value: '—', unit: '', caption: '' };
   }
+};
+
+/**
+ * What is actually left to do, across the apps, in the order it is worth doing.
+ *
+ * Only features with something outstanding appear, so the card is a short list of real
+ * work rather than a status board that always says six things.
+ */
+const thingsLeft = (summary, subjectsLeft) => {
+  const rows = [];
+
+  if (subjectsLeft.length > 0) {
+    rows.push({
+      id: 'attendance',
+      title: `Mark ${subjectsLeft.length} ${subjectsLeft.length === 1 ? 'class' : 'classes'}`,
+      detail: `Attendance · ${nameList(subjectsLeft)}`,
+      path: '/attendance'
+    });
+  }
+
+  const tasks = summary.tasks;
+  if (tasks && tasks.due + tasks.overdue > 0) {
+    const total = tasks.due + tasks.overdue;
+    rows.push({
+      id: 'tasks',
+      title: `Finish ${total} ${total === 1 ? 'task' : 'tasks'}`,
+      detail: `Tasks · ${tasks.overdue > 0 ? `${tasks.overdue} ${tasks.overdue === 1 ? 'is' : 'are'} overdue` : 'due today'}`,
+      path: '/tasks'
+    });
+  }
+
+  const habits = summary.habits;
+  if (habits && habits.due - habits.done > 0) {
+    const left = habits.due - habits.done;
+    rows.push({
+      id: 'habits',
+      title: `Do ${left} more ${left === 1 ? 'habit' : 'habits'}`,
+      detail: `Habits · ${nameList(habits.left || [])}`,
+      path: '/habits'
+    });
+  }
+
+  return rows;
 };
 
 function Home() {
@@ -67,47 +160,40 @@ function Home() {
 }
 
 function HomeHub() {
-  const navigate = useNavigate();
-  const { currentUser } = useContext(AttendanceContext);
+  const { currentUser, subjects, attendanceRecords } = useContext(AttendanceContext);
   const summary = useHomeSummary();
   const remembered = lastTabs();
 
   const name = (currentUser?.username || '').split(' ')[0];
+  const today = todayLocal();
 
-  const glance = [
-    {
-      id: 'attendance',
-      label: 'Classes today',
-      value: summary.timetable ? summary.timetable.classes : '—',
-      path: '/timetable'
-    },
-    {
-      id: 'tasks',
-      label: 'Tasks due',
-      value: summary.tasks ? summary.tasks.due : '—',
-      path: '/tasks'
-    },
-    {
-      id: 'habits',
-      label: 'Habits done',
-      value: summary.habits ? `${summary.habits.done}/${summary.habits.due}` : '—',
-      path: '/habits'
-    },
-    {
-      id: 'focus',
-      label: 'Focus minutes',
-      value: summary.focus ? summary.focus.minutes : '—',
-      path: '/focus'
-    }
-  ];
+  // Attendance's own numbers, from the records the context already loaded
+  const records = useMemo(() => attendanceRecords || [], [attendanceRecords]);
+  const markedToday = useMemo(
+    () => records.filter(record => String(record.date).slice(0, 10) === today),
+    [records, today]
+  );
+  const attendance = {
+    percentage: tally(records).percentage,
+    markedToday: markedToday.length
+  };
+
+  // The subjects with nothing against them today, named
+  const subjectsLeft = useMemo(() => {
+    const done = new Set(markedToday.map(record => record.subjectId));
+    return (subjects || []).filter(subject => !done.has(subject._id)).map(subject => subject.name);
+  }, [subjects, markedToday]);
+
+  const full = { ...summary, attendance };
+  const rows = summary.loading ? [] : thingsLeft(full, subjectsLeft);
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <header className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-sm text-slate-500">{longWeekday(todayLocal())}</p>
-          <h1 className="text-[28px] leading-8 font-bold tracking-tight text-white">
-            {greeting()}{name ? `, ${name}` : ''}
+          <p className="text-sm text-slate-500">{longWeekday(today)}</p>
+          <h1 className="text-[40px] leading-[1.05] font-bold tracking-tight text-white mt-1">
+            {greeting()}{name ? <>,<br />{name}</> : ''}
           </h1>
         </div>
         <div className="flex items-center gap-1 shrink-0">
@@ -116,72 +202,93 @@ function HomeHub() {
             to="/settings"
             aria-label="Settings"
             title="Settings"
-            className="w-11 h-11 md:w-10 md:h-10 rounded-full grid place-items-center text-slate-400 hover:text-white hover:bg-white/5 transition-colors"
+            className="w-11 h-11 rounded-full grid place-items-center bg-background-paper text-slate-400 hover:text-white transition-colors"
           >
             <SettingsIcon />
           </Link>
         </div>
       </header>
 
-      <section className="surface p-4" aria-label="Today at a glance">
-        <h2 className="section-title mb-3">Today at a glance</h2>
-        <div className="grid grid-cols-4 gap-2">
-          {glance.map(stat => {
-            const tone = toneOf(stat.id);
-            return (
-              <button
-                key={stat.id}
-                type="button"
-                onClick={() => navigate(stat.path)}
-                className="rounded-xl bg-background-surface px-2 py-2.5 text-center hover:bg-white/5 transition-colors"
-              >
-                <p className={`text-xl font-bold tabular-nums ${tone.text}`}>{stat.value}</p>
-                <p className="text-[11px] text-slate-500 mt-0.5 leading-tight">{stat.label}</p>
-              </button>
-            );
-          })}
+      {/* The one card that says what is actually left, rather than what exists */}
+      <section className="rounded-2xl bg-nav p-4 space-y-2.5" aria-label="Left to do today">
+        <div className="flex items-baseline justify-between gap-3">
+          <h2 className="text-xl font-bold text-nav-ink">
+            {summary.loading
+              ? 'Today'
+              : rows.length === 0
+                ? 'Nothing left today'
+                : `${rows.length} ${rows.length === 1 ? 'thing' : 'things'} left today`}
+          </h2>
+          <span className="text-sm text-nav-ink/60 shrink-0">{partOfDay()}</span>
         </div>
+
+        {summary.loading ? (
+          <p className="text-sm text-nav-ink/60">Looking at your day…</p>
+        ) : rows.length === 0 ? (
+          <p className="text-sm text-nav-ink/60">
+            Everything due today is done. Anything you add will show up here.
+          </p>
+        ) : (
+          rows.map(row => {
+            const tone = toneOf(row.id);
+            return (
+              <Link
+                key={row.id}
+                to={row.path}
+                className="flex items-center gap-3 rounded-xl bg-nav-ink/10 p-3 hover:bg-nav-ink/15 transition-colors"
+              >
+                <span className={`w-9 h-9 shrink-0 rounded-full border-2 border-nav-ink/30 grid place-items-center ${tone.text}`} aria-hidden="true">
+                  <span className="w-2 h-2 rounded-full bg-current" />
+                </span>
+                <span className="flex-1 min-w-0">
+                  <span className="block font-bold text-nav-ink">{row.title}</span>
+                  <span className="block text-xs text-nav-ink/60">{row.detail}</span>
+                </span>
+                <ChevronRightIcon className="w-4 h-4 shrink-0 text-nav-ink/40" aria-hidden="true" />
+              </Link>
+            );
+          })
+        )}
       </section>
 
       <section aria-label="Your apps" className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h2 className="section-title">Your apps</h2>
-          <span className="text-xs text-slate-500">{FEATURES.length} apps</span>
-        </div>
+        <h2 className="text-xl font-bold text-white">Your apps</h2>
 
         <div className="grid grid-cols-2 gap-3">
           {FEATURES.map(feature => {
             const tone = toneOf(feature.id);
             const to = remembered[feature.id] || feature.tabs[0].path;
+            const tile = summary.loading
+              ? { value: '—', unit: '', caption: 'Loading…' }
+              : tileOf(feature.id, full);
             return (
               <Link
                 key={feature.id}
                 to={to}
-                className="surface p-4 flex flex-col gap-3 hover:bg-white/5 transition-colors"
+                className={`rounded-2xl p-4 flex flex-col gap-3 transition-opacity hover:opacity-90 ${tone.tint}`}
               >
                 <div className="flex items-start justify-between gap-2">
-                  <span className={`w-11 h-11 rounded-xl grid place-items-center ${tone.tint} ${tone.text}`}>
+                  <span className={`w-11 h-11 rounded-xl grid place-items-center bg-background-paper ${tone.text}`}>
                     <feature.Icon className="w-5 h-5" />
                   </span>
                   {feature.isNew && (
-                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${tone.tint} ${tone.text}`}>
+                    <span className="text-[10px] font-bold px-2 py-1 rounded-full bg-light-primary text-background">
                       NEW
                     </span>
                   )}
                 </div>
+
                 <div className="min-w-0">
-                  <p className="font-semibold text-white truncate">{feature.name}</p>
-                  <p className="text-xs text-slate-500 truncate mt-0.5">
-                    {summary.loading ? 'Loading…' : statusOf(feature.id, summary)}
+                  <p className="text-[28px] leading-none font-bold tabular-nums text-white">
+                    {tile.value}
+                    {tile.unit && <span className="text-sm font-semibold text-slate-400 ml-1">{tile.unit}</span>}
                   </p>
+                  <p className="text-xs text-slate-500 truncate mt-1.5">{tile.caption}</p>
+                  <p className="font-bold text-white mt-2.5 truncate">{feature.name}</p>
                 </div>
               </Link>
             );
           })}
-        </div>
-
-        <div className="rounded-xl border border-dashed border-line p-4 text-center">
-          <p className="text-sm text-slate-500">New apps appear here as they ship.</p>
         </div>
       </section>
     </div>

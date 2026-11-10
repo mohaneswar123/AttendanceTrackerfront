@@ -3,7 +3,8 @@ import { useLocation } from 'react-router-dom';
 import { AttendanceContext } from '../contexts/AttendanceContext';
 import useHabits from '../hooks/useHabits';
 import { habitService } from '../services/api';
-import { addDays, dueOrder, isDone, isSkipped, lastSevenDays, rateChange, rateLabel, todayIso } from '../utils/habits';
+import { addDays, dueOrder, isDone, isSkipped, lastSevenDays, todayIso } from '../utils/habits';
+import { longWeekday } from '../utils/attendance';
 import FeatureShell from '../components/FeatureShell';
 import ConfirmDialog from '../components/ConfirmDialog';
 import LoginPrompt from '../components/LoginPrompt';
@@ -12,8 +13,8 @@ import HabitRow, { HabitConfigRow } from '../components/habits/HabitRow';
 import HabitFormModal from '../components/habits/HabitFormModal';
 import SkipDayModal from '../components/habits/SkipDayModal';
 import HabitProgress from '../components/habits/HabitProgress';
+import RangeProgress from '../components/habits/RangeProgress';
 import TodayProgress from '../components/habits/TodayProgress';
-import WeeklySummary from '../components/habits/WeeklySummary';
 
 // Which section each address shows
 const TAB_FOR_PATH = { '/habits': 'today', '/habits/all': 'habits', '/habits/progress': 'progress' };
@@ -43,6 +44,9 @@ function HabitsPage() {
   const [entries, setEntries] = useState([]);
   const [chosenHabit, setChosenHabit] = useState(null);
   const [showArchived, setShowArchived] = useState(false);
+  const [range, setRange] = useState('WEEK');
+  const [progress, setProgress] = useState(null);
+  const [progressLoading, setProgressLoading] = useState(false);
   const today = todayIso();
 
   useEffect(() => {
@@ -56,6 +60,10 @@ function HabitsPage() {
   const due = useMemo(() => dueOrder(active), [active]);
   const doneToday = due.filter(isDone).length;
   const countedToday = due.filter(habit => !isSkipped(habit)).length;
+  const skippedToday = due.filter(isSkipped).length;
+  // Still waiting, then everything settled one way or the other
+  const toDo = due.filter(habit => !isDone(habit) && !isSkipped(habit));
+  const settled = due.filter(habit => isDone(habit) || isSkipped(habit));
 
   // The strip and the heatmap both read from the same range of marked days
   const loadEntries = useCallback(async () => {
@@ -70,6 +78,22 @@ function HabitsPage() {
     loadEntries();
   }, [loadEntries, habits.habits.length]);
 
+  const loadProgress = useCallback(async () => {
+    if (tab !== 'progress') return;
+    setProgressLoading(true);
+    try {
+      setProgress(await habitService.getProgress(range));
+    } catch {
+      setProgress(null);
+    } finally {
+      setProgressLoading(false);
+    }
+  }, [tab, range]);
+
+  useEffect(() => {
+    loadProgress();
+  }, [loadProgress, habits.habits.length]);
+
   // How much of each of the last seven days was kept, for the circles on the card
   const byDay = useMemo(() => {
     const share = {};
@@ -83,6 +107,13 @@ function HabitsPage() {
     });
     return share;
   }, [entries, active, due.length, today]);
+
+  // What the last seven days came to, as one number under the strip
+  const weekAverage = useMemo(() => {
+    const shares = lastSevenDays().map(day => byDay[day]).filter(share => share !== undefined);
+    if (shares.length === 0) return -1;
+    return Math.round((shares.reduce((sum, share) => sum + share, 0) / shares.length) * 100);
+  }, [byDay]);
 
   const closeForm = useCallback(() => setForm(null), []);
   const closeSkip = useCallback(() => setSkipping(null), []);
@@ -148,15 +179,17 @@ function HabitsPage() {
     ? habits.clearMark(habit.id, date)
     : habits.mark(habit.id, date, { status: 'DONE' })));
 
-  const weekRates = active.map(habit => habit.thisWeekRate).filter(rate => rate >= 0);
-  const lastRates = active.map(habit => habit.lastWeekRate).filter(rate => rate >= 0);
-  const mean = (list) => (list.length ? Math.round(list.reduce((a, b) => a + b, 0) / list.length) : -1);
-  const weekRate = mean(weekRates);
-  const lastRate = mean(lastRates);
   const empty = !habits.loading && habits.habits.length === 0;
 
+  // Each section says what it is about, under its own name
+  const subtitle = {
+    today: longWeekday(today),
+    habits: `${active.length} ${active.length === 1 ? 'habit' : 'habits'} · tap one to edit`,
+    progress: 'How your habits are going'
+  }[tab];
+
   return (
-    <FeatureShell onAdd={() => setForm({ initial: null })}>
+    <FeatureShell subtitle={subtitle} onAdd={() => setForm({ initial: null })}>
       {notice && <div className="notice notice-info" role="status">{notice}</div>}
 
       {habits.error && (
@@ -184,12 +217,13 @@ function HabitsPage() {
 
       {tab === 'today' && !empty && (
         <>
-          <TodayProgress done={doneToday} due={countedToday} byDay={byDay} />
-          {weekRate >= 0 && lastRate >= 0 && (
-            <p className="text-xs text-slate-500 px-1">
-              This week {rateLabel(weekRate)}, {rateChange(weekRate, lastRate)}.
-            </p>
-          )}
+          <TodayProgress
+            done={doneToday}
+            due={countedToday}
+            skipped={skippedToday}
+            byDay={byDay}
+            average={weekAverage}
+          />
 
           {due.length === 0 ? (
             <section className="surface p-8 text-center" aria-label="Nothing due today">
@@ -199,19 +233,31 @@ function HabitsPage() {
               </p>
             </section>
           ) : (
-            <ul className="space-y-2" aria-label="Due today">
-              {due.map(habit => (
-                <HabitRow
-                  key={habit.id}
-                  habit={habit}
-                  busy={busy}
-                  onDone={handleDone}
-                  onSkip={setSkipping}
-                  onUndoSkip={handleUndoSkip}
-                  onOpen={(chosen) => setForm({ habit: chosen })}
-                />
-              ))}
-            </ul>
+            // What is left, then what is behind you: the second half is the reward for the first
+            [
+              { id: 'todo', title: 'To do', habits: toDo },
+              { id: 'done', title: 'Done', habits: settled }
+            ].filter(section => section.habits.length > 0).map(section => (
+              <section key={section.id} aria-label={`${section.title} today`}>
+                <div className="flex items-center gap-2 px-1 mb-2">
+                  <h2 className="text-xl font-bold text-white">{section.title}</h2>
+                  <span className="text-sm text-slate-500">{section.habits.length}</span>
+                </div>
+                <ul className="space-y-2">
+                  {section.habits.map(habit => (
+                    <HabitRow
+                      key={habit.id}
+                      habit={habit}
+                      busy={busy}
+                      onDone={handleDone}
+                      onSkip={setSkipping}
+                      onUndoSkip={handleUndoSkip}
+                      onOpen={(chosen) => setForm({ habit: chosen })}
+                    />
+                  ))}
+                </ul>
+              </section>
+            ))
           )}
         </>
       )}
@@ -264,7 +310,13 @@ function HabitsPage() {
 
       {tab === 'progress' && !empty && (
         <>
-          <WeeklySummary summary={habits.summary} />
+          <RangeProgress
+            progress={progress}
+            range={range}
+            onRange={setRange}
+            loading={progressLoading}
+            habits={active}
+          />
           {active.length === 0 ? (
             <p className="text-sm text-slate-500 px-1">Restore a habit and its history will appear here.</p>
           ) : (

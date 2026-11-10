@@ -1,58 +1,82 @@
 import React from 'react';
-import { lastSevenDays, shortDay, weekdayInitial } from '../../utils/habits';
+import { lastSevenDays, shortDay, weekdayShort } from '../../utils/habits';
 
 /**
- * How today is going, and the week behind it. The strip is one circle per day, filled in
- * proportion to how much of that day was kept, so a run of good days is visible at a
- * glance and today is outlined rather than filled until it is finished.
+ * How today is going, and the week behind it.
+ *
+ * The strip is one bar per day, filled in proportion to how much of that day was kept, so
+ * a run of good days reads as a shape rather than a number. Today is outlined instead of
+ * filled, because it is not over yet.
  */
-function TodayProgress({ done, due, byDay }) {
+function TodayProgress({ done, due, skipped = 0, byDay, average }) {
   const days = lastSevenDays();
   const today = days[days.length - 1];
-  const fraction = due > 0 ? done / due : 0;
+  const left = Math.max(0, due - done);
+  const percent = due > 0 ? Math.round((done / due) * 100) : 0;
 
   return (
-    <section className="surface p-4 space-y-3" aria-label="Today at a glance">
-      <div className="flex items-baseline justify-between gap-3">
-        <p className="font-semibold text-white">
-          {due === 0 ? 'Nothing due today' : `${done} of ${due} done today`}
-        </p>
-        <p className="text-sm text-slate-500 tabular-nums">{Math.round(fraction * 100)}%</p>
+    <section className="surface p-4 space-y-4" aria-label="Today at a glance">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-[34px] leading-none font-bold text-white">
+            {done}
+            <span className="text-slate-400"> of {due}</span>
+          </p>
+          <p className="text-sm text-slate-500 mt-1.5">
+            {due === 0
+              ? 'Nothing due today'
+              : [
+                left > 0 ? `${left} to go` : 'All done',
+                skipped > 0 ? `${skipped} skipped` : ''
+              ].filter(Boolean).join(' · ')}
+          </p>
+        </div>
+        {due > 0 && (
+          <span className="h-8 px-3 shrink-0 rounded-full grid place-items-center text-xs font-bold bg-habits-tint text-habits">
+            {percent}% today
+          </span>
+        )}
       </div>
 
-      <div
-        className="h-2 rounded-full bg-background-surface overflow-hidden"
-        role="progressbar"
-        aria-valuenow={done}
-        aria-valuemin={0}
-        aria-valuemax={due}
-        aria-label="Habits done today"
-      >
-        <div className="h-full rounded-full bg-teal-500 transition-[width]" style={{ width: `${fraction * 100}%` }} />
+      <div>
+        <div className="flex items-end justify-between gap-1.5 h-16">
+          {days.map(day => {
+            const share = byDay[day] ?? 0;
+            const isToday = day === today;
+            return (
+              <div key={day} className="flex-1 h-full flex flex-col justify-end">
+                <div
+                  title={`${shortDay(day)}: ${Math.round(share * 100)}% kept`}
+                  aria-label={`${shortDay(day)}, ${Math.round(share * 100)} percent kept`}
+                  role="img"
+                  className={`w-full rounded-lg overflow-hidden flex flex-col justify-end ${isToday
+                    ? 'h-full border-2 border-habits'
+                    : 'h-full bg-background-surface'}`}
+                >
+                  <span
+                    className="block w-full rounded-lg bg-habits"
+                    style={{ height: `${Math.max(share > 0 ? 12 : 0, share * 100)}%` }}
+                  />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        <div className="flex justify-between gap-1.5 mt-1.5" aria-hidden="true">
+          {days.map(day => (
+            <span
+              key={day}
+              className={`flex-1 text-center text-[11px] ${day === today ? 'font-bold text-white' : 'text-slate-500'}`}
+            >
+              {day === today ? 'Today' : weekdayShort(day)}
+            </span>
+          ))}
+        </div>
       </div>
 
-      <div className="flex items-end justify-between gap-1 pt-1">
-        {days.map(day => {
-          const share = byDay[day] ?? 0;
-          const isToday = day === today;
-          return (
-            <div key={day} className="flex flex-col items-center gap-1.5 flex-1">
-              <span
-                title={`${shortDay(day)}: ${Math.round(share * 100)}% kept`}
-                aria-label={`${shortDay(day)}, ${Math.round(share * 100)} percent kept`}
-                className={`w-7 h-7 rounded-full grid place-items-center text-[10px] font-semibold
-                  ${isToday ? 'ring-2 ring-teal-500 ring-offset-2 ring-offset-transparent' : ''}
-                  ${share >= 1 ? 'bg-teal-500 text-white'
-                    : share > 0 ? 'bg-teal-500/40 text-white'
-                      : 'bg-background-surface text-slate-500'}`}
-              >
-                {share >= 1 ? '✓' : ''}
-              </span>
-              <span className="text-[10px] text-slate-500">{weekdayInitial(day)}</span>
-            </div>
-          );
-        })}
-      </div>
+      {average >= 0 && (
+        <p className="text-xs text-slate-500">Last 7 days: {average}% kept on average</p>
+      )}
     </section>
   );
 }

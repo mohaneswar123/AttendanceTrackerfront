@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { TYPE_LABELS, TYPE_STYLES } from './CalendarEventCard';
+import { categoryOf } from '../../utils/calendarDate';
 import { eventDuration, longDate, timeLabel } from '../../utils/calendarDate';
 import { BellIcon, CalendarIcon } from '../icons';
 
@@ -39,12 +39,15 @@ function EventDetailsModal({ event, onEdit, onDelete, onClose }) {
         </div>
 
         <div className="flex items-start gap-3">
-          <span className={`w-12 h-12 shrink-0 rounded-lg border flex items-center justify-center text-2xl ${TYPE_STYLES[event.type].badge}`} aria-hidden="true">
+          <span className={`w-12 h-12 shrink-0 rounded-xl flex items-center justify-center text-2xl ${categoryOf(event).tint} ${categoryOf(event).text}`} aria-hidden="true">
             {event.type === 'REMINDER' ? <BellIcon /> : <CalendarIcon />}
           </span>
           <div className="flex-1 min-w-0">
             <h3 id="event-details-title" className="text-xl font-semibold text-white break-words">{event.title}</h3>
-            <p className="text-sm text-slate-400">{TYPE_LABELS[event.type]}</p>
+            <p className="text-sm text-slate-400">
+              {categoryOf(event).label}
+              {event.type === 'REMINDER' ? ' · Reminder' : ''}
+            </p>
           </div>
           <div className="flex gap-1 shrink-0">
             <button type="button" onClick={onEdit} aria-label="Edit" className={`${iconButton} text-primary-300 bg-primary-500/10 hover:bg-primary-500/20`}>

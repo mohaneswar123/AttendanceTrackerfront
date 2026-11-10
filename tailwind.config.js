@@ -80,6 +80,8 @@ module.exports = {
         },
         border: v('line'),
         line: v('line'),
+        // The floating bottom bar: dark in both colour sets, with light ink on it
+        nav: { DEFAULT: v('nav'), ink: v('nav-ink') },
         // One colour per feature, each with the quiet tint that sits behind it
         attendance: { DEFAULT: v('attendance'), tint: v('attendance-tint') },
         tasks: { DEFAULT: v('tasks'), tint: v('tasks-tint') },

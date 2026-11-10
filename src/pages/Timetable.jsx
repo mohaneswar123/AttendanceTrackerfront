@@ -13,7 +13,7 @@ import CopyDayModal from '../components/timetable/CopyDayModal';
 import ConfirmDialog from '../components/ConfirmDialog';
 import LoginPrompt from '../components/LoginPrompt';
 import FeatureShell from '../components/FeatureShell';
-import ComingSoon from '../components/nav/ComingSoon';
+import ScheduleList from '../components/timetable/ScheduleList';
 import TodayOverview from '../components/timetable/TodayOverview';
 
 const TRASH_ICON = (
@@ -118,9 +118,8 @@ function TimetablePage() {
   const { modes, selectedMode, loading } = timetable;
 
   return (
-    <FeatureShell
-      onAdd={modes.length > 0 ? openNewActivity : undefined}
-      actions={modes.length > 0 ? (
+    <FeatureShell onAdd={pathname === '/timetable' && modes.length > 0 ? openNewActivity : undefined}>
+      {pathname === '/timetable' && modes.length > 0 && (
         <ModeSelector
           modes={modes}
           selectedModeId={timetable.selectedModeId}
@@ -131,8 +130,7 @@ function TimetablePage() {
           onDelete={setDeletingMode}
           onCreate={() => setModeForm({})}
         />
-      ) : null}
-    >
+      )}
 
       {notice && (
         <div className="notice notice-info" role="status">
@@ -162,18 +160,16 @@ function TimetablePage() {
         </section>
       )}
 
-      {pathname === '/timetable/week' && (
-        <ComingSoon title="The whole week" insteadLabel="Back to today" insteadPath="/timetable">
-          All seven days side by side will live here. For now, Today has the day strip, and
-          tapping a day shows its plan.
-        </ComingSoon>
-      )}
-
-      {pathname === '/timetable/schedules' && (
-        <ComingSoon title="Your schedules" insteadLabel="Back to today" insteadPath="/timetable">
-          Managing College Mode, Home Mode and the rest will move here. For now they are in
-          the menu beside the timetable name at the top of this screen.
-        </ComingSoon>
+      {pathname === '/timetable/schedules' && modes.length > 0 && (
+        <ScheduleList
+          modes={modes}
+          selectedModeId={timetable.selectedModeId}
+          onSelect={timetable.selectMode}
+          onSetActive={handleSetActive}
+          onEdit={(mode) => setModeForm({ mode })}
+          onDelete={setDeletingMode}
+          onCreate={() => setModeForm({})}
+        />
       )}
 
       {pathname === '/timetable' && modes.length > 0 && (

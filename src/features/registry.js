@@ -1,6 +1,6 @@
 import {
   BookIcon, CalendarIcon, ChartIcon, CheckIcon, ClipboardCheckIcon, ClockIcon, ColumnsIcon,
-  InboxIcon, LayersIcon, ListIcon, SlidersIcon, SunriseIcon, TableIcon, TargetIcon, TimerIcon
+  LayersIcon, ListIcon, SlidersIcon, StarIcon, SunriseIcon, TableIcon, TargetIcon, TimerIcon
 } from '../components/icons';
 
 /**
@@ -63,10 +63,9 @@ export const FEATURES = [
     Icon: ListIcon,
     addLabel: 'Add a task',
     tabs: [
-      { id: 'today', label: 'Today', path: '/tasks', Icon: SunriseIcon },
-      { id: 'upcoming', label: 'Upcoming', path: '/tasks/upcoming', Icon: InboxIcon },
-      { id: 'board', label: 'Board', path: '/tasks/board', Icon: ColumnsIcon },
-      { id: 'done', label: 'Done', path: '/tasks/done', Icon: CheckIcon }
+      { id: 'today', label: 'My Day', path: '/tasks', Icon: SunriseIcon },
+      { id: 'important', label: 'Important', path: '/tasks/important', Icon: StarIcon },
+      { id: 'done', label: 'Completed', path: '/tasks/done', Icon: CheckIcon }
     ]
   },
   {
@@ -89,7 +88,6 @@ export const FEATURES = [
     tabs: [
       { id: 'month', label: 'Month', path: '/calendar', Icon: CalendarIcon },
       { id: 'week', label: 'Week', path: '/calendar/week', Icon: ColumnsIcon },
-      { id: 'day', label: 'Day', path: '/calendar/day', Icon: SunriseIcon },
       { id: 'events', label: 'Events', path: '/calendar/events', Icon: ListIcon }
     ]
   },
@@ -100,7 +98,6 @@ export const FEATURES = [
     addLabel: 'Add an activity',
     tabs: [
       { id: 'today', label: 'Today', path: '/timetable', Icon: SunriseIcon },
-      { id: 'week', label: 'Week', path: '/timetable/week', Icon: TableIcon },
       { id: 'schedules', label: 'Schedules', path: '/timetable/schedules', Icon: LayersIcon }
     ]
   },
@@ -110,7 +107,6 @@ export const FEATURES = [
     Icon: TimerIcon,
     tabs: [
       { id: 'timer', label: 'Timer', path: '/focus', Icon: TimerIcon },
-      { id: 'sessions', label: 'Sessions', path: '/focus/sessions', Icon: ClockIcon },
       { id: 'settings', label: 'Lengths', path: '/focus/settings', Icon: SlidersIcon }
     ]
   }
@@ -121,7 +117,7 @@ export const featureById = (id) => FEATURES.find(feature => feature.id === id);
 /** The feature a path belongs to, and which of its tabs is open */
 export const featureForPath = (pathname) => {
   for (const feature of FEATURES) {
-    // Longest path first, so /tasks/board does not match /tasks
+    // Longest path first, so /tasks/important does not match /tasks
     const tabs = [...feature.tabs].sort((a, b) => b.path.length - a.path.length);
     const tab = tabs.find(item => pathname === item.path || pathname.startsWith(`${item.path}/`));
     if (tab) return { feature, tab };

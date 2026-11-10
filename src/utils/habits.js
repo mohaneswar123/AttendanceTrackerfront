@@ -198,3 +198,7 @@ export const shortDay = (isoDate) =>
 
 export const weekdayInitial = (isoDate) =>
   new Date(`${isoDate}T00:00:00`).toLocaleDateString('en-US', { weekday: 'short' }).slice(0, 1);
+
+// "Mon" — three letters, for a strip wide enough to take them
+export const weekdayShort = (isoDate) =>
+  new Date(`${isoDate}T00:00:00`).toLocaleDateString('en-US', { weekday: 'short' });
