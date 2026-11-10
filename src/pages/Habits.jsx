@@ -12,6 +12,7 @@ import HabitRow, { HabitConfigRow } from '../components/habits/HabitRow';
 import HabitFormModal from '../components/habits/HabitFormModal';
 import SkipDayModal from '../components/habits/SkipDayModal';
 import HabitProgress from '../components/habits/HabitProgress';
+import RangeProgress from '../components/habits/RangeProgress';
 import TodayProgress from '../components/habits/TodayProgress';
 import WeeklySummary from '../components/habits/WeeklySummary';
 
@@ -43,6 +44,9 @@ function HabitsPage() {
   const [entries, setEntries] = useState([]);
   const [chosenHabit, setChosenHabit] = useState(null);
   const [showArchived, setShowArchived] = useState(false);
+  const [range, setRange] = useState('WEEK');
+  const [progress, setProgress] = useState(null);
+  const [progressLoading, setProgressLoading] = useState(false);
   const today = todayIso();
 
   useEffect(() => {
@@ -69,6 +73,22 @@ function HabitsPage() {
   useEffect(() => {
     loadEntries();
   }, [loadEntries, habits.habits.length]);
+
+  const loadProgress = useCallback(async () => {
+    if (tab !== 'progress') return;
+    setProgressLoading(true);
+    try {
+      setProgress(await habitService.getProgress(range));
+    } catch {
+      setProgress(null);
+    } finally {
+      setProgressLoading(false);
+    }
+  }, [tab, range]);
+
+  useEffect(() => {
+    loadProgress();
+  }, [loadProgress, habits.habits.length]);
 
   // How much of each of the last seven days was kept, for the circles on the card
   const byDay = useMemo(() => {
@@ -264,6 +284,12 @@ function HabitsPage() {
 
       {tab === 'progress' && !empty && (
         <>
+          <RangeProgress
+            progress={progress}
+            range={range}
+            onRange={setRange}
+            loading={progressLoading}
+          />
           <WeeklySummary summary={habits.summary} />
           {active.length === 0 ? (
             <p className="text-sm text-slate-500 px-1">Restore a habit and its history will appear here.</p>

@@ -418,6 +418,12 @@ export const habitService = {
     return response.data;
   },
 
+  // range is 'WEEK', 'MONTH' or 'YEAR'; the server decides the buckets and the figures
+  getProgress: async (range) => {
+    const response = await apiClient.get('/habits/progress', { params: { range } });
+    return response.data;
+  },
+
   createHabit: async (habit) => {
     const response = await apiClient.post('/habits', habit);
     return response.data;
