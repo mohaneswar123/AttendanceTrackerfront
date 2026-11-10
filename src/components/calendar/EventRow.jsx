@@ -33,7 +33,7 @@ function EventRow({ event, onClick }) {
           {event.allDay ? (
             <>
               <span className="block text-base font-bold text-white leading-tight">All</span>
-              <span className="block text-xs text-slate-500">day</span>
+              <span className="block text-xs text-slate-400">day</span>
             </>
           ) : (
             <>
@@ -41,7 +41,7 @@ function EventRow({ event, onClick }) {
                 {formatShortTime(event.startTime)}
               </span>
               {event.endTime && (
-                <span className="block text-xs text-slate-500 tabular-nums">
+                <span className="block text-xs text-slate-400 tabular-nums">
                   {formatShortTime(event.endTime)}
                 </span>
               )}
@@ -51,7 +51,7 @@ function EventRow({ event, onClick }) {
 
         <span className="flex-1 min-w-0">
           <span className="block font-bold text-white truncate">{event.title}</span>
-          <span className="block text-xs text-slate-500 truncate">
+          <span className="block text-xs text-slate-400 truncate">
             {/* The category already says "Reminder" when there is no category to name */}
             {[tone.label, length, event.category && event.type === 'REMINDER' ? 'Reminder' : '']
               .filter(Boolean).join(' · ')}
