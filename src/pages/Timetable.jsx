@@ -160,13 +160,6 @@ function TimetablePage() {
         </section>
       )}
 
-      {pathname === '/timetable/week' && (
-        <ComingSoon title="The whole week" insteadLabel="Back to today" insteadPath="/timetable">
-          All seven days side by side will live here. For now, Today has the day strip, and
-          tapping a day shows its plan.
-        </ComingSoon>
-      )}
-
       {pathname === '/timetable/schedules' && (
         <ComingSoon title="Your schedules" insteadLabel="Back to today" insteadPath="/timetable">
           Managing College Mode, Home Mode and the rest will move here. For now they are in

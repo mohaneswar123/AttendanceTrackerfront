@@ -2,12 +2,12 @@
 // midnight (see utils/date.js), never parsed as UTC, so a day can't shift.
 import { addDays, fromIsoDate, toIsoDate } from './date';
 
-export const VIEWS = { MONTH: 'MONTH', WEEK: 'WEEK', DAY: 'DAY' };
+export const VIEWS = { MONTH: 'MONTH', WEEK: 'WEEK' };
 
 // Weeks start on Sunday everywhere in the calendar
 export const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-export const HOUR_HEIGHT = 48; // px per hour in the Week and Day time grids
+export const HOUR_HEIGHT = 48; // px per hour in the Week time grid
 // Entries without an end time, or shorter than this, are drawn this long so they stay tappable
 export const MIN_BLOCK_MINUTES = 30;
 
@@ -69,10 +69,9 @@ export const shortDate = (iso, withWeekday = false) =>
 // "Wednesday, September 23, 2026"
 export const longDate = (iso) => format(iso, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
 
-// "September 2026", "Sep 20 – 26, 2026" or "Tuesday, September 22, 2026"
+// "September 2026" or "Sep 20 – 26, 2026"
 export const viewTitle = (view, iso) => {
   if (view === VIEWS.MONTH) return format(iso, { month: 'long', year: 'numeric' });
-  if (view === VIEWS.DAY) return longDate(iso);
   const days = weekDays(iso);
   const [first, last] = [days[0], days[6]];
   if (first.slice(0, 4) !== last.slice(0, 4)) {

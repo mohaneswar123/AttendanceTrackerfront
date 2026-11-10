@@ -7,7 +7,7 @@ import { lastTabs } from '../components/FeatureShell';
 import ThemeToggle from '../components/ThemeToggle';
 import LoginPrompt from '../components/LoginPrompt';
 import { SettingsIcon } from '../components/icons';
-import { longWeekday } from '../utils/attendance';
+import { longWeekday, tally } from '../utils/attendance';
 import { todayLocal } from '../utils/date';
 
 const greeting = () => {
@@ -20,10 +20,14 @@ const greeting = () => {
 /** The line under each tile: what that feature wants from the student today */
 const statusOf = (id, summary) => {
   switch (id) {
-    case 'attendance':
-      return summary.timetable?.classes
-        ? `${summary.timetable.classes} ${summary.timetable.classes === 1 ? 'class' : 'classes'} to mark`
-        : 'Nothing to mark yet';
+    case 'attendance': {
+      if (!summary.attendance) return '';
+      const { percentage, markedToday } = summary.attendance;
+      if (percentage === null) return 'Nothing recorded yet';
+      return markedToday > 0
+        ? `${percentage}% · ${markedToday} marked today`
+        : `${percentage}% so far`;
+    }
     case 'tasks': {
       if (!summary.tasks) return '';
       const { due, overdue, done } = summary.tasks;
@@ -39,8 +43,12 @@ const statusOf = (id, summary) => {
         ? 'Nothing due today'
         : `${summary.habits.done} of ${summary.habits.due} done today`;
     }
-    case 'calendar':
-      return 'Exams, deadlines and dates';
+    case 'calendar': {
+      if (!summary.calendar) return '';
+      const { today: count } = summary.calendar;
+      if (count === 0) return 'Nothing on today';
+      return `${count} ${count === 1 ? 'entry' : 'entries'} today`;
+    }
     case 'timetable':
       return summary.timetable?.modeName
         ? `${summary.timetable.modeName} · ${summary.timetable.classes} today`
@@ -71,18 +79,26 @@ function Home() {
 
 function HomeHub() {
   const navigate = useNavigate();
-  const { currentUser } = useContext(AttendanceContext);
+  const { currentUser, attendanceRecords } = useContext(AttendanceContext);
   const summary = useHomeSummary();
   const remembered = lastTabs();
 
   const name = (currentUser?.username || '').split(' ')[0];
 
+  // Attendance's own numbers, from the records the context already loaded
+  const today = todayLocal();
+  const records = attendanceRecords || [];
+  const attendance = {
+    percentage: tally(records).percentage,
+    markedToday: records.filter(record => record.date === today).length
+  };
+
   const glance = [
     {
       id: 'attendance',
-      label: 'Classes today',
-      value: summary.timetable ? summary.timetable.classes : '—',
-      path: '/timetable'
+      label: 'Attendance',
+      value: attendance.percentage != null ? `${attendance.percentage}%` : '—',
+      path: '/attendance'
     },
     {
       id: 'tasks',
@@ -175,7 +191,7 @@ function HomeHub() {
                 <div className="min-w-0">
                   <p className="font-semibold text-white truncate">{feature.name}</p>
                   <p className="text-xs text-slate-500 truncate mt-0.5">
-                    {summary.loading ? 'Loading…' : statusOf(feature.id, summary)}
+                    {summary.loading ? 'Loading…' : statusOf(feature.id, { ...summary, attendance })}
                   </p>
                 </div>
               </Link>

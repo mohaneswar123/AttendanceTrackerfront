@@ -21,7 +21,6 @@ import CalendarToolbar from '../components/calendar/CalendarToolbar';
 import MiniMonth from '../components/calendar/MiniMonth';
 import MonthView from '../components/calendar/MonthView';
 import WeekView from '../components/calendar/WeekView';
-import DayView from '../components/calendar/DayView';
 import AgendaView from '../components/calendar/AgendaView';
 import EventFormModal from '../components/calendar/EventFormModal';
 import EventDetailsModal from '../components/calendar/EventDetailsModal';
@@ -34,10 +33,9 @@ const UPCOMING_SHOWN = 8;
 const VIEW_FOR_PATH = {
   '/calendar': VIEWS.MONTH,
   '/calendar/week': VIEWS.WEEK,
-  '/calendar/day': VIEWS.DAY,
   '/calendar/events': 'EVENTS'
 };
-const PERIOD_NAMES = { [VIEWS.MONTH]: 'month', [VIEWS.WEEK]: 'week', [VIEWS.DAY]: 'day' };
+const PERIOD_NAMES = { [VIEWS.MONTH]: 'month', [VIEWS.WEEK]: 'week' };
 
 function Calendar() {
   const { currentUser } = useContext(AttendanceContext);
@@ -99,9 +97,10 @@ function CalendarPage() {
     setCurrentDate(date);
     setSelectedDate(date);
   };
+  // There is no single-day view: a day is shown by choosing it in the month
   const goToDay = (date) => {
     goTo(date);
-    navigate('/calendar/day');
+    navigate('/calendar');
   };
 
   const openCreate = (initial) => setForm({ initial });
@@ -162,7 +161,7 @@ function CalendarPage() {
 
   return (
     <FeatureShell
-      onAdd={() => openCreateOn(view === VIEWS.DAY ? currentDate : selectedDate)}
+      onAdd={() => openCreateOn(selectedDate)}
       actions={(
         <>
           {!eventsOnly && (
@@ -257,19 +256,8 @@ function CalendarPage() {
                   onDayClick={goToDay}
                 />
               )}
-              {view === VIEWS.DAY && (
-                <DayView
-                  currentDate={currentDate}
-                  eventsByDate={eventsByDate}
-                  onEventClick={setDetails}
-                  onEdit={(event) => setForm({ event })}
-                  onDelete={setDeleting}
-                  onAdd={openCreateOn}
-                />
-              )}
-
-              {/* Phones: the chosen day's entries under the month grid */}
-              {view === VIEWS.MONTH && !isDesktop && (
+              {/* The chosen day's entries, under the month grid */}
+              {view === VIEWS.MONTH && (
                 <section className="surface rounded-xl p-4" aria-label="Selected day">
                   <AgendaView events={eventsByDate[selectedDate] || []} days={[selectedDate]} onEventClick={setDetails} />
                   <button

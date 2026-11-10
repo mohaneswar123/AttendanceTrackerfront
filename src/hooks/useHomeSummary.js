@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import {
-  habitService, pomodoroService, taskService, timetableService
+  calendarService, habitService, pomodoroService, taskService, timetableService
 } from '../services/api';
 import { todayLocal } from '../utils/date';
 import { todayDay } from '../utils/timetable';
@@ -11,6 +11,11 @@ import { todayDay } from '../utils/timetable';
  *
  * Each feature is fetched on its own and allowed to fail on its own. A timetable that
  * will not load should leave its tile saying nothing, not take the whole screen down.
+ *
+ * Every entry here reads one feature and only that feature. The attendance line used to
+ * come from the timetable's class count, which made a tile depend on a feature the
+ * student may never have set up. Attendance itself is not fetched here at all: the
+ * context already holds the student's records, so Home works them out from those.
  */
 export default function useHomeSummary() {
   const [data, setData] = useState({});
@@ -29,6 +34,10 @@ export default function useHomeSummary() {
     };
 
     const results = await Promise.all([
+      settle('calendar', async () => {
+        const events = await calendarService.getEvents({ from: today, to: today });
+        return { today: events.length };
+      }),
       // Everything up to and including today, not just today: work left unfinished on an
       // earlier day is still waiting, and the tile would otherwise say the day was clear.
       settle('tasks', async () => {

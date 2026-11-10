@@ -29,7 +29,7 @@ export const dayLabel = (iso, today = todayLocal()) => {
 };
 
 /**
- * The Today screen, as two groups.
+ * My Day, as two groups.
  *
  * Overdue comes first and is never hidden. A task that was not finished on the day it was
  * planned for does not quietly fall off the screen the next morning: it stays in front of
@@ -41,19 +41,6 @@ export const todayGroups = (tasks, today = todayLocal()) => {
     { id: 'overdue', title: 'Overdue', tone: 'overdue', tasks: open.filter(task => task.taskDate < today) },
     { id: 'today', title: 'Today', tone: 'plain', tasks: open.filter(task => task.taskDate === today) }
   ].filter(group => group.tasks.length > 0);
-};
-
-/** Everything still to come, a day at a time */
-export const upcomingGroups = (tasks, today = todayLocal()) => {
-  const open = tasks.filter(task => !isDone(task) && task.taskDate > today);
-  const byDay = new Map();
-  open.forEach(task => {
-    if (!byDay.has(task.taskDate)) byDay.set(task.taskDate, []);
-    byDay.get(task.taskDate).push(task);
-  });
-  return [...byDay.entries()]
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([date, group]) => ({ id: date, title: dayLabel(date, today), tone: 'plain', tasks: group }));
 };
 
 /** Starred and not yet done, oldest day first */
@@ -80,10 +67,9 @@ export const doneGroups = (tasks) => {
   }];
 };
 
-/** What the Today screen says when there is nothing left */
+/** What a section says when there is nothing in it */
 export const emptyFor = (view) => ({
   today: { title: 'Nothing left for today', body: 'Add a task below, or enjoy the gap.' },
-  upcoming: { title: 'Nothing planned ahead', body: 'Tasks you give a future date appear here.' },
   important: { title: 'Nothing starred', body: 'Star a task and it will wait for you here.' },
   done: { title: 'Nothing finished yet', body: 'Tasks you tick off collect here.' }
 }[view] || { title: 'Nothing here', body: '' });

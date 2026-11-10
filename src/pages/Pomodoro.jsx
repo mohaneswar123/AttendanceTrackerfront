@@ -5,7 +5,6 @@ import usePomodoro from '../hooks/usePomodoro';
 import ConfirmDialog from '../components/ConfirmDialog';
 import LoginPrompt from '../components/LoginPrompt';
 import FeatureShell from '../components/FeatureShell';
-import ComingSoon from '../components/nav/ComingSoon';
 import Tabs from '../components/Tabs';
 import DurationPicker from '../components/pomodoro/DurationPicker';
 import CountsTowards from '../components/pomodoro/CountsTowards';
@@ -23,7 +22,7 @@ const MAX_BREAK = 30;
 const TIMES_KEY = 'pomodoroTimes';
 
 // Which section each address shows
-const SECTION_FOR_PATH = { '/focus': 'timer', '/focus/sessions': 'sessions', '/focus/settings': 'settings' };
+const SECTION_FOR_PATH = { '/focus': 'timer', '/focus/settings': 'settings' };
 
 const formatClock = (seconds) => {
   const m = Math.floor(seconds / 60);
@@ -117,17 +116,6 @@ function PomodoroTimer() {
   }, []);
 
   const section = SECTION_FOR_PATH[pathname] || 'timer';
-
-  if (section === 'sessions') {
-    return (
-      <FeatureShell>
-        <ComingSoon title="Your past sessions" insteadLabel="Back to the timer" insteadPath="/focus">
-          A list of the focus sessions you have finished, and how long each one ran, will
-          live here. The daily total already feeds the Home screen.
-        </ComingSoon>
-      </FeatureShell>
-    );
-  }
 
   return (
     <FeatureShell

@@ -3,9 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { AttendanceContext } from '../contexts/AttendanceContext';
 import useTasks from '../hooks/useTasks';
 import { todayLocal } from '../utils/date';
-import {
-  doneGroups, emptyFor, importantGroups, todayGroups, upcomingGroups
-} from '../utils/tasks';
+import { doneGroups, emptyFor, importantGroups, todayGroups } from '../utils/tasks';
 import FeatureShell from '../components/FeatureShell';
 import ConfirmDialog from '../components/ConfirmDialog';
 import LoginPrompt from '../components/LoginPrompt';
@@ -16,7 +14,6 @@ import AddTask from '../components/tasks/AddTask';
 // Which view each address shows
 const VIEW_FOR_PATH = {
   '/tasks': 'today',
-  '/tasks/upcoming': 'upcoming',
   '/tasks/important': 'important',
   '/tasks/done': 'done'
 };
@@ -55,7 +52,6 @@ function TasksPage() {
 
   const groups = useMemo(() => ({
     today: todayGroups(tasks.tasks, today),
-    upcoming: upcomingGroups(tasks.tasks, today),
     important: importantGroups(tasks.tasks),
     done: doneGroups(tasks.tasks)
   }[view]), [tasks.tasks, view, today]);
@@ -79,15 +75,17 @@ function TasksPage() {
   const handleSave = async (fields) => {
     const result = await tasks.saveTask(open.id, { ...open, ...fields });
     if (result.success && fields.taskDate !== open.taskDate) {
-      setNotice(`Moved to ${fields.taskDate === today ? 'today' : fields.taskDate}.`);
+      setNotice(fields.taskDate > today
+        ? `Moved to ${fields.taskDate}. It appears on My Day that morning.`
+        : `Moved to ${fields.taskDate === today ? 'today' : fields.taskDate}.`);
     }
     return result;
   };
 
   const handleAdd = async (fields) => {
     const result = await tasks.createTask(fields);
-    if (result.success && fields.taskDate !== today && view === 'today') {
-      setNotice(`Added for ${fields.taskDate}. It is not shown under Today.`);
+    if (result.success && fields.taskDate > today) {
+      setNotice(`Added for ${fields.taskDate}. It appears on My Day that morning.`);
     }
     return result;
   };
@@ -114,9 +112,9 @@ function TasksPage() {
       )}
 
       {/* Anything left over from an earlier day is said out loud, on every view */}
-      {overdue > 0 && view !== 'today' && view !== 'done' && (
+      {overdue > 0 && view === 'important' && (
         <p className="text-xs text-rose-400 px-1">
-          {overdue} {overdue === 1 ? 'task is' : 'tasks are'} overdue. They are waiting under Today.
+          {overdue} {overdue === 1 ? 'task is' : 'tasks are'} overdue. They are waiting on My Day.
         </p>
       )}
 

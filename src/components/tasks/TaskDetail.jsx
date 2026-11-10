@@ -184,6 +184,12 @@ function TaskDetail({ task, onSave, onDelete, onClose }) {
               This was due {dayLabel(taskDate).toLowerCase()} and is still showing under Overdue.
             </p>
           )}
+          {/* There is no Upcoming section, so a day still to come has to be explained here */}
+          {taskDate > todayLocal() && (
+            <p className="text-xs text-slate-500 mt-1.5">
+              This leaves My Day until {dayLabel(taskDate)}, when it comes back.
+            </p>
+          )}
         </div>
 
         <div>
