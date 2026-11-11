@@ -4,6 +4,8 @@
 // The Habits accent is teal-300, which is #0F766E in the light set and already has a dark
 // counterpart in the palette, so nothing here hardcodes a colour.
 
+import { todayLocal } from './date';
+
 export const CATEGORIES = [
   { value: 'STUDY', label: 'Study', icon: '📘' },
   { value: 'HEALTH', label: 'Health', icon: '🥗' },
@@ -159,8 +161,8 @@ export const dueOrder = (habits) => [...habits]
 const pad = (n) => String(n).padStart(2, '0');
 const iso = (date) => `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 
-// The local date as YYYY-MM-DD, matching what the server expects
-export const todayIso = () => iso(new Date());
+// Today in IST as YYYY-MM-DD, which is the day the server means too
+export const todayIso = () => todayLocal();
 
 export const addDays = (isoDate, days) => {
   const date = new Date(`${isoDate}T00:00:00`);
@@ -176,7 +178,8 @@ export const lastSevenDays = () => Array.from({ length: 7 }, (_, i) => addDays(t
  * Rows are weeks and columns are weekdays, which is what makes a gap easy to spot.
  */
 export const heatmapWeeks = (weeks = 5) => {
-  const today = new Date();
+  // Built from today in IST, so the last column is the day the student is living
+  const today = new Date(`${todayIso()}T00:00:00`);
   const thisMonday = new Date(today);
   thisMonday.setDate(today.getDate() - ((today.getDay() + 6) % 7));
   const out = [];

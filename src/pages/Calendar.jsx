@@ -2,7 +2,7 @@ import React, { useCallback, useContext, useEffect, useMemo, useState } from 're
 import { useLocation } from 'react-router-dom';
 import { AttendanceContext } from '../contexts/AttendanceContext';
 import useCalendar, { MAX_SEARCH_RESULTS } from '../hooks/useCalendar';
-import { todayLocal } from '../utils/date';
+import { nowHour, nowTime, todayLocal } from '../utils/date';
 import {
   VIEWS,
   addMonths,
@@ -55,8 +55,7 @@ function Calendar() {
 
 // A new entry starts at the next whole hour today, or 9 AM on any other day
 function newEntryTimes(date) {
-  const now = new Date();
-  return date === todayLocal() ? defaultTimes((now.getHours() + 1) * 60) : defaultTimes(9 * 60);
+  return date === todayLocal() ? defaultTimes((nowHour() + 1) * 60) : defaultTimes(9 * 60);
 }
 
 /** "9 – 15 November", or "28 Oct – 3 Nov" when a week straddles two months */
@@ -138,10 +137,9 @@ function CalendarPage() {
 
   // Today's entries drop off the list once they're over
   const upcoming = useMemo(() => {
-    const now = new Date();
-    const nowTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    const now = nowTime();
     return calendar.upcoming.filter(entry =>
-      entry.date > today || entry.allDay || (entry.endTime || entry.startTime) >= nowTime);
+      entry.date > today || entry.allDay || (entry.endTime || entry.startTime) >= now);
   }, [calendar.upcoming, today]);
 
   const filtered = useMemo(
