@@ -1,6 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AttendanceContext } from '../contexts/AttendanceContext';
+import Footer from '../components/Footer';
 import PasswordField from '../components/PasswordField';
 import { APP_NAME } from '../branding';
 import { errorMessage, isSubscriptionError } from '../services/api';
@@ -47,7 +48,7 @@ function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
 
       <div className="max-w-md w-full space-y-8 surface p-8 md:p-10">
         <div>
@@ -125,6 +126,11 @@ function Login() {
             </p>
           </div>
         </form>
+      </div>
+
+      {/* These pages are outside Layout, so they carry the legal links themselves */}
+      <div className="w-full max-w-md mt-6">
+        <Footer />
       </div>
     </div>
   );
