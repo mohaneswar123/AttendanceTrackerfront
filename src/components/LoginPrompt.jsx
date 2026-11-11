@@ -23,7 +23,16 @@ const WHAT_IT_DOES = {
  */
 function LoginPrompt({ title, message }) {
   return (
-    <div className="max-w-md mx-auto py-6 space-y-6">
+    <div className="max-w-md mx-auto pb-6 space-y-5">
+      {/* Returning students sign in far more often than anyone signs up, and on a 812px
+          screen the buttons under the preview sit past the fold. The quick way in goes
+          first, where no scrolling is needed to find it. */}
+      <div className="flex justify-end">
+        <Link to="/login" className="h-11 px-2 -mr-2 inline-flex items-center font-semibold text-primary-400 hover:text-primary-300">
+          Sign in
+        </Link>
+      </div>
+
       <header className="text-center">
         <span className="w-12 h-12 mx-auto mb-3 rounded-xl bg-primary-600 text-primary-foreground text-lg font-bold flex items-center justify-center">
           {APP_INITIAL}

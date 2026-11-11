@@ -50,7 +50,7 @@ function Login() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
 
-      <div className="max-w-md w-full space-y-8 surface p-8 md:p-10">
+      <div className="max-w-md w-full space-y-8 surface p-6 min-[360px]:p-8 md:p-10">
         <div>
           <div className="flex justify-center mb-6">
             <div className="w-11 h-11 mx-auto rounded-lg bg-primary-600 text-primary-foreground text-sm font-bold flex items-center justify-center">{APP_INITIAL}</div>

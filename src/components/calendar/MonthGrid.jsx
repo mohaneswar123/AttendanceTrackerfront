@@ -12,7 +12,7 @@ function MonthGrid({ currentDate, selectedDate, today, eventsByDate, onSelect })
   const weeks = monthWeeks(currentDate);
 
   return (
-    <section className="surface p-3" aria-label="Month">
+    <section className="surface p-3 max-[359px]:p-1.5" aria-label="Month">
       <div className="grid grid-cols-7 mb-1" aria-hidden="true">
         {WEEKDAYS.map(day => (
           <span key={day} className="text-center text-xs font-semibold text-slate-400 py-1">
