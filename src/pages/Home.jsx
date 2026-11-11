@@ -152,8 +152,8 @@ function Home() {
   if (!currentUser) {
     return (
       <LoginPrompt
-        title="Your student apps"
-        message="Log in to see today across attendance, tasks, habits and the rest."
+        title="Everything a term throws at you"
+        message="Attendance, work, habits, classes and focus — one app, built for students."
       />
     );
   }

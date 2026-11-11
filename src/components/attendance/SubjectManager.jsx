@@ -224,12 +224,17 @@ function SubjectManager({ autoFocus = false }) {
         <button
           onClick={handleAdd}
           disabled={!newSubject.trim()}
+          title={newSubject.trim() ? 'Add this subject' : 'Type a subject name first'}
           className="btn shrink-0 h-11 px-4 bg-light-primary text-background hover:opacity-90 disabled:opacity-40"
         >
           <PlusIcon className="w-4 h-4" />
           Add
         </button>
       </div>
+      {/* A greyed-out button with nothing beside it only raises the question of why */}
+      {!newSubject.trim() && (
+        <p className="text-sm text-slate-400 mt-1.5 px-1">Type a name, then press Add or Enter.</p>
+      )}
 
       {subjects.length === 0 ? (
         <div className="surface p-10 text-center">

@@ -121,8 +121,17 @@ function Login() {
             >
               Don't have an account? Sign up
             </Link>
+            {/* Self-service reset needs mail the server cannot send yet, so this is the
+                real route: a link that goes somewhere, not a sentence about an "admin"
+                most students could not name. */}
             <p className="text-slate-400 text-center">
-              Forgotten your password? Ask your admin to set a new one.
+              Forgotten your password?{' '}
+              <Link
+                to="/contact-us"
+                className="h-11 inline-flex items-center font-medium text-primary-400 hover:text-primary-300 underline underline-offset-2"
+              >
+                Ask for a reset
+              </Link>
             </p>
           </div>
         </form>
