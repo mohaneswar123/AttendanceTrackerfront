@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { AttendanceContext } from '../../contexts/AttendanceContext';
 import { todayLocal } from '../../utils/date';
 import { dayLabel, initialOf, subjectTone, tally } from '../../utils/attendance';
+import ConfirmDialog from '../ConfirmDialog';
 import { CheckIcon, CloseIcon, PlusIcon } from '../icons';
 
 const STATUSES = [
@@ -62,7 +63,8 @@ function MarkAttendance({ onAddSubject }) {
   const [status, setStatus] = useState('Present');
   const [classNumber, setClassNumber] = useState(1);
   const [saving, setSaving] = useState(false);
-  const [undoing, setUndoing] = useState(null);
+  const [undoing, setUndoing] = useState(null);  // the record waiting for confirmation
+  const [busy, setBusy] = useState(null);
   const [message, setMessage] = useState(null);
   const today = todayLocal();
 
@@ -106,11 +108,15 @@ function MarkAttendance({ onAddSubject }) {
     }
   };
 
-  const handleUndo = async (record) => {
-    setUndoing(record._id);
-    const result = await deleteAttendanceRecord(record._id);
+  const handleUndo = async () => {
+    const record = undoing;
     setUndoing(null);
-    if (!result.success) setMessage({ text: result.message || 'Could not undo that.', ok: false });
+    setBusy(record._id);
+    const result = await deleteAttendanceRecord(record._id);
+    setBusy(null);
+    setMessage(result.success
+      ? { text: `${record.subject?.name || 'That class'} is no longer marked.`, ok: true }
+      : { text: result.message || 'Could not undo that.', ok: false });
   };
 
   return (
@@ -273,11 +279,11 @@ function MarkAttendance({ onAddSubject }) {
                   </span>
                   <button
                     type="button"
-                    onClick={() => handleUndo(record)}
-                    disabled={undoing === record._id}
+                    onClick={() => setUndoing(record)}
+                    disabled={busy === record._id}
                     className="text-sm font-semibold text-slate-400 hover:text-rose-400 underline underline-offset-2 shrink-0 disabled:opacity-50"
                   >
-                    {undoing === record._id ? '…' : 'Undo'}
+                    {busy === record._id ? '…' : 'Undo'}
                   </button>
                 </li>
               );
@@ -285,6 +291,17 @@ function MarkAttendance({ onAddSubject }) {
           </ul>
         )}
       </section>
+
+      {undoing && (
+        <ConfirmDialog
+          title="Undo this record?"
+          message={`${undoing.subject?.name || 'This class'} on ${dayLabel(String(undoing.date).slice(0, 10), today)} will be removed, and its hours leave your percentage.`}
+          confirmLabel="Undo"
+          danger
+          onConfirm={handleUndo}
+          onCancel={() => setUndoing(null)}
+        />
+      )}
     </div>
   );
 }

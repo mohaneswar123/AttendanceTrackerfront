@@ -85,6 +85,7 @@ function AttendanceHistory() {
   } = useContext(AttendanceContext);
 
   const [subjectFilter, setSubjectFilter] = useState('all');
+  const [changing, setChanging] = useState(null);  // { record, status } waiting for confirmation
   const [deleting, setDeleting] = useState(null);
   const [notice, setNotice] = useState('');
   const today = todayLocal();
@@ -104,9 +105,11 @@ function AttendanceHistory() {
     return [...byDay.entries()].map(([date, list]) => ({ date, records: list, totals: tally(list) }));
   }, [attendanceRecords, subjectFilter]);
 
-  const handleChange = async (record, status) => {
+  const handleChange = async () => {
+    const { record, status } = changing;
+    setChanging(null);
     const result = await updateAttendanceRecord(record._id, { status });
-    if (!result.success) setNotice(result.message);
+    setNotice(result.success ? '' : result.message);
   };
 
   const handleDelete = async () => {
@@ -187,13 +190,27 @@ function AttendanceHistory() {
                     <span className={`h-7 px-2.5 rounded-full grid place-items-center text-xs font-bold shrink-0 ${STATUS_BADGE[record.status] || STATUS_BADGE['No Class']}`}>
                       {record.status}
                     </span>
-                    <RowMenu record={record} onChange={handleChange} onDelete={setDeleting} />
+                    <RowMenu
+                      record={record}
+                      onChange={(chosen, status) => setChanging({ record: chosen, status })}
+                      onDelete={setDeleting}
+                    />
                   </li>
                 );
               })}
             </ul>
           </section>
         ))
+      )}
+
+      {changing && (
+        <ConfirmDialog
+          title={`Mark this as ${changing.status.toLowerCase()}?`}
+          message={`${changing.record.subject?.name || 'This class'} on ${dayHeading(dayOf(changing.record.date), today)} is marked ${changing.record.status.toLowerCase()}. Changing it moves its hours in your percentage.`}
+          confirmLabel={`Mark as ${changing.status.toLowerCase()}`}
+          onConfirm={handleChange}
+          onCancel={() => setChanging(null)}
+        />
       )}
 
       {deleting && (

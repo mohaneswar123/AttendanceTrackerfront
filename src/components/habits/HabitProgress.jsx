@@ -16,8 +16,12 @@ const LEGEND = [
  *
  * Weeks are rows and weekdays are columns, so a habit that always goes wrong on Fridays
  * shows up as a column rather than something you have to count out.
+ *
+ * It only shows. Marking a day is done on Today, where the day is in front of you and the
+ * three states are spelled out; a grid of small squares is a poor place to decide that a
+ * day in the past was really a skip, and an easy place to change one by accident.
  */
-function HabitProgress({ habits, entries, selectedId, onSelect, onToggleDay }) {
+function HabitProgress({ habits, entries, selectedId, onSelect }) {
   const weeks = useMemo(() => heatmapWeeks(5), []);
   const today = todayIso();
   const habit = habits.find(item => item.id === selectedId) || habits[0];
@@ -90,19 +94,16 @@ function HabitProgress({ habits, entries, selectedId, onSelect, onToggleDay }) {
                 const isToday = date === today;
                 const label = `${shortDay(date)}: ${entry ? STATUS_LABEL[entry.status] : future ? 'still to come' : 'not marked'}`;
                 return (
-                  <button
+                  <span
                     key={date}
-                    type="button"
-                    disabled={future}
-                    onClick={() => onToggleDay(habit, date, entry)}
+                    role="img"
                     title={label}
                     aria-label={label}
-                    className={`aspect-square rounded-md transition-colors
-                      ${future ? 'border border-dashed border-line cursor-default'
+                    className={`aspect-square rounded-md
+                      ${future ? 'border border-dashed border-line'
                         : entry ? STATUS_CELL[entry.status]
                           : 'bg-background-surface'}
-                      ${isToday ? 'ring-2 ring-teal-500' : ''}
-                      ${future ? '' : 'hover:ring-1 hover:ring-teal-500/60'}`}
+                      ${isToday ? 'ring-2 ring-teal-500' : ''}`}
                   />
                 );
               })}
@@ -120,7 +121,7 @@ function HabitProgress({ habits, entries, selectedId, onSelect, onToggleDay }) {
         </div>
 
         <p className="text-xs text-slate-500 mt-3">
-          Best run so far: {streakUnit(habit, habit.bestStreak)}. Tap a past day to change it.
+          Best run so far: {streakUnit(habit, habit.bestStreak)}.
         </p>
       </section>
     </div>
