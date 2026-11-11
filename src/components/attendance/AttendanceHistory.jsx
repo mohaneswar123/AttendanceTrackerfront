@@ -42,7 +42,7 @@ function RowMenu({ record, onChange, onDelete }) {
         aria-label={`More actions for ${record.subject?.name || 'this record'}`}
         aria-haspopup="menu"
         aria-expanded={open}
-        className="w-10 h-10 grid place-items-center rounded-lg text-slate-500 hover:text-slate-200 hover:bg-white/5"
+        className="w-11 h-11 grid place-items-center rounded-lg text-slate-500 hover:text-slate-200 hover:bg-white/5"
       >
         <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
           <circle cx="5" cy="12" r="1.6" /><circle cx="12" cy="12" r="1.6" /><circle cx="19" cy="12" r="1.6" />

@@ -1,6 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AttendanceContext } from '../contexts/AttendanceContext';
+import PasswordField from '../components/PasswordField';
 import { errorMessage, isSubscriptionError } from '../services/api';
 
 function Login() {
@@ -85,21 +86,17 @@ function Login() {
                 disabled={loading}
               />
             </div>
-            <div>
-              <label htmlFor="password" className="label">Password</label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                className="input"
-                placeholder="Enter your password"
-                value={credentials.password}
-                onChange={handleChange}
-                disabled={loading}
-              />
-            </div>
+            <PasswordField
+              id="password"
+              name="password"
+              label="Password"
+              autoComplete="current-password"
+              required
+              placeholder="Enter your password"
+              value={credentials.password}
+              onChange={handleChange}
+              disabled={loading}
+            />
           </div>
 
           <div>

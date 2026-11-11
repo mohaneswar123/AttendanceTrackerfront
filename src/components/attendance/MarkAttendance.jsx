@@ -221,7 +221,7 @@ function MarkAttendance({ onAddSubject }) {
                 role="radio"
                 aria-checked={classNumber === hours}
                 onClick={() => setClassNumber(hours)}
-                className={`w-14 h-9 rounded-lg text-sm font-semibold transition-colors ${classNumber === hours
+                className={`w-14 h-11 rounded-lg text-sm font-semibold transition-colors ${classNumber === hours
                   ? 'bg-light-primary text-background'
                   : 'text-slate-500'}`}
               >
@@ -281,7 +281,7 @@ function MarkAttendance({ onAddSubject }) {
                     type="button"
                     onClick={() => setUndoing(record)}
                     disabled={busy === record._id}
-                    className="text-sm font-semibold text-slate-400 hover:text-rose-400 underline underline-offset-2 shrink-0 disabled:opacity-50"
+                    className="h-11 px-2 -mr-2 text-sm font-semibold text-slate-400 hover:text-rose-400 underline underline-offset-2 shrink-0 disabled:opacity-50"
                   >
                     {busy === record._id ? '…' : 'Undo'}
                   </button>

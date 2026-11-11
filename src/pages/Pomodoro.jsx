@@ -124,7 +124,7 @@ function PomodoroTimer() {
           onClick={pomodoro.toggleMute}
           aria-pressed={pomodoro.muted}
           aria-label={pomodoro.muted ? 'Turn sound on' : 'Mute sound'}
-          className="btn btn-secondary rounded-full h-10 px-4"
+          className="btn btn-secondary rounded-full h-11 px-4"
         >
           <SpeakerIcon className="w-4 h-4" muted={pomodoro.muted} />
           {pomodoro.muted ? 'Sound off' : 'Sound on'}

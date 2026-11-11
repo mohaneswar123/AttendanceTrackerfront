@@ -2,8 +2,10 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AttendanceContext } from '../contexts/AttendanceContext';
 import PageHeader from '../components/PageHeader';
+import PasswordField from '../components/PasswordField';
 import ThemeToggle from '../components/ThemeToggle';
 import InstallApp from '../components/InstallApp';
+import { MIN_PASSWORD } from './Register';
 import { LogOutIcon } from '../components/icons';
 
 // The account and this device. Subjects live with the attendance they belong to.
@@ -74,6 +76,19 @@ function Settings() {
 
   return (
     <div className="space-y-4">
+      {/* Settings has no section bar of its own, so without this a phone had no way out
+          but the browser's back gesture — which an installed PWA does not have at all. */}
+      <button
+        type="button"
+        onClick={() => (window.history.length > 1 ? navigate(-1) : navigate('/'))}
+        className="md:hidden h-11 -ml-2 px-2 inline-flex items-center gap-1.5 text-sm font-semibold text-slate-400 hover:text-slate-200"
+      >
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+        </svg>
+        Back
+      </button>
+
       <PageHeader eyebrow="Your account" title="Settings" />
 
       {message.text && (
@@ -90,13 +105,10 @@ function Settings() {
           <h2 className="font-semibold text-white truncate">{currentUser ? currentUser.username || 'Student account' : 'Guest'}</h2>
           <p className="text-sm text-slate-500 truncate">{currentUser ? currentUser.email : 'Signed out — nothing is saved'}</p>
         </div>
-        {/* The sidebar's sign-out is desktop-only, so this is the only one a phone has */}
-        {currentUser ? (
-          <button onClick={handleLogout} className="btn btn-secondary w-full sm:w-auto shrink-0">
-            <LogOutIcon className="w-4 h-4" />
-            Sign out
-          </button>
-        ) : (
+        {/* Sign out used to sit here, the first full-width button on the page. It is at the
+            bottom now: it is not what anyone opens Settings to do, and it was a mis-tap
+            away from the profile you had just come to read. */}
+        {!currentUser && (
           <Link to="/login" className="btn btn-primary w-full sm:w-auto shrink-0">Sign in</Link>
         )}
       </section>
@@ -120,6 +132,9 @@ function Settings() {
             <div className="flex gap-2">
               <input
                 id="settings-email"
+                type="email"
+                autoComplete="email"
+                inputMode="email"
                 value={newEmail}
                 onChange={e => setNewEmail(e.target.value)}
                 placeholder="New email address"
@@ -129,34 +144,34 @@ function Settings() {
             </div>
           </div>
 
-          <div className="pt-5 border-t border-line space-y-2">
-            <label htmlFor="settings-old-password" className="label">Password</label>
-            <input
+          {/* Stacked, not side by side: two 151px boxes with only a placeholder between
+              them is where a mistyped new password goes unnoticed. */}
+          <div className="pt-5 border-t border-line space-y-3">
+            <PasswordField
               id="settings-old-password"
-              type="password"
+              label="Current password"
+              autoComplete="current-password"
               value={oldPassword}
               onChange={e => setOldPassword(e.target.value)}
               placeholder="Current password"
-              className="input"
             />
-            <div className="grid grid-cols-2 gap-2">
-              <input
-                type="password"
-                value={newPassword}
-                onChange={e => setNewPassword(e.target.value)}
-                placeholder="New password"
-                aria-label="New password"
-                className="input"
-              />
-              <input
-                type="password"
-                value={confirmPasswordField}
-                onChange={e => setConfirmPasswordField(e.target.value)}
-                placeholder="Confirm"
-                aria-label="Confirm new password"
-                className="input"
-              />
-            </div>
+            <PasswordField
+              id="settings-new-password"
+              label="New password"
+              autoComplete="new-password"
+              value={newPassword}
+              onChange={e => setNewPassword(e.target.value)}
+              placeholder="New password"
+              hint={`At least ${MIN_PASSWORD} characters.`}
+            />
+            <PasswordField
+              id="settings-confirm-password"
+              label="Confirm new password"
+              autoComplete="new-password"
+              value={confirmPasswordField}
+              onChange={e => setConfirmPasswordField(e.target.value)}
+              placeholder="Confirm new password"
+            />
             <button onClick={() => handleUpdateProfile('password')} disabled={loading} className="btn btn-secondary w-full mt-1">
               {loading ? 'Saving…' : 'Change password'}
             </button>
@@ -199,6 +214,15 @@ function Settings() {
           )}
         </section>
       </div>
+
+      {currentUser && (
+        <section className="surface p-4 md:p-5">
+          <button onClick={handleLogout} className="btn btn-secondary w-full">
+            <LogOutIcon className="w-4 h-4" />
+            Sign out
+          </button>
+        </section>
+      )}
     </div>
   );
 }

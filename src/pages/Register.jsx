@@ -1,6 +1,10 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AttendanceContext } from '../contexts/AttendanceContext';
+import PasswordField from '../components/PasswordField';
+
+// Stated on the form and checked here. The server enforces the same number.
+export const MIN_PASSWORD = 8;
 
 function Register() {
   const [formData, setFormData] = useState({
@@ -32,6 +36,11 @@ function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
+    if (formData.password.length < MIN_PASSWORD) {
+      setError(`Use at least ${MIN_PASSWORD} characters for your password.`);
+      return;
+    }
 
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
@@ -111,36 +120,30 @@ function Register() {
                 </p>
               )}
             </div>
-            <div>
-              <label htmlFor="password" className="label">Password</label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="new-password"
-                required
-                className="input"
-                placeholder="Create a password"
-                value={formData.password}
-                onChange={handleChange}
-                disabled={loading}
-              />
-            </div>
-            <div>
-              <label htmlFor="confirmPassword" className="label">Confirm Password</label>
-              <input
-                id="confirmPassword"
-                name="confirmPassword"
-                type="password"
-                autoComplete="new-password"
-                required
-                className="input"
-                placeholder="Confirm your password"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                disabled={loading}
-              />
-            </div>
+            <PasswordField
+              id="password"
+              name="password"
+              label="Create a password"
+              autoComplete="new-password"
+              required
+              placeholder="Create a password"
+              value={formData.password}
+              onChange={handleChange}
+              disabled={loading}
+              // Said before they type, not after the form is rejected
+              hint={`At least ${MIN_PASSWORD} characters.`}
+            />
+            <PasswordField
+              id="confirmPassword"
+              name="confirmPassword"
+              label="Confirm password"
+              autoComplete="new-password"
+              required
+              placeholder="Confirm your password"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              disabled={loading}
+            />
           </div>
 
           <div>

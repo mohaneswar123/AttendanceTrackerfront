@@ -24,18 +24,27 @@ export function TaskRowBody({ task, dragging = false, onToggle, onStar, onOpen, 
 
   return (
     <div className={`surface flex items-center gap-3 p-3 ${dragging ? 'rotate-1' : ''} ${done ? 'opacity-60' : ''}`}>
-      <div {...noDrag}>
+      {/* Ticking a task off is the most frequent action in Tasks and it sits right beside
+          the title, so a near-miss used to open the task instead of completing it. The
+          circle stays 24px to the eye; the button around it is a full 44px to the thumb.
+          The growth is upward, downward and rightward only — overhanging to the left would
+          cover the row's own padding, which is where a drag is grabbed from. */}
+      <div {...noDrag} className="-my-2.5 -mr-2.5">
         <button
           type="button"
           onClick={() => onToggle(task)}
           disabled={busy}
           aria-pressed={done}
           aria-label={done ? `Mark "${task.title}" not done` : `Mark "${task.title}" done`}
-          className={`w-6 h-6 shrink-0 rounded-full border-2 grid place-items-center transition-colors disabled:opacity-50 ${done
-            ? 'bg-tasks border-tasks text-white'
-            : 'border-line hover:border-tasks'}`}
+          className="group w-11 h-11 shrink-0 grid place-items-center disabled:opacity-50"
         >
-          {done && <CheckIcon className="w-3.5 h-3.5" />}
+          <span
+            className={`w-6 h-6 rounded-full border-2 grid place-items-center transition-colors ${done
+              ? 'bg-tasks border-tasks text-white'
+              : 'border-line group-hover:border-tasks'}`}
+          >
+            {done && <CheckIcon className="w-3.5 h-3.5" />}
+          </span>
         </button>
       </div>
 
@@ -66,7 +75,7 @@ export function TaskRowBody({ task, dragging = false, onToggle, onStar, onOpen, 
           disabled={busy}
           aria-pressed={Boolean(task.important)}
           aria-label={task.important ? `Remove the star from "${task.title}"` : `Star "${task.title}"`}
-          className={`w-9 h-9 shrink-0 rounded-lg grid place-items-center transition-colors ${task.important
+          className={`w-11 h-11 shrink-0 rounded-lg grid place-items-center transition-colors ${task.important
             ? 'text-streak'
             : 'text-slate-500 hover:text-slate-300'}`}
         >

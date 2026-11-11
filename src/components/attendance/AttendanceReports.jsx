@@ -148,7 +148,7 @@ function AttendanceReports() {
             type="button"
             onClick={() => setLowestFirst(v => !v)}
             aria-label={`Sorted ${lowestFirst ? 'lowest' : 'highest'} first. Change the order.`}
-            className="text-xs font-semibold text-slate-400 hover:text-slate-200 inline-flex items-center gap-1.5"
+            className="h-11 px-2 -mr-2 text-sm font-semibold text-slate-400 hover:text-slate-200 inline-flex items-center gap-1.5"
           >
             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" d="M7 4v16m0 0l-3-3m3 3l3-3M17 20V4m0 0l3 3m-3-3l-3 3" />
