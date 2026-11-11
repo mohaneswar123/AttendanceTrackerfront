@@ -1,6 +1,7 @@
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AttendanceContext } from '../contexts/AttendanceContext';
+import { APP_INITIAL } from '../branding';
 import { adminService, errorMessage } from '../services/api';
 import AdminUserList from '../components/admin/AdminUserList';
 import AdminUserDetail from '../components/admin/AdminUserDetail';
@@ -201,7 +202,7 @@ function AdminDashboard() {
       <header className="sticky top-0 z-30 h-14 bg-background-paper border-b border-line">
         <div className="h-full max-w-7xl mx-auto px-4 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5 min-w-0">
-            <span className="w-6 h-6 rounded bg-primary-600 text-primary-foreground text-xs font-bold flex items-center justify-center shrink-0">AH</span>
+            <span className="w-6 h-6 rounded bg-primary-600 text-primary-foreground text-xs font-bold flex items-center justify-center shrink-0">{APP_INITIAL}</span>
             <span className="font-semibold tracking-tight text-white truncate">Admin</span>
           </div>
           <div className="flex items-center gap-1 shrink-0">

@@ -10,6 +10,9 @@
  */
 export const APP_NAME = 'Momentum';
 
+/** The badge on the sign-in card and in the sidebar */
+export const APP_INITIAL = 'M';
+
 export const APP_TAGLINE = 'Attendance, tasks, habits and focus in one place';
 
 /** "Tasks · Momentum", or just "Momentum" on the home screen */

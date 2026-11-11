@@ -1,6 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AttendanceContext } from '../contexts/AttendanceContext';
+import { APP_INITIAL } from '../branding';
 import { errorMessage } from '../services/api';
 
 function AdminLogin() {
@@ -30,7 +31,7 @@ function AdminLogin() {
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <div className="surface w-full max-w-sm p-8">
         <div className="text-center mb-6">
-          <span className="w-11 h-11 mx-auto rounded-lg bg-primary-600 text-primary-foreground text-sm font-bold flex items-center justify-center">AH</span>
+          <span className="w-11 h-11 mx-auto rounded-lg bg-primary-600 text-primary-foreground text-sm font-bold flex items-center justify-center">{APP_INITIAL}</span>
           <h1 className="mt-4 text-xl font-semibold text-white">Admin sign in</h1>
           <p className="mt-1 text-sm text-slate-400">For the people who manage accounts.</p>
         </div>

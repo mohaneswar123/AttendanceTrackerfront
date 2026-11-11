@@ -152,7 +152,7 @@ function HabitFormModal({ habit, initial, onSave, onArchive, onDelete, onClose }
                   key={template.name}
                   type="button"
                   onClick={() => applyTemplate(template)}
-                  className="h-8 px-2.5 rounded-full bg-background-surface text-xs font-medium text-slate-300 hover:text-white transition-colors"
+                  className="h-11 px-3.5 rounded-full bg-background-surface text-sm font-medium text-slate-300 hover:text-white transition-colors"
                 >
                   <span aria-hidden="true">{template.icon}</span> {template.name}
                 </button>
@@ -192,7 +192,7 @@ function HabitFormModal({ habit, initial, onSave, onArchive, onDelete, onClose }
                 aria-checked={fields.color === name}
                 aria-label={name.toLowerCase()}
                 onClick={() => set({ color: name })}
-                className={`w-9 h-9 rounded-full ${colorOf(name).dot} ${fields.color === name ? 'ring-2 ring-offset-2 ring-offset-transparent ring-white/70' : ''}`}
+                className={`w-11 h-11 rounded-full border-[5px] border-transparent bg-clip-content ${colorOf(name).dot} ${fields.color === name ? 'ring-2 ring-offset-2 ring-offset-transparent ring-white/70' : ''}`}
               />
             ))}
           </div>

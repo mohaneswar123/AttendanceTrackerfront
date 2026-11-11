@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AttendanceContext } from '../contexts/AttendanceContext';
 import Footer from '../components/Footer';
 import PasswordField from '../components/PasswordField';
-import { APP_NAME } from '../branding';
+import { APP_NAME, APP_INITIAL } from '../branding';
 import { errorMessage, isSubscriptionError } from '../services/api';
 
 function Login() {
@@ -53,7 +53,7 @@ function Login() {
       <div className="max-w-md w-full space-y-8 surface p-8 md:p-10">
         <div>
           <div className="flex justify-center mb-6">
-            <div className="w-11 h-11 mx-auto rounded-lg bg-primary-600 text-primary-foreground text-sm font-bold flex items-center justify-center">AH</div>
+            <div className="w-11 h-11 mx-auto rounded-lg bg-primary-600 text-primary-foreground text-sm font-bold flex items-center justify-center">{APP_INITIAL}</div>
           </div>
           <h1 className="text-center text-xl font-semibold text-white">Sign in</h1>
           <p className="mt-1 text-center text-sm text-slate-400">Welcome back to {APP_NAME}</p>

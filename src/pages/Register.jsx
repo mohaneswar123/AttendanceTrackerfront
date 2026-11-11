@@ -166,7 +166,7 @@ function Register() {
           </div>
 
           <div className="text-sm text-center mt-6">
-            <Link to="/login" className="font-medium text-slate-400 hover:text-white transition-colors">
+            <Link to="/login" className="h-11 inline-flex items-center font-medium text-slate-400 hover:text-white transition-colors">
               Already have an account? <span className="text-primary-400 hover:text-primary-300">Sign in</span>
             </Link>
           </div>
