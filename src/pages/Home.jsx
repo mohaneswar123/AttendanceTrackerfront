@@ -8,10 +8,10 @@ import ThemeToggle from '../components/ThemeToggle';
 import LoginPrompt from '../components/LoginPrompt';
 import { ChevronRightIcon, SettingsIcon } from '../components/icons';
 import { longWeekday, tally } from '../utils/attendance';
-import { todayLocal } from '../utils/date';
+import { nowHour, todayLocal } from '../utils/date';
 
 const greeting = () => {
-  const hour = new Date().getHours();
+  const hour = nowHour();
   if (hour < 12) return 'Good morning';
   if (hour < 17) return 'Good afternoon';
   return 'Good evening';
@@ -19,7 +19,7 @@ const greeting = () => {
 
 /** The part of the day the card is about, so "left today" has an edge to it */
 const partOfDay = () => {
-  const hour = new Date().getHours();
+  const hour = nowHour();
   if (hour < 12) return 'This morning';
   if (hour < 17) return 'This afternoon';
   return 'Tonight';

@@ -1,4 +1,5 @@
 import React from 'react';
+import { nowYear } from '../utils/date';
 import { Link } from 'react-router-dom';
 
 const LINKS = [
@@ -12,7 +13,7 @@ function Footer() {
   return (
     <footer className="border-t border-line">
       <div className="max-w-6xl mx-auto px-8 py-5 flex items-center justify-between gap-4 text-xs text-slate-500">
-        <p>© {new Date().getFullYear()} Attendance In Hand</p>
+        <p>© {nowYear()} Attendance In Hand</p>
         <nav className="flex items-center gap-5" aria-label="Legal">
           {LINKS.map(link => (
             <Link key={link.to} to={link.to} className="hover:text-slate-300 transition-colors">{link.label}</Link>

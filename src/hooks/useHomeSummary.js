@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import {
   calendarService, habitService, pomodoroService, taskService, timetableService
 } from '../services/api';
-import { todayLocal } from '../utils/date';
+import { nowTime, todayLocal } from '../utils/date';
 import { todayDay } from '../utils/timetable';
 
 /**
@@ -24,8 +24,7 @@ export default function useHomeSummary() {
   const load = useCallback(async () => {
     setLoading(true);
     const today = todayLocal();
-    const clock = new Date();
-    const nowTime = `${String(clock.getHours()).padStart(2, '0')}:${String(clock.getMinutes()).padStart(2, '0')}`;
+    const now = nowTime();
 
     const settle = async (key, run) => {
       try {
@@ -42,7 +41,7 @@ export default function useHomeSummary() {
         const timed = events
           .filter(event => !event.allDay && event.startTime)
           .sort((a, b) => String(a.startTime).localeCompare(String(b.startTime)));
-        const next = timed.find(event => String(event.startTime) >= nowTime) || timed[0] || events[0] || null;
+        const next = timed.find(event => String(event.startTime) >= now) || timed[0] || events[0] || null;
         return {
           today: events.length,
           next: next ? { title: next.title, time: next.allDay ? null : next.startTime } : null

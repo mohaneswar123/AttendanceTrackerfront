@@ -1,10 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { categoryOf, timeRange } from '../../utils/timetable';
-
-const nowMinutes = () => {
-  const now = new Date();
-  return now.getHours() * 60 + now.getMinutes();
-};
+import { nowMinutes } from '../../utils/date';
 
 const minutesLabel = (minutes) => {
   if (minutes < 60) return `${minutes} min`;

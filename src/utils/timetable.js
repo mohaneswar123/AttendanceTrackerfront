@@ -1,6 +1,7 @@
 // Helpers for weekly routines. Times are "HH:mm" and are turned into minutes only to
 // compare and display them here; the server decides what is stored and what is refused.
 import { formatTime, toMinutes } from './calendarDate';
+import { todayLocal } from './date';
 
 export const DAYS = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'];
 
@@ -14,8 +15,8 @@ export const DAY_LONG = {
   FRIDAY: 'Friday', SATURDAY: 'Saturday', SUNDAY: 'Sunday'
 };
 
-// Today's weekday name, so the page opens on the day the student is living
-export const todayDay = () => DAYS[(new Date().getDay() + 6) % 7];
+// Today's weekday name in IST, so the page opens on the day the student is living
+export const todayDay = () => DAYS[(new Date(`${todayLocal()}T00:00:00`).getDay() + 6) % 7];
 
 // `block` colours the activity card in the day's timeline; the emoji labels the category
 // in the form's dropdown.
