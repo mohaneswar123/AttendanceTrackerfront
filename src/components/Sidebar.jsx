@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AttendanceContext } from '../contexts/AttendanceContext';
-import { APP_NAME } from '../branding';
+import { APP_NAME, APP_INITIAL } from '../branding';
 import ThemeToggle from './ThemeToggle';
 import { GridIcon, LogOutIcon, SettingsIcon } from './icons';
 import { FEATURES, toneOf } from '../features/registry';
@@ -40,7 +40,7 @@ function Sidebar() {
     <aside className="hidden md:flex flex-col w-60 h-screen fixed left-0 top-0 bg-background-paper border-r border-line z-40">
       <div className="h-14 flex items-center px-5 border-b border-line">
         <Link to="/" className="flex items-center gap-2.5">
-          <span className="w-6 h-6 rounded bg-primary-600 text-primary-foreground text-xs font-bold flex items-center justify-center">AH</span>
+          <span className="w-6 h-6 rounded bg-primary-600 text-primary-foreground text-xs font-bold flex items-center justify-center">{APP_INITIAL}</span>
           <span className="font-semibold tracking-tight text-white">{APP_NAME}</span>
         </Link>
       </div>

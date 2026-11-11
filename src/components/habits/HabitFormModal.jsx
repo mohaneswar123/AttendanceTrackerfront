@@ -68,6 +68,7 @@ function HabitFormModal({ habit, initial, onSave, onArchive, onDelete, onClose }
       : {})
   }));
   const [saving, setSaving] = useState(false);
+  const [showMore, setShowMore] = useState(false);
   const [error, setError] = useState('');
   const firstField = useRef(null);
 
@@ -152,64 +153,13 @@ function HabitFormModal({ habit, initial, onSave, onArchive, onDelete, onClose }
                   key={template.name}
                   type="button"
                   onClick={() => applyTemplate(template)}
-                  className="h-8 px-2.5 rounded-full bg-background-surface text-xs font-medium text-slate-300 hover:text-white transition-colors"
+                  className="h-11 px-3.5 rounded-full bg-background-surface text-sm font-medium text-slate-300 hover:text-white transition-colors"
                 >
                   <span aria-hidden="true">{template.icon}</span> {template.name}
                 </button>
               ))}
             </div>
           )}
-        </div>
-
-        <div>
-          <span className="label">Icon</span>
-          <div className="flex flex-wrap gap-2">
-            {ICONS.map(icon => (
-              <button
-                key={icon}
-                type="button"
-                onClick={() => set({ icon })}
-                aria-label={`Icon ${icon}`}
-                aria-pressed={fields.icon === icon}
-                className={`w-11 h-11 rounded-xl border text-xl transition-colors ${fields.icon === icon
-                  ? 'bg-teal-500/20 border-teal-500/60'
-                  : 'bg-white/5 border-transparent hover:bg-white/10'}`}
-              >
-                {icon}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div>
-          <span className="label">Colour</span>
-          <div className="flex gap-2" role="radiogroup" aria-label="Colour">
-            {COLOR_NAMES.map(name => (
-              <button
-                key={name}
-                type="button"
-                role="radio"
-                aria-checked={fields.color === name}
-                aria-label={name.toLowerCase()}
-                onClick={() => set({ color: name })}
-                className={`w-9 h-9 rounded-full ${colorOf(name).dot} ${fields.color === name ? 'ring-2 ring-offset-2 ring-offset-transparent ring-white/70' : ''}`}
-              />
-            ))}
-          </div>
-        </div>
-
-        <div>
-          <label htmlFor="habit-category" className="label">Category</label>
-          <select
-            id="habit-category"
-            value={fields.category}
-            onChange={(e) => set({ category: e.target.value })}
-            className="input"
-          >
-            {CATEGORIES.map(category => (
-              <option key={category.value} value={category.value}>{category.icon} {category.label}</option>
-            ))}
-          </select>
         </div>
 
         <div>
@@ -329,19 +279,95 @@ function HabitFormModal({ habit, initial, onSave, onArchive, onDelete, onClose }
           </p>
         </div>
 
+
+        {/* Name, what counts and how often are the decisions a habit cannot be made
+            without. Icon, colour, category and the note are preferences, and a
+            suggestion chip has usually filled them already, so they sit behind this
+            rather than between the student and the Save button. */}
         <div>
-          <label htmlFor="habit-reason" className="label">Why it matters (optional)</label>
-          <textarea
-            id="habit-reason"
-            value={fields.reason}
-            onChange={(e) => set({ reason: e.target.value })}
-            placeholder="Half an hour now saves a week before exams"
-            className="input"
-            rows={2}
-            maxLength={200}
-          />
+          <button
+            type="button"
+            onClick={() => setShowMore(v => !v)}
+            aria-expanded={showMore}
+            className="h-11 w-full flex items-center justify-between gap-2 text-sm font-semibold text-slate-300 hover:text-white"
+          >
+            More options
+            <svg
+              className={`w-4 h-4 transition-transform ${showMore ? 'rotate-180' : ''}`}
+              fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden="true"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
         </div>
 
+        {showMore && (
+          <>
+          <div>
+            <span className="label">Icon</span>
+            <div className="flex flex-wrap gap-2">
+              {ICONS.map(icon => (
+                <button
+                  key={icon}
+                  type="button"
+                  onClick={() => set({ icon })}
+                  aria-label={`Icon ${icon}`}
+                  aria-pressed={fields.icon === icon}
+                  className={`w-11 h-11 rounded-xl border text-xl transition-colors ${fields.icon === icon
+                    ? 'bg-teal-500/20 border-teal-500/60'
+                    : 'bg-white/5 border-transparent hover:bg-white/10'}`}
+                >
+                  {icon}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <span className="label">Colour</span>
+            <div className="flex gap-2" role="radiogroup" aria-label="Colour">
+              {COLOR_NAMES.map(name => (
+                <button
+                  key={name}
+                  type="button"
+                  role="radio"
+                  aria-checked={fields.color === name}
+                  aria-label={name.toLowerCase()}
+                  onClick={() => set({ color: name })}
+                  className={`w-11 h-11 rounded-full border-[5px] border-transparent bg-clip-content ${colorOf(name).dot} ${fields.color === name ? 'ring-2 ring-offset-2 ring-offset-transparent ring-white/70' : ''}`}
+                />
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label htmlFor="habit-category" className="label">Category</label>
+            <select
+              id="habit-category"
+              value={fields.category}
+              onChange={(e) => set({ category: e.target.value })}
+              className="input"
+            >
+              {CATEGORIES.map(category => (
+                <option key={category.value} value={category.value}>{category.icon} {category.label}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label htmlFor="habit-reason" className="label">Why it matters (optional)</label>
+            <textarea
+              id="habit-reason"
+              value={fields.reason}
+              onChange={(e) => set({ reason: e.target.value })}
+              placeholder="Half an hour now saves a week before exams"
+              className="input"
+              rows={2}
+              maxLength={200}
+            />
+          </div>
+          </>
+        )}
         </div>
 
         <div className="shrink-0 border-t border-line p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] md:pb-5">

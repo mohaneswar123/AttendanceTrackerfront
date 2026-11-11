@@ -100,6 +100,12 @@ function MarkAttendance({ onAddSubject }) {
 
   const repeatingSubject = Boolean(subject && alreadyMarked[subject._id]);
 
+  // How many distinct subjects have anything down for this day
+  const markedSubjects = useMemo(
+    () => (subjects || []).filter(item => alreadyMarked[item._id]).length,
+    [subjects, alreadyMarked]
+  );
+
   /**
    * Open on a subject that still needs recording for this day.
    *
@@ -299,8 +305,12 @@ function MarkAttendance({ onAddSubject }) {
           <h2 className="font-semibold text-white">
             {date === today ? 'Marked today' : `Marked on ${dayLabel(date, today)}`}
           </h2>
+          {/* Subjects, not records. This counted the day's entries against the number of
+              subjects, so a subject with two classes read as two subjects — "7 of 2
+              subjects" once a few days had several. The classes are said separately. */}
           <span className="text-sm text-slate-400">
-            {marked.length} of {subjects.length} {subjects.length === 1 ? 'subject' : 'subjects'}
+            {markedSubjects} of {subjects.length} {subjects.length === 1 ? 'subject' : 'subjects'}
+            {marked.length > markedSubjects && ` · ${marked.length} classes`}
           </span>
         </div>
 

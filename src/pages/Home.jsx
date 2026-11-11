@@ -152,8 +152,8 @@ function Home() {
   if (!currentUser) {
     return (
       <LoginPrompt
-        title="Your student apps"
-        message="Log in to see today across attendance, tasks, habits and the rest."
+        title="Everything a term throws at you"
+        message="Attendance, work, habits, classes and focus — one app, built for students."
       />
     );
   }
@@ -266,28 +266,31 @@ function HomeHub() {
                 to={to}
                 className={`rounded-2xl p-3 flex flex-col gap-2 transition-opacity hover:opacity-90 ${tone.tint}`}
               >
-                <div className="flex items-center justify-between gap-2">
-                  <span className={`w-9 h-9 rounded-xl grid place-items-center bg-background-paper ${tone.text}`}>
+                {/* Icon and figure share a row so all six tiles fit one screen under
+                    "Today". Stacked, each tile ran to ~143px and the last pair fell off
+                    the bottom as soon as anything was due. */}
+                <div className="flex items-center gap-2">
+                  <span className={`w-9 h-9 shrink-0 rounded-xl grid place-items-center bg-background-paper ${tone.text}`}>
                     <feature.Icon className="w-[18px] h-[18px]" />
                   </span>
+                  {/* A shimmer, not an em dash: "—" and "Loading..." read as the answer */}
+                  {tile === null ? (
+                    <span className="block h-6 w-12 rounded-md bg-background-paper/70 animate-pulse" aria-hidden="true" />
+                  ) : (
+                    <p className="min-w-0 truncate text-2xl leading-none font-bold tabular-nums text-white">
+                      {tile.value}
+                      {tile.unit && <span className="text-sm font-semibold text-slate-400 ml-1">{tile.unit}</span>}
+                    </p>
+                  )}
                   {feature.isNew && (
-                    <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-light-primary text-background">
+                    <span className="ml-auto shrink-0 text-xs font-bold px-2 py-0.5 rounded-full bg-light-primary text-background">
                       NEW
                     </span>
                   )}
                 </div>
 
                 <div className="min-w-0">
-                  {/* A shimmer, not an em dash: "—" and "Loading..." read as the answer */}
-                  {tile === null ? (
-                    <span className="block h-7 w-16 rounded-md bg-background-paper/70 animate-pulse" aria-hidden="true" />
-                  ) : (
-                    <p className="text-2xl leading-none font-bold tabular-nums text-white">
-                      {tile.value}
-                      {tile.unit && <span className="text-sm font-semibold text-slate-400 ml-1">{tile.unit}</span>}
-                    </p>
-                  )}
-                  <p className="font-bold text-white mt-1.5 truncate">{feature.name}</p>
+                  <p className="font-bold text-white truncate">{feature.name}</p>
                   {tile?.caption && <p className="text-sm text-slate-400 truncate">{tile.caption}</p>}
                 </div>
               </Link>

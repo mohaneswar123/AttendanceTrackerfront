@@ -21,7 +21,7 @@ function ModeMenu({ mode, onSetActive, onEdit, onCopyDay, onDelete }) {
         aria-label={`More actions for ${mode.name}`}
         aria-haspopup="menu"
         aria-expanded={open}
-        className="w-7 h-7 grid place-items-center rounded-md text-slate-400 hover:text-slate-300 hover:bg-white/5 transition-colors"
+        className="w-11 h-11 grid place-items-center rounded-md text-slate-400 hover:text-slate-300 hover:bg-white/5 transition-colors"
       >
         <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.6" /><circle cx="12" cy="12" r="1.6" /><circle cx="19" cy="12" r="1.6" /></svg>
       </button>
@@ -61,7 +61,7 @@ function ModeSelector({ modes, selectedModeId, onSelect, onSetActive, onEdit, on
           aria-label={`Mode: ${selected.name}`}
           aria-haspopup="listbox"
           aria-expanded={open}
-          className="flex items-center gap-1.5 px-1 py-0.5 rounded-md text-sm text-slate-400 hover:text-slate-300 transition-colors"
+          className="h-11 flex items-center gap-1.5 px-2 -ml-1 rounded-md text-sm text-slate-400 hover:text-slate-300 transition-colors"
         >
           <span aria-hidden="true">{selected.icon}</span>
           <span className="min-w-0 truncate">{selected.name}</span>
