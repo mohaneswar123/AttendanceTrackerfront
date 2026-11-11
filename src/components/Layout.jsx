@@ -27,7 +27,9 @@ function Layout({ children }) {
 
       {/* No top bar on phones: every page starts with its own title, which is the header */}
       <div className="md:ml-60 flex flex-col min-h-screen">
-        <main className="flex-1 w-full px-4 md:px-8 pt-5 md:pt-8 pb-24 md:pb-8">
+        {/* Inside a feature the bottom holds the pill AND the floating +, so the page
+            needs enough tail for the last row to scroll clear of both */}
+        <main className={`flex-1 w-full px-3 min-[360px]:px-4 md:px-8 pt-5 md:pt-8 ${feature ? 'pb-44' : 'pb-24'} md:pb-8`}>
           <div className="max-w-2xl md:max-w-5xl mx-auto">
             {error && (
               <div className="notice notice-danger mb-4" role="alert">

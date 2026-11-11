@@ -72,7 +72,7 @@ function Register() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
 
-      <div className="max-w-md w-full space-y-8 surface p-8 md:p-10">
+      <div className="max-w-md w-full space-y-8 surface p-6 min-[360px]:p-8 md:p-10">
         <div>
           <h1 className="text-center text-xl font-semibold text-white">Create an account</h1>
           <p className="mt-1 text-center text-sm text-slate-400">Start tracking your attendance</p>
