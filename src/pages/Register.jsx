@@ -154,6 +154,14 @@ function Register() {
             >
               {loading ? 'Creating account...' : 'Register'}
             </button>
+            {/* Sign-up asks for a name and an email, so the policy covering them has to be
+                readable from here — on a phone the footer that used to hold it was hidden */}
+            <p className="mt-3 text-sm text-slate-400 text-center">
+              By creating an account you agree to the{' '}
+              <Link to="/terms" className="underline underline-offset-2 hover:text-slate-200">Terms</Link>
+              {' '}and{' '}
+              <Link to="/privacy-policy" className="underline underline-offset-2 hover:text-slate-200">Privacy Policy</Link>.
+            </p>
           </div>
 
           <div className="text-sm text-center mt-6">

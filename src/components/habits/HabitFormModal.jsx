@@ -124,8 +124,12 @@ function HabitFormModal({ habit, initial, onSave, onArchive, onDelete, onClose }
         role="dialog"
         aria-modal="true"
         aria-label={habit ? 'Edit habit' : 'New habit'}
-        className="w-full md:max-w-md max-h-[92vh] overflow-y-auto rounded-t-xl md:rounded-lg overlay p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] md:pb-5 space-y-4 animate-slide-up md:animate-fade-in"
+        className="w-full md:max-w-md max-h-[92vh] flex flex-col rounded-t-xl md:rounded-lg overlay animate-slide-up md:animate-fade-in"
       >
+        {/* The fields scroll; Cancel and Save do not. The sheet runs to about 1,080px of
+            content on a phone, so both buttons used to sit a few hundred pixels below the
+            fold and students filled one field without ever seeing how to finish. */}
+        <div className="flex-1 min-h-0 overflow-y-auto p-5 space-y-4">
         <h2 className="font-semibold text-white">{habit ? 'Edit habit' : 'New habit'}</h2>
 
         {error && <div className="notice notice-danger" role="alert">{error}</div>}
@@ -338,7 +342,10 @@ function HabitFormModal({ habit, initial, onSave, onArchive, onDelete, onClose }
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-2 pt-1">
+        </div>
+
+        <div className="shrink-0 border-t border-line p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] md:pb-5">
+        <div className="grid grid-cols-2 gap-2">
           <button type="button" onClick={onClose} className="btn btn-secondary">Cancel</button>
           <button type="submit" disabled={saving} className="btn bg-teal-500 text-white hover:bg-teal-600">
             {saving ? 'Saving…' : 'Save habit'}
@@ -362,10 +369,11 @@ function HabitFormModal({ habit, initial, onSave, onArchive, onDelete, onClose }
           </div>
         )}
         {habit && (
-          <p className="text-xs text-slate-500">
+          <p className="mt-2 text-sm text-slate-400">
             Archiving keeps every day you recorded. Deleting only works before a habit has any.
           </p>
         )}
+        </div>
       </form>
     </div>
   );

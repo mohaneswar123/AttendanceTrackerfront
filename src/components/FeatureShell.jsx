@@ -85,7 +85,7 @@ function FeatureShell({ onAdd, actions, title, subtitle, children }) {
         {children}
       </div>
 
-      <FeatureBottomNav feature={feature} />
+      <FeatureBottomNav feature={feature} onAdd={onAdd} />
 
       {switching && (
         <QuickSwitcher currentId={feature.id} lastTab={readLastTabs()} onClose={closeSwitcher} />

@@ -37,7 +37,8 @@ function FeatureHeader({ feature, tabLabel, subtitle, onSwitch, onAdd, children 
               onClick={onAdd}
               aria-label={feature.addLabel || `Add to ${feature.name}`}
               title={feature.addLabel}
-              className={`w-11 h-11 md:w-10 md:h-10 rounded-full grid place-items-center text-white transition-colors ${tone.bg} ${tone.hover}`}
+              // On a phone this lives in the bottom bar instead, within reach of a thumb
+              className={`hidden md:grid w-10 h-10 rounded-full place-items-center text-white transition-colors ${tone.bg} ${tone.hover}`}
             >
               <PlusIcon className="w-5 h-5" />
             </button>
