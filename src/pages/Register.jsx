@@ -1,6 +1,11 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AttendanceContext } from '../contexts/AttendanceContext';
+import Footer from '../components/Footer';
+import PasswordField from '../components/PasswordField';
+
+// Stated on the form and checked here. The server enforces the same number.
+export const MIN_PASSWORD = 8;
 
 function Register() {
   const [formData, setFormData] = useState({
@@ -33,6 +38,11 @@ function Register() {
     e.preventDefault();
     setError('');
 
+    if (formData.password.length < MIN_PASSWORD) {
+      setError(`Use at least ${MIN_PASSWORD} characters for your password.`);
+      return;
+    }
+
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
       return;
@@ -60,7 +70,7 @@ function Register() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
 
       <div className="max-w-md w-full space-y-8 surface p-8 md:p-10">
         <div>
@@ -111,36 +121,30 @@ function Register() {
                 </p>
               )}
             </div>
-            <div>
-              <label htmlFor="password" className="label">Password</label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="new-password"
-                required
-                className="input"
-                placeholder="Create a password"
-                value={formData.password}
-                onChange={handleChange}
-                disabled={loading}
-              />
-            </div>
-            <div>
-              <label htmlFor="confirmPassword" className="label">Confirm Password</label>
-              <input
-                id="confirmPassword"
-                name="confirmPassword"
-                type="password"
-                autoComplete="new-password"
-                required
-                className="input"
-                placeholder="Confirm your password"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                disabled={loading}
-              />
-            </div>
+            <PasswordField
+              id="password"
+              name="password"
+              label="Create a password"
+              autoComplete="new-password"
+              required
+              placeholder="Create a password"
+              value={formData.password}
+              onChange={handleChange}
+              disabled={loading}
+              // Said before they type, not after the form is rejected
+              hint={`At least ${MIN_PASSWORD} characters.`}
+            />
+            <PasswordField
+              id="confirmPassword"
+              name="confirmPassword"
+              label="Confirm password"
+              autoComplete="new-password"
+              required
+              placeholder="Confirm your password"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              disabled={loading}
+            />
           </div>
 
           <div>
@@ -151,6 +155,14 @@ function Register() {
             >
               {loading ? 'Creating account...' : 'Register'}
             </button>
+            {/* Sign-up asks for a name and an email, so the policy covering them has to be
+                readable from here — on a phone the footer that used to hold it was hidden */}
+            <p className="mt-3 text-sm text-slate-400 text-center">
+              By creating an account you agree to the{' '}
+              <Link to="/terms" className="underline underline-offset-2 hover:text-slate-200">Terms</Link>
+              {' '}and{' '}
+              <Link to="/privacy-policy" className="underline underline-offset-2 hover:text-slate-200">Privacy Policy</Link>.
+            </p>
           </div>
 
           <div className="text-sm text-center mt-6">
@@ -159,6 +171,11 @@ function Register() {
             </Link>
           </div>
         </form>
+      </div>
+
+      {/* These pages are outside Layout, so they carry the legal links themselves */}
+      <div className="w-full max-w-md mt-6">
+        <Footer />
       </div>
     </div>
   );

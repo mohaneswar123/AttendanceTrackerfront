@@ -44,7 +44,7 @@ function SkipDayModal({ habit, onSkip, onClose }) {
       >
         <div>
           <h2 className="font-semibold text-white">Skip today?</h2>
-          <p className="text-sm text-slate-500 mt-1">
+          <p className="text-sm text-slate-400 mt-1">
             A skipped day will not break your {habit.name} streak.
           </p>
         </div>

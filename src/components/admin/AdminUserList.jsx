@@ -17,7 +17,7 @@ function AdminUserList({ users, selectedId, onSelect, filter, onFilterChange, qu
     <div className="surface flex flex-col h-full overflow-hidden">
       <div className="p-3 space-y-2 border-b border-line">
         <div className="relative">
-          <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+          <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
           <input
             type="search"
             value={query}
@@ -46,9 +46,9 @@ function AdminUserList({ users, selectedId, onSelect, filter, onFilterChange, qu
 
       <div className="flex-1 overflow-y-auto custom-scrollbar">
         {loading && users.length === 0 ? (
-          <p className="p-6 text-center text-sm text-slate-500">Loading accounts…</p>
+          <p className="p-6 text-center text-sm text-slate-400">Loading accounts…</p>
         ) : users.length === 0 ? (
-          <p className="p-6 text-center text-sm text-slate-500">No accounts match.</p>
+          <p className="p-6 text-center text-sm text-slate-400">No accounts match.</p>
         ) : (
           <ul className="divide-y divide-line">
             {users.map(user => {
@@ -66,7 +66,7 @@ function AdminUserList({ users, selectedId, onSelect, filter, onFilterChange, qu
                       <span className="flex-1 min-w-0 text-sm font-medium text-slate-100 truncate">{user.username}</span>
                       <span className={`badge ${STATE_BADGE[state]} shrink-0`}>{STATE_LABEL[state]}</span>
                     </div>
-                    <p className="text-xs text-slate-500 truncate mt-0.5">{user.email}</p>
+                    <p className="text-xs text-slate-400 truncate mt-0.5">{user.email}</p>
                   </button>
                 </li>
               );

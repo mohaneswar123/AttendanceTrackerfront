@@ -49,15 +49,15 @@ function AdminUserDetail({
 
         <dl className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm">
           <div>
-            <dt className="text-xs text-slate-500">Access</dt>
+            <dt className="text-xs text-slate-400">Access</dt>
             <dd className="text-slate-200 mt-0.5">{accessSummary(user)}</dd>
           </div>
           <div>
-            <dt className="text-xs text-slate-500">Paid till</dt>
+            <dt className="text-xs text-slate-400">Paid till</dt>
             <dd className="text-slate-200 mt-0.5">{formatDate(user.paidTill)}</dd>
           </div>
           <div>
-            <dt className="text-xs text-slate-500">Subjects</dt>
+            <dt className="text-xs text-slate-400">Subjects</dt>
             <dd className="text-slate-200 mt-0.5">{subjects.length}</dd>
           </div>
         </dl>
@@ -107,7 +107,7 @@ function AdminUserDetail({
             </button>
           )}
         </div>
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-slate-400">
           Extending keeps the days still left; setting from today replaces them.
         </p>
       </section>
@@ -132,7 +132,7 @@ function AdminUserDetail({
             Set
           </button>
         </div>
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-slate-400">
           Passwords are stored hashed and cannot be read back. Set a temporary one and send it to {user.email}.
         </p>
       </section>
@@ -143,7 +143,7 @@ function AdminUserDetail({
             <h2 className="section-title">Attendance by subject</h2>
           </div>
           {stats.length === 0 ? (
-            <p className="p-6 text-center text-sm text-slate-500">No subjects yet.</p>
+            <p className="p-6 text-center text-sm text-slate-400">No subjects yet.</p>
           ) : (
             <ul className="divide-y divide-line">
               {stats.map(subject => (
@@ -154,7 +154,7 @@ function AdminUserDetail({
                       {subject.percentage}%
                     </span>
                   </div>
-                  <p className="text-xs text-slate-500 mt-1">
+                  <p className="text-xs text-slate-400 mt-1">
                     {subject.attended}h present · {subject.missed}h absent
                   </p>
                 </li>

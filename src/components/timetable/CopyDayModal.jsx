@@ -57,7 +57,7 @@ function CopyDayModal({ fromDay, activitiesByDay, onCopy, onClose }) {
             return (
               <label key={day} className="flex items-center gap-3 px-3 py-3 rounded-xl bg-slate-800/40 hover:bg-white/5 cursor-pointer">
                 <span className="flex-1 text-sm font-medium text-slate-200">{DAY_LONG[day]}</span>
-                {count > 0 && <span className="text-xs text-slate-500">{count} already</span>}
+                {count > 0 && <span className="text-xs text-slate-400">{count} already</span>}
                 <input
                   type="checkbox"
                   checked={checked}
@@ -87,7 +87,7 @@ function CopyDayModal({ fromDay, activitiesByDay, onCopy, onClose }) {
           >
             {saving ? 'Copying…' : 'Replace Days'}
           </button>
-          <p className="mt-2 text-center text-xs text-slate-500">
+          <p className="mt-2 text-center text-xs text-slate-400">
             {sourceCount === 0
               ? `${DAY_LONG[fromDay]} is empty, so the days you pick will be emptied too.`
               : `This will replace the selected days with a copy of ${DAY_LONG[fromDay]}'s activities.`}

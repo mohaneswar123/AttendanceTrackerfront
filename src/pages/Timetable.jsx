@@ -194,7 +194,7 @@ function TimetablePage() {
           </section>
 
           {selectedMode && !selectedMode.active && (
-            <p className="text-xs text-slate-500 text-center">
+            <p className="text-xs text-slate-400 text-center">
               You're looking at {selectedMode.name}. Your active mode is {modes.find(m => m.active)?.name || 'not set'}.
             </p>
           )}

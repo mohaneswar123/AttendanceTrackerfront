@@ -64,22 +64,22 @@ function HabitProgress({ habits, entries, selectedId, onSelect }) {
             <FlameIcon className="w-4 h-4" aria-hidden="true" />
             {habit.currentStreak}
           </p>
-          <p className="text-xs text-slate-500 mt-0.5">Current streak</p>
+          <p className="text-xs text-slate-400 mt-0.5">Current streak</p>
         </div>
         <div className="surface px-3 py-2.5">
           <p className="text-xl font-bold tabular-nums text-white">{habit.bestStreak}</p>
-          <p className="text-xs text-slate-500 mt-0.5">Best streak</p>
+          <p className="text-xs text-slate-400 mt-0.5">Best streak</p>
         </div>
         <div className="surface px-3 py-2.5">
           <p className="text-xl font-bold tabular-nums text-teal-300">{rateLabel(habit.last30Rate)}</p>
-          <p className="text-xs text-slate-500 mt-0.5">Kept, 30 days</p>
+          <p className="text-xs text-slate-400 mt-0.5">Kept, 30 days</p>
         </div>
       </div>
 
       <section className="surface p-4" aria-label={`${habit.name} over the last five weeks`}>
         <div className="grid grid-cols-7 gap-1 mb-1" aria-hidden="true">
           {DAYS.map(day => (
-            <span key={day} className="text-center text-[10px] font-semibold text-slate-500">
+            <span key={day} className="text-center text-xs font-semibold text-slate-400">
               {DAY_SHORT[day].slice(0, 1)}
             </span>
           ))}
@@ -111,7 +111,7 @@ function HabitProgress({ habits, entries, selectedId, onSelect }) {
           ))}
         </div>
 
-        <div className="flex flex-wrap items-center gap-3 mt-3 text-xs text-slate-500">
+        <div className="flex flex-wrap items-center gap-3 mt-3 text-xs text-slate-400">
           {LEGEND.map(item => (
             <span key={item.label} className="flex items-center gap-1.5">
               <span className={`w-3 h-3 rounded ${item.cell}`} aria-hidden="true" />
@@ -120,7 +120,7 @@ function HabitProgress({ habits, entries, selectedId, onSelect }) {
           ))}
         </div>
 
-        <p className="text-xs text-slate-500 mt-3">
+        <p className="text-xs text-slate-400 mt-3">
           Best run so far: {streakUnit(habit, habit.bestStreak)}.
         </p>
       </section>

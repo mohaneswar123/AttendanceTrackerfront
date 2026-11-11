@@ -26,7 +26,7 @@ function DayStrip({ currentDate, selectedDate, today, eventsByDate, onSelect }) 
               aria-current={isToday ? 'date' : undefined}
               className="flex flex-col items-center gap-1.5 py-1"
             >
-              <span className={`text-xs font-semibold ${isToday ? 'text-calendar' : 'text-slate-500'}`}>
+              <span className={`text-xs font-semibold ${isToday ? 'text-calendar' : 'text-slate-400'}`}>
                 {WEEKDAYS[weekdayIndex(date)].slice(0, 1)}
               </span>
               <span

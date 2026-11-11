@@ -21,7 +21,7 @@ function StatTiles({ items, inset = false, label = 'Totals' }) {
       {items.map(item => (
         <div key={item.label} className={`rounded-xl px-3 py-2.5 ${inset ? 'bg-background-surface' : 'surface'}`}>
           <p className={`text-xl font-bold tabular-nums ${TONES[item.tone] || TONES.neutral}`}>{item.value}</p>
-          <p className="text-xs text-slate-500 mt-0.5">{item.label}</p>
+          <p className="text-xs text-slate-400 mt-0.5">{item.label}</p>
         </div>
       ))}
     </div>

@@ -14,9 +14,9 @@ function Tabs({ items, value, onChange, label, className = '' }) {
             role="tab"
             aria-selected={selected}
             onClick={() => onChange(item.value)}
-            className={`flex-1 h-9 px-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${selected
+            className={`flex-1 h-11 md:h-9 px-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${selected
               ? 'bg-background-paper text-white shadow-sm'
-              : 'text-slate-500 hover:text-slate-300'}`}
+              : 'text-slate-400 hover:text-slate-300'}`}
           >
             {item.label}
           </button>

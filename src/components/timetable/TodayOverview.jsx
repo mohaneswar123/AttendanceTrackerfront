@@ -20,7 +20,7 @@ function Entry({ activity, note, onClick }) {
       </span>
       <span className="flex-1 min-w-0">
         <span className="block font-semibold text-white truncate">{activity.title}</span>
-        <span className="block text-sm text-slate-500">{timeRange(activity)}</span>
+        <span className="block text-sm text-slate-400">{timeRange(activity)}</span>
       </span>
       <span className="shrink-0 text-sm font-medium text-slate-400 tabular-nums whitespace-nowrap">{note}</span>
     </button>
@@ -48,7 +48,7 @@ function TodayOverview({ activities, onEdit }) {
   if (!current && !next) {
     return (
       <section className="surface px-4 py-3" aria-label="Now and next">
-        <p className="text-sm text-slate-500">Nothing left planned for today.</p>
+        <p className="text-sm text-slate-400">Nothing left planned for today.</p>
       </section>
     );
   }
@@ -62,7 +62,7 @@ function TodayOverview({ activities, onEdit }) {
               <span className="w-2 h-2 rounded-full bg-primary-600" aria-hidden="true" />
               Happening now
             </span>
-            <span className="text-sm text-slate-500">{minutesLabel(current.endMinutes - minute)} left</span>
+            <span className="text-sm text-slate-400">{minutesLabel(current.endMinutes - minute)} left</span>
           </div>
           <Entry activity={current} note="" onClick={onEdit} />
           <div className="mt-3 h-1.5 rounded-full bg-background-surface overflow-hidden">
@@ -74,7 +74,7 @@ function TodayOverview({ activities, onEdit }) {
         </div>
       ) : (
         <div className="px-4 py-3">
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-slate-400">
             {next ? `Nothing on right now · free until ${startOf(next)}` : 'Nothing on right now.'}
           </p>
         </div>
@@ -86,13 +86,13 @@ function TodayOverview({ activities, onEdit }) {
           <>
             <Entry activity={next} note={`in ${minutesLabel(next.startMinutes - minute)}`} onClick={onEdit} />
             {later > 0 && (
-              <p className="mt-3 text-sm text-slate-500">
+              <p className="mt-3 text-sm text-slate-400">
                 Then {later} more {later === 1 ? 'thing' : 'things'} before the day is out.
               </p>
             )}
           </>
         ) : (
-          <p className="text-sm text-slate-500">That's everything planned for today.</p>
+          <p className="text-sm text-slate-400">That's everything planned for today.</p>
         )}
       </div>
     </section>

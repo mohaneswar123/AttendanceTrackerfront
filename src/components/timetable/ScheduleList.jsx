@@ -17,7 +17,7 @@ function ScheduleList({ modes, selectedModeId, onSelect, onSetActive, onEdit, on
       <div className="flex items-center justify-between gap-3">
         <div>
           <h2 className="font-semibold text-white">Your schedules</h2>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <p className="text-xs text-slate-400 mt-0.5">
             The active one is what Today and the Home screen read.
           </p>
         </div>
@@ -48,10 +48,10 @@ function ScheduleList({ modes, selectedModeId, onSelect, onSetActive, onEdit, on
                   <p className="text-sm font-semibold text-white truncate flex items-center gap-2">
                     {mode.name}
                     {mode.active && (
-                      <span className="text-[11px] font-bold uppercase tracking-wide text-emerald-300">Active</span>
+                      <span className="text-xs font-bold uppercase tracking-wide text-emerald-300">Active</span>
                     )}
                   </p>
-                  <p className="text-xs text-slate-500 mt-0.5">
+                  <p className="text-xs text-slate-400 mt-0.5">
                     {count === 0 ? 'Nothing in it yet' : `${count} ${count === 1 ? 'activity' : 'activities'} a week`}
                     {open ? ' · open' : ''}
                   </p>

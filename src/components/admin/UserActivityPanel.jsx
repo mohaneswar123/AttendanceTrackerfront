@@ -10,7 +10,7 @@ function UserActivityPanel({ activity, loading }) {
   if (loading) {
     return (
       <section className="surface p-6 text-center" aria-label="What this account has been doing">
-        <p className="text-sm text-slate-500">Loading activity…</p>
+        <p className="text-sm text-slate-400">Loading activity…</p>
       </section>
     );
   }
@@ -24,14 +24,14 @@ function UserActivityPanel({ activity, loading }) {
     <section className="surface overflow-hidden" aria-label="What this account has been doing">
       <div className="flex items-center justify-between gap-3 h-11 px-4 border-b border-line">
         <h2 className="section-title">What they have been doing</h2>
-        <span className="text-xs text-slate-500">
+        <span className="text-xs text-slate-400">
           {total === 0 ? 'nothing on record' : `${total} ${total === 1 ? 'action' : 'actions'}`}
           {activity?.keptForDays ? ` · last ${activity.keptForDays} days` : ''}
         </span>
       </div>
 
       {total === 0 ? (
-        <p className="p-6 text-center text-sm text-slate-500">
+        <p className="p-6 text-center text-sm text-slate-400">
           Nothing on record yet. Only what happens from now on is logged.
         </p>
       ) : (
@@ -44,8 +44,8 @@ function UserActivityPanel({ activity, loading }) {
               return (
                 <div key={feature} className="rounded-xl bg-background-surface px-3 py-2.5">
                   <p className="text-xl font-bold tabular-nums text-white">{featureTotal}</p>
-                  <p className="text-xs text-slate-500 mt-0.5">{FEATURE_LABEL[feature]}</p>
-                  <p className="text-[11px] text-slate-500 mt-1">
+                  <p className="text-xs text-slate-400 mt-0.5">{FEATURE_LABEL[feature]}</p>
+                  <p className="text-xs text-slate-400 mt-1">
                     {['CREATE', 'UPDATE', 'DELETE']
                       .filter(action => perAction[action])
                       .map(action => `${perAction[action]} ${USER_ACTION_LABEL[action].toLowerCase()}`)
@@ -66,7 +66,7 @@ function UserActivityPanel({ activity, loading }) {
                   {FEATURE_LABEL[entry.feature] || entry.feature}
                 </span>
                 {entry.byAdmin && <span className="badge badge-warning shrink-0">by an admin</span>}
-                <span className="text-xs text-slate-500 shrink-0">{formatMoment(entry.at)}</span>
+                <span className="text-xs text-slate-400 shrink-0">{formatMoment(entry.at)}</span>
               </li>
             ))}
           </ul>

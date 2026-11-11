@@ -70,7 +70,7 @@ function DayTimeline({ activities, onEdit, onDelete, onAdd }) {
         const open = openId === activity.id;
         return (
           <li key={activity.id} className={`relative flex items-start gap-3 ${open ? 'z-20' : ''}`}>
-            <span className="w-14 md:w-16 shrink-0 pt-3 text-right text-xs font-medium text-slate-500">
+            <span className="w-14 md:w-16 shrink-0 pt-3 text-right text-xs font-medium text-slate-400">
               {formatShortTime(activity.startTime)}
             </span>
             <div className={`flex-1 min-w-0 rounded-xl border p-3 flex items-start gap-2 ${categoryOf(activity.category).block}`}>

@@ -26,6 +26,13 @@ module.exports = {
       },
     },
     extend: {
+      // 13px, not Tailwind's 12px. The review found 12px doing the work of labels,
+      // captions, row subtitles and helper text at once, which is hard to read with low
+      // vision or on a moving bus. Labels and secondary text are text-sm (14px) now;
+      // what is left at xs is timestamps and badges.
+      fontSize: {
+        xs: ['0.8125rem', { lineHeight: '1.125rem' }]
+      },
       colors: {
         // Midnight Aurora by default, cream under data-theme="light"
         white: v('white'),

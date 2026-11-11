@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useMemo, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AttendanceContext } from '../../contexts/AttendanceContext';
 import { todayLocal } from '../../utils/date';
@@ -58,8 +58,10 @@ function MarkAttendance({ onAddSubject }) {
     currentUser, subjects, attendanceRecords, addAttendanceRecord, deleteAttendanceRecord
   } = useContext(AttendanceContext);
 
-  const [subjectId, setSubjectId] = useState(subjects[0]?._id || '');
+  const [subjectId, setSubjectId] = useState('');
   const [date, setDate] = useState(todayLocal);
+  // Whether the student picked this subject themselves, or the form chose it for them
+  const picked = useRef(false);
   const [status, setStatus] = useState('Present');
   const [classNumber, setClassNumber] = useState(1);
   const [saving, setSaving] = useState(false);
@@ -67,10 +69,6 @@ function MarkAttendance({ onAddSubject }) {
   const [busy, setBusy] = useState(null);
   const [message, setMessage] = useState(null);
   const today = todayLocal();
-
-  useEffect(() => {
-    if (!subjects.some(s => s._id === subjectId)) setSubjectId(subjects[0]?._id || '');
-  }, [subjects, subjectId]);
 
   useEffect(() => {
     if (!message) return;
@@ -90,6 +88,37 @@ function MarkAttendance({ onAddSubject }) {
     .slice()
     .reverse(), [attendanceRecords, date]);
 
+  // How many hours this subject already has on this day. A subject can genuinely have two
+  // classes in a day, so this is not an error — but it has to be said out loud, because
+  // the alternative is a student tapping Save twice and quietly inflating their own
+  // percentage. It also decides which subject the form opens on.
+  const alreadyMarked = useMemo(() => {
+    const counts = {};
+    marked.forEach(record => { counts[record.subjectId] = (counts[record.subjectId] || 0) + 1; });
+    return counts;
+  }, [marked]);
+
+  const repeatingSubject = Boolean(subject && alreadyMarked[subject._id]);
+
+  /**
+   * Open on a subject that still needs recording for this day.
+   *
+   * The form used to default to whichever subject was first in the list, so on a day when
+   * that one was already marked it sat there offering to record it again — one tap from a
+   * duplicate, and a percentage quietly counting the same class twice. A choice the
+   * student has made themselves is never overridden.
+   */
+  useEffect(() => {
+    if (picked.current && subjects.some(s => s._id === subjectId)) return;
+    const next = subjects.find(s => !alreadyMarked[s._id]) || subjects[0];
+    setSubjectId(next?._id || '');
+  }, [subjects, alreadyMarked, subjectId]);
+
+  // A different day has its own set of already-marked subjects, so the form chooses again
+  useEffect(() => {
+    picked.current = false;
+  }, [date]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!currentUser) return setMessage({ text: 'Sign in to record attendance.', ok: false });
@@ -103,6 +132,8 @@ function MarkAttendance({ onAddSubject }) {
     if (result.success) {
       setMessage({ text: `Saved ${subject.name} as ${stored.toLowerCase()}.`, ok: true });
       setStatus('Present');
+      // That subject is now marked, so let the form move on to one that is not
+      picked.current = false;
     } else {
       setMessage({ text: result.message || 'Could not save that record.', ok: false });
     }
@@ -146,7 +177,7 @@ function MarkAttendance({ onAddSubject }) {
                   type="button"
                   role="radio"
                   aria-checked={chosen}
-                  onClick={() => setSubjectId(item._id)}
+                  onClick={() => { picked.current = true; setSubjectId(item._id); }}
                   className={`h-11 pl-2 pr-4 rounded-full text-sm font-semibold transition-colors flex items-center gap-2.5 ${chosen
                     ? 'bg-light-primary text-background'
                     : 'bg-background-surface text-slate-300 hover:text-slate-100'}`}
@@ -156,20 +187,22 @@ function MarkAttendance({ onAddSubject }) {
                 </button>
               );
             })}
+            {/* Says "Subject", because a bare + next to the one that records a class is
+                the same glyph promising two different things */}
             <button
               type="button"
               onClick={onAddSubject}
-              aria-label="Add a subject"
-              className="w-11 h-11 rounded-full border border-dashed border-line text-slate-500 grid place-items-center hover:text-slate-300"
+              className="h-11 pl-3 pr-4 rounded-full border border-dashed border-line text-slate-400 inline-flex items-center gap-1.5 text-sm font-semibold hover:text-slate-200"
             >
-              <PlusIcon className="w-4 h-4" />
+              <PlusIcon className="w-4 h-4" aria-hidden="true" />
+              Subject
             </button>
           </div>
         </div>
 
         {/* The day. Tapping anywhere on the row opens the picker; "Change" says so. */}
         <label className="flex items-center gap-3 h-12 px-3 rounded-xl bg-background-surface cursor-pointer">
-          <span className="text-slate-500">
+          <span className="text-slate-400">
             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
               <rect x="3" y="5" width="18" height="16" rx="2" /><path d="M16 3v4M8 3v4M3 11h18" strokeLinecap="round" />
             </svg>
@@ -201,7 +234,7 @@ function MarkAttendance({ onAddSubject }) {
                     ? option.on
                     : 'border-line bg-background-surface text-slate-300 hover:text-slate-100'}`}
                 >
-                  <span className={`w-7 h-7 rounded-full grid place-items-center ${chosen ? option.dot : 'bg-background-paper text-slate-500'}`}>
+                  <span className={`w-7 h-7 rounded-full grid place-items-center ${chosen ? option.dot : 'bg-background-paper text-slate-400'}`}>
                     {option.icon}
                   </span>
                   {option.value}
@@ -221,9 +254,9 @@ function MarkAttendance({ onAddSubject }) {
                 role="radio"
                 aria-checked={classNumber === hours}
                 onClick={() => setClassNumber(hours)}
-                className={`w-14 h-9 rounded-lg text-sm font-semibold transition-colors ${classNumber === hours
+                className={`w-14 h-11 rounded-lg text-sm font-semibold transition-colors ${classNumber === hours
                   ? 'bg-light-primary text-background'
-                  : 'text-slate-500'}`}
+                  : 'text-slate-400'}`}
               >
                 {hours} hr
               </button>
@@ -238,10 +271,25 @@ function MarkAttendance({ onAddSubject }) {
             disabled={saving || !currentUser || !subject}
             className="btn w-full h-12 text-[15px] bg-light-primary text-background hover:opacity-90 disabled:opacity-50"
           >
-            {saving ? 'Saving…' : subject ? `Save ${subject.name}` : 'Save attendance'}
+            {saving
+              ? 'Saving…'
+              : !subject
+                ? 'Save attendance'
+                : repeatingSubject
+                  // Not "Save Maths" again: the button says what it is really about to do
+                  ? `Add another class for ${subject.name}`
+                  : `Save ${subject.name}`}
           </button>
+          {/* Said before saving, not discovered afterwards in History */}
+          {repeatingSubject && (
+            <p className="text-sm text-amber-200 text-center mt-2.5">
+              {subject.name} is already marked {alreadyMarked[subject._id] === 1
+                ? 'once'
+                : `${alreadyMarked[subject._id]} times`} on {dayLabel(date, today)}. Save only if it had another class.
+            </p>
+          )}
           {/* What this will do to the percentage, before it is done */}
-          {ahead && <p className="text-xs text-slate-500 text-center mt-2.5">{ahead}</p>}
+          {ahead && <p className="text-sm text-slate-400 text-center mt-2.5">{ahead}</p>}
         </div>
       </form>
 
@@ -251,13 +299,13 @@ function MarkAttendance({ onAddSubject }) {
           <h2 className="font-semibold text-white">
             {date === today ? 'Marked today' : `Marked on ${dayLabel(date, today)}`}
           </h2>
-          <span className="text-xs text-slate-500">
+          <span className="text-sm text-slate-400">
             {marked.length} of {subjects.length} {subjects.length === 1 ? 'subject' : 'subjects'}
           </span>
         </div>
 
         {marked.length === 0 ? (
-          <p className="text-sm text-slate-500 px-1">Nothing recorded for this day yet.</p>
+          <p className="text-sm text-slate-400 px-1">Nothing recorded for this day yet.</p>
         ) : (
           <ul className="space-y-2">
             {marked.map(record => {
@@ -272,7 +320,7 @@ function MarkAttendance({ onAddSubject }) {
                     <span className="block text-sm font-semibold text-white truncate">
                       {record.subject?.name || 'Removed subject'}
                     </span>
-                    <span className="block text-xs text-slate-500">{hours} {hours === 1 ? 'hr' : 'hrs'}</span>
+                    <span className="block text-sm text-slate-400">{hours} {hours === 1 ? 'hr' : 'hrs'}</span>
                   </span>
                   <span className={`h-7 px-2.5 rounded-full grid place-items-center text-xs font-bold shrink-0 ${BADGE[record.status] || BADGE['No Class']}`}>
                     {record.status}
@@ -281,7 +329,7 @@ function MarkAttendance({ onAddSubject }) {
                     type="button"
                     onClick={() => setUndoing(record)}
                     disabled={busy === record._id}
-                    className="text-sm font-semibold text-slate-400 hover:text-rose-400 underline underline-offset-2 shrink-0 disabled:opacity-50"
+                    className="h-11 px-2 -mr-2 text-sm font-semibold text-slate-400 hover:text-rose-400 underline underline-offset-2 shrink-0 disabled:opacity-50"
                   >
                     {busy === record._id ? '…' : 'Undo'}
                   </button>

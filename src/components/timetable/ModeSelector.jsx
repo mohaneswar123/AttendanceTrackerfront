@@ -21,7 +21,7 @@ function ModeMenu({ mode, onSetActive, onEdit, onCopyDay, onDelete }) {
         aria-label={`More actions for ${mode.name}`}
         aria-haspopup="menu"
         aria-expanded={open}
-        className="w-7 h-7 grid place-items-center rounded-md text-slate-500 hover:text-slate-300 hover:bg-white/5 transition-colors"
+        className="w-7 h-7 grid place-items-center rounded-md text-slate-400 hover:text-slate-300 hover:bg-white/5 transition-colors"
       >
         <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.6" /><circle cx="12" cy="12" r="1.6" /><circle cx="19" cy="12" r="1.6" /></svg>
       </button>
@@ -61,7 +61,7 @@ function ModeSelector({ modes, selectedModeId, onSelect, onSetActive, onEdit, on
           aria-label={`Mode: ${selected.name}`}
           aria-haspopup="listbox"
           aria-expanded={open}
-          className="flex items-center gap-1.5 px-1 py-0.5 rounded-md text-sm text-slate-500 hover:text-slate-300 transition-colors"
+          className="flex items-center gap-1.5 px-1 py-0.5 rounded-md text-sm text-slate-400 hover:text-slate-300 transition-colors"
         >
           <span aria-hidden="true">{selected.icon}</span>
           <span className="min-w-0 truncate">{selected.name}</span>
@@ -87,7 +87,7 @@ function ModeSelector({ modes, selectedModeId, onSelect, onSetActive, onEdit, on
                   <span className={`flex-1 min-w-0 text-sm font-semibold truncate ${mode.id === selected.id ? 'text-primary-300' : 'text-white'}`}>
                     {mode.name}
                   </span>
-                  {mode.active && <span className="text-[11px] font-bold uppercase tracking-wide text-emerald-300 shrink-0">Active</span>}
+                  {mode.active && <span className="text-xs font-bold uppercase tracking-wide text-emerald-300 shrink-0">Active</span>}
                   {mode.id === selected.id && (
                     <svg className="w-4 h-4 shrink-0 text-primary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />

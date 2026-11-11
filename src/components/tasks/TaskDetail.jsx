@@ -102,7 +102,7 @@ function TaskDetail({ task, onSave, onDelete, onClose }) {
             onClick={() => setImportant(v => !v)}
             aria-pressed={important}
             aria-label={important ? 'Remove the star' : 'Star this task'}
-            className={`w-10 h-10 shrink-0 rounded-full grid place-items-center ${important ? 'text-streak' : 'text-slate-500 hover:text-slate-300'}`}
+            className={`w-10 h-10 shrink-0 rounded-full grid place-items-center ${important ? 'text-streak' : 'text-slate-400 hover:text-slate-300'}`}
           >
             <StarIcon className="w-5 h-5" filled={important} />
           </button>
@@ -122,7 +122,7 @@ function TaskDetail({ task, onSave, onDelete, onClose }) {
           <div className="flex items-baseline justify-between mb-2">
             <span className="label mb-0">Steps</span>
             {steps.length > 0 && (
-              <span className="text-xs text-slate-500">{ticked} of {steps.length} done</span>
+              <span className="text-xs text-slate-400">{ticked} of {steps.length} done</span>
             )}
           </div>
 
@@ -145,13 +145,13 @@ function TaskDetail({ task, onSave, onDelete, onClose }) {
                     onChange={(e) => setSteps(current => current.map((s, i) => (i === index ? { ...s, title: e.target.value } : s)))}
                     aria-label={`Step ${index + 1}`}
                     maxLength={200}
-                    className={`flex-1 min-w-0 h-10 bg-transparent border-0 p-0 text-sm focus:outline-none ${step.done ? 'line-through text-slate-500' : 'text-slate-200'}`}
+                    className={`flex-1 min-w-0 h-10 bg-transparent border-0 p-0 text-sm focus:outline-none ${step.done ? 'line-through text-slate-400' : 'text-slate-200'}`}
                   />
                   <button
                     type="button"
                     onClick={() => setSteps(current => current.filter((_, i) => i !== index))}
                     aria-label={`Remove step "${step.title}"`}
-                    className="w-9 h-9 shrink-0 rounded-lg grid place-items-center text-slate-500 hover:text-rose-400"
+                    className="w-9 h-9 shrink-0 rounded-lg grid place-items-center text-slate-400 hover:text-rose-400"
                   >
                     <CloseIcon className="w-4 h-4" />
                   </button>
@@ -184,7 +184,7 @@ function TaskDetail({ task, onSave, onDelete, onClose }) {
         <div>
           <div className="flex items-baseline justify-between mb-2">
             <span className="label mb-0">Due</span>
-            <span className="text-xs text-slate-500">{dayLabel(taskDate)} · {taskDate}</span>
+            <span className="text-xs text-slate-400">{dayLabel(taskDate)} · {taskDate}</span>
           </div>
           <div className="flex gap-2">
             {[['Today', 0], ['Tomorrow', 1], ['Next week', 7]].map(([label, offset]) => {
@@ -216,7 +216,7 @@ function TaskDetail({ task, onSave, onDelete, onClose }) {
           )}
           {/* There is no Upcoming section, so a day still to come has to be explained here */}
           {taskDate > today && (
-            <p className="text-xs text-slate-500 mt-2">
+            <p className="text-xs text-slate-400 mt-2">
               This leaves My Day until {dayLabel(taskDate)}, when it comes back.
             </p>
           )}

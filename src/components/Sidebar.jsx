@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AttendanceContext } from '../contexts/AttendanceContext';
+import { APP_NAME } from '../branding';
 import ThemeToggle from './ThemeToggle';
 import { GridIcon, LogOutIcon, SettingsIcon } from './icons';
 import { FEATURES, toneOf } from '../features/registry';
@@ -39,8 +40,8 @@ function Sidebar() {
     <aside className="hidden md:flex flex-col w-60 h-screen fixed left-0 top-0 bg-background-paper border-r border-line z-40">
       <div className="h-14 flex items-center px-5 border-b border-line">
         <Link to="/" className="flex items-center gap-2.5">
-          <span className="w-6 h-6 rounded bg-primary-600 text-primary-foreground text-[11px] font-bold flex items-center justify-center">AH</span>
-          <span className="font-semibold tracking-tight text-white">Attendance In Hand</span>
+          <span className="w-6 h-6 rounded bg-primary-600 text-primary-foreground text-xs font-bold flex items-center justify-center">AH</span>
+          <span className="font-semibold tracking-tight text-white">{APP_NAME}</span>
         </Link>
       </div>
 
@@ -67,13 +68,13 @@ function Sidebar() {
 
       <div className="p-3 border-t border-line space-y-2">
         <div className="flex items-center justify-between h-9 px-3">
-          <span className="text-xs text-slate-500">Appearance</span>
+          <span className="text-xs text-slate-400">Appearance</span>
           <ThemeToggle compact />
         </div>
 
         {currentUser ? (
           <div className="flex items-center gap-2.5 h-11 px-3 rounded-lg">
-            <span className="w-7 h-7 rounded-full bg-white/10 text-slate-200 text-[11px] font-semibold uppercase flex items-center justify-center shrink-0">
+            <span className="w-7 h-7 rounded-full bg-white/10 text-slate-200 text-xs font-semibold uppercase flex items-center justify-center shrink-0">
               {displayName.substring(0, 2)}
             </span>
             <span className="flex-1 min-w-0 text-sm text-slate-200 truncate">{displayName}</span>
@@ -81,7 +82,7 @@ function Sidebar() {
               onClick={handleLogout}
               aria-label="Sign out"
               title="Sign out"
-              className="p-1.5 rounded-md text-slate-500 hover:text-slate-200 hover:bg-white/5 transition-colors"
+              className="p-1.5 rounded-md text-slate-400 hover:text-slate-200 hover:bg-white/5 transition-colors"
             >
               <LogOutIcon className="w-[18px] h-[18px]" />
             </button>

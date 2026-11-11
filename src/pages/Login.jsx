@@ -1,6 +1,9 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AttendanceContext } from '../contexts/AttendanceContext';
+import Footer from '../components/Footer';
+import PasswordField from '../components/PasswordField';
+import { APP_NAME } from '../branding';
 import { errorMessage, isSubscriptionError } from '../services/api';
 
 function Login() {
@@ -45,7 +48,7 @@ function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
 
       <div className="max-w-md w-full space-y-8 surface p-8 md:p-10">
         <div>
@@ -53,7 +56,7 @@ function Login() {
             <div className="w-11 h-11 mx-auto rounded-lg bg-primary-600 text-primary-foreground text-sm font-bold flex items-center justify-center">AH</div>
           </div>
           <h1 className="text-center text-xl font-semibold text-white">Sign in</h1>
-          <p className="mt-1 text-center text-sm text-slate-400">Welcome back to Attendance In Hand</p>
+          <p className="mt-1 text-center text-sm text-slate-400">Welcome back to {APP_NAME}</p>
         </div>
 
         {justRegistered && !error && (
@@ -85,21 +88,17 @@ function Login() {
                 disabled={loading}
               />
             </div>
-            <div>
-              <label htmlFor="password" className="label">Password</label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                className="input"
-                placeholder="Enter your password"
-                value={credentials.password}
-                onChange={handleChange}
-                disabled={loading}
-              />
-            </div>
+            <PasswordField
+              id="password"
+              name="password"
+              label="Password"
+              autoComplete="current-password"
+              required
+              placeholder="Enter your password"
+              value={credentials.password}
+              onChange={handleChange}
+              disabled={loading}
+            />
           </div>
 
           <div>
@@ -112,15 +111,26 @@ function Login() {
             </button>
           </div>
 
-          <div className="flex flex-col items-center gap-4 text-sm mt-6">
-            <Link to="/register" className="font-medium text-primary-400 hover:text-primary-300 transition-colors">
+          {/* "Access Admin Portal" used to sit here, on the page every student sees. It
+              has its own address; the people who need it know it. What belongs here
+              instead is the way back in for someone who cannot get in. */}
+          <div className="flex flex-col items-center gap-1 text-sm mt-4">
+            <Link
+              to="/register"
+              className="h-11 inline-flex items-center font-medium text-primary-400 hover:text-primary-300 transition-colors"
+            >
               Don't have an account? Sign up
             </Link>
-            <a href="/admin/login" className="text-slate-500 hover:text-slate-300 transition-colors text-xs">
-              Access Admin Portal
-            </a>
+            <p className="text-slate-400 text-center">
+              Forgotten your password? Ask your admin to set a new one.
+            </p>
           </div>
         </form>
+      </div>
+
+      {/* These pages are outside Layout, so they carry the legal links themselves */}
+      <div className="w-full max-w-md mt-6">
+        <Footer />
       </div>
     </div>
   );

@@ -3,10 +3,12 @@ import { useLocation } from 'react-router-dom';
 import { AttendanceContext } from '../contexts/AttendanceContext';
 import Sidebar from './Sidebar';
 import Footer from './Footer';
+import { featureForPath } from '../features/registry';
 
 function Layout({ children }) {
   const location = useLocation();
   const { error } = useContext(AttendanceContext);
+  const { feature } = featureForPath(location.pathname);
 
   // Route-based robots control: index the homepage, noindex the rest
   useEffect(() => {
@@ -39,7 +41,10 @@ function Layout({ children }) {
           </div>
         </main>
 
-        <div className="hidden md:block">
+        {/* The floating section bar covers the foot of the page inside a feature, so on a
+            phone the footer shows only where that bar is not: Home, Settings and the legal
+            pages themselves. Those are the places a student actually needs it from. */}
+        <div className={feature ? 'hidden md:block' : ''}>
           <Footer />
         </div>
       </div>
