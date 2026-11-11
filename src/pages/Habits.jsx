@@ -174,11 +174,6 @@ function HabitsPage() {
     setNotice(result.success ? `${habit.name} deleted.` : result.message);
   };
 
-  // A day picked out of the heatmap is marked done, or cleared if it already was
-  const handleToggleDay = (habit, date, entry) => withBusy(() => (entry?.status === 'DONE'
-    ? habits.clearMark(habit.id, date)
-    : habits.mark(habit.id, date, { status: 'DONE' })));
-
   const empty = !habits.loading && habits.habits.length === 0;
 
   // Each section says what it is about, under its own name
@@ -252,7 +247,6 @@ function HabitsPage() {
                       onDone={handleDone}
                       onSkip={setSkipping}
                       onUndoSkip={handleUndoSkip}
-                      onOpen={(chosen) => setForm({ habit: chosen })}
                     />
                   ))}
                 </ul>
@@ -315,7 +309,6 @@ function HabitsPage() {
             range={range}
             onRange={setRange}
             loading={progressLoading}
-            habits={active}
           />
           {active.length === 0 ? (
             <p className="text-sm text-slate-500 px-1">Restore a habit and its history will appear here.</p>
@@ -325,7 +318,6 @@ function HabitsPage() {
               entries={entries}
               selectedId={chosenHabit}
               onSelect={setChosenHabit}
-              onToggleDay={handleToggleDay}
             />
           )}
         </>

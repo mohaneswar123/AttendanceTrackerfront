@@ -10,19 +10,13 @@ import { habitService, errorMessage } from '../services/api';
  */
 export default function useHabits({ includeArchived = false } = {}) {
   const [habits, setHabits] = useState([]);
-  const [summary, setSummary] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const [list, week] = await Promise.all([
-        habitService.getHabits({ includeArchived }),
-        habitService.getSummary()
-      ]);
-      setHabits(list);
-      setSummary(week);
+      setHabits(await habitService.getHabits({ includeArchived }));
       setError('');
     } catch (err) {
       setError(errorMessage(err, 'Failed to load your habits'));
@@ -100,7 +94,6 @@ export default function useHabits({ includeArchived = false } = {}) {
 
   return {
     habits,
-    summary,
     loading,
     error,
     clearError,

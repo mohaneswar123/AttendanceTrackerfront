@@ -420,12 +420,6 @@ export const habitService = {
     return response.data;
   },
 
-  // Last week in review: { weekStart, weekEnd, overallRate, bestName, slippedName, suggestion }
-  getSummary: async () => {
-    const response = await apiClient.get('/habits/summary');
-    return response.data;
-  },
-
   // range is 'WEEK', 'MONTH' or 'YEAR'; the server decides the buckets and the figures
   getProgress: async (range) => {
     const response = await apiClient.get('/habits/progress', { params: { range } });

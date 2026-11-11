@@ -2,7 +2,6 @@ import React, { useContext, useMemo, useState } from 'react';
 import { AttendanceContext } from '../../contexts/AttendanceContext';
 import { canMiss, isOnTrack, needToAttend, subjectTone, TARGET, tally } from '../../utils/attendance';
 import { todayLocal } from '../../utils/date';
-import { periodStart } from './PeriodSelect';
 
 const shortDate = (iso) => new Date(`${iso}T00:00:00`)
   .toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
@@ -45,16 +44,14 @@ function TargetBar({ percentage, trackClass = 'bg-background-surface', fillClass
  * Percentages are weighted by class length — a 2-hour class counts twice a 1-hour one —
  * and "No class" never counts, which is why the figures are hours rather than classes.
  */
-function AttendanceReports({ period = 'term' }) {
+function AttendanceReports() {
   const { subjects, attendanceRecords } = useContext(AttendanceContext);
   const [lowestFirst, setLowestFirst] = useState(true);
   const today = todayLocal();
 
-  const from = periodStart(period, today);
-  const records = useMemo(
-    () => (attendanceRecords || []).filter(record => !from || String(record.date).slice(0, 10) >= from),
-    [attendanceRecords, from]
-  );
+  // Everything ever recorded. A percentage that moves when you change a filter is a
+  // percentage nobody trusts, and attendance is only ever judged on the whole of it.
+  const records = useMemo(() => attendanceRecords || [], [attendanceRecords]);
 
   const overall = useMemo(() => tally(records), [records]);
 
@@ -80,9 +77,7 @@ function AttendanceReports({ period = 'term' }) {
       <section className="surface p-8 text-center" aria-label="Nothing to report yet">
         <h2 className="font-semibold text-white">Nothing to report yet</h2>
         <p className="text-sm text-slate-500 mt-1">
-          {attendanceRecords.length > 0
-            ? 'Nothing was counted in this period. Try a longer one.'
-            : 'Record a class and your percentage appears here.'}
+          Record a class and your percentage appears here.
         </p>
       </section>
     );

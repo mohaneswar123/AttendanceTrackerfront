@@ -1,5 +1,5 @@
 import React from 'react';
-import { colorOf, rateLabel } from '../../utils/habits';
+import { rateLabel } from '../../utils/habits';
 
 const RANGES = [
   { id: 'WEEK', label: 'Week' },
@@ -15,28 +15,6 @@ const bucketLabel = (bucket) => (bucket.due === 0
   : `${bucket.label}: ${bucket.rate}%, ${bucket.done} of ${bucket.due} kept`);
 
 /**
- * One sentence of advice about the habit that is slipping.
- *
- * It is worked out from the same stretch the tiles above it describe, so the habit it
- * names is the habit they name. Advice about last week under figures about this month
- * reads like a mistake even when both are right.
- */
-const suggestion = (worst, best, habits) => {
-  if (!worst || worst.rate < 0) return '';
-  const habit = habits.find(item => item.id === worst.habitId);
-  if (worst.rate >= 80) {
-    return `Everything is holding. Add one more habit if you want the challenge.`;
-  }
-  if (habit?.schedule === 'DAILY' && worst.rate < 50) {
-    return `“${worst.name}” every day may be a lot to start with. Try 3 times a week and build up.`;
-  }
-  if (worst.rate < 50) {
-    return `“${worst.name}” is slipping. Pick the days you can actually do it, rather than all of them.`;
-  }
-  return `“${worst.name}” is the one to put first${best && best.rate >= 80 ? `; “${best.name}” is looking after itself.` : '.'}`;
-};
-
-/**
  * How the habits are going over a week, a month or a year.
  *
  * The headline is a number rather than a chart, because "how am I doing" has one answer.
@@ -48,17 +26,11 @@ const suggestion = (worst, best, habits) => {
  * a time and a day inside its grace period must not count as missed, and working that out
  * twice, once here and once there, is how the two end up disagreeing.
  */
-function RangeProgress({ progress, range, onRange, loading, habits = [] }) {
+function RangeProgress({ progress, range, onRange, loading }) {
   const buckets = progress?.buckets || [];
-  const rows = progress?.habits || [];
   const tallest = Math.max(...buckets.map(bucket => (bucket.rate > 0 ? bucket.rate : 0)), 1);
   // Labelling every bar is noise; the best one is the one worth naming
   const best = buckets.reduce((top, bucket) => (bucket.rate > (top?.rate ?? -1) ? bucket : top), null);
-  // The rows arrive worst first, so the ends of the list are the two habits worth naming
-  const scored = rows.filter(row => row.rate >= 0);
-  const worstHabit = scored[0] || null;
-  const bestHabit = scored[scored.length - 1] || null;
-  const advice = suggestion(worstHabit, bestHabit, habits);
 
   return (
     <div className="space-y-4">
@@ -134,50 +106,6 @@ function RangeProgress({ progress, range, onRange, loading, habits = [] }) {
         )}
       </section>
 
-      {rows.length > 0 && (
-        <section className="surface p-4 space-y-3" aria-label={`Each habit ${PERIOD[range]}`}>
-          <h3 className="font-bold text-white">Each habit</h3>
-
-          <ul className="space-y-2.5">
-            {rows.map(row => {
-              const habit = habits.find(item => item.id === row.habitId);
-              const colour = colorOf(habit?.color);
-              return (
-                <li key={row.habitId} className="flex items-center gap-3">
-                  <span className={`w-8 h-8 shrink-0 rounded-lg grid place-items-center text-sm ${colour.soft}`} aria-hidden="true">
-                    {row.icon}
-                  </span>
-                  <span className="flex-1 min-w-0 text-sm text-slate-200 truncate">{row.name}</span>
-                  <span className="w-20 h-1.5 rounded-full bg-background-surface overflow-hidden shrink-0" aria-hidden="true">
-                    {row.rate >= 0 && (
-                      <span className={`block h-full rounded-full ${colour.dot}`} style={{ width: `${row.rate}%` }} />
-                    )}
-                  </span>
-                  <span className="w-14 text-right text-xs font-bold tabular-nums text-slate-300 shrink-0">
-                    {row.due === 0 ? 'none' : rateLabel(row.rate)}
-                  </span>
-                </li>
-              );
-            })}
-          </ul>
-
-          {/* The two ends of that list, named, so the page says something rather than only showing it */}
-          {scored.length > 1 && (
-            <div className="grid grid-cols-2 gap-2 pt-1">
-              <div className="rounded-xl bg-emerald-500/10 px-3 py-2.5">
-                <p className="text-xs text-slate-500">Going best</p>
-                <p className="text-sm font-bold text-white truncate mt-0.5">{bestHabit?.name}</p>
-              </div>
-              <div className="rounded-xl bg-amber-500/10 px-3 py-2.5">
-                <p className="text-xs text-slate-500">Needs attention</p>
-                <p className="text-sm font-bold text-white truncate mt-0.5">{worstHabit?.name}</p>
-              </div>
-            </div>
-          )}
-
-          {advice && <p className="text-sm text-slate-400 leading-relaxed">{advice}</p>}
-        </section>
-      )}
     </div>
   );
 }

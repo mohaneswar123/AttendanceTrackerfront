@@ -14,7 +14,7 @@ function ModeMenu({ mode, onSetActive, onEdit, onCopyDay, onDelete }) {
   };
 
   return (
-    <div className="relative" ref={ref}>
+    <div ref={ref}>
       <button
         type="button"
         onClick={() => setOpen(o => !o)}
@@ -26,7 +26,7 @@ function ModeMenu({ mode, onSetActive, onEdit, onCopyDay, onDelete }) {
         <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.6" /><circle cx="12" cy="12" r="1.6" /><circle cx="19" cy="12" r="1.6" /></svg>
       </button>
       {open && (
-        <div role="menu" className="absolute right-0 top-full mt-1 z-30 w-52 md:w-48 rounded-xl bg-slate-900 border border-line shadow-lg py-1 text-base md:text-sm">
+        <div role="menu" className="absolute left-0 top-full mt-1 z-30 w-52 md:w-48 max-w-[calc(100vw-2rem)] overlay py-1 text-base md:text-sm">
           {!mode.active && (
             <button role="menuitem" onClick={choose(onSetActive)} className={`${MENU_ITEM} text-slate-300 hover:bg-white/5`}>Set as active</button>
           )}
@@ -53,7 +53,7 @@ function ModeSelector({ modes, selectedModeId, onSelect, onSetActive, onEdit, on
 
   return (
     // Sits in the page's context line, so it is a quiet line of text rather than a card
-    <section aria-label="Timetable modes" className="flex items-center gap-1 -ml-1">
+    <section aria-label="Timetable modes" className="relative flex items-center gap-1 -ml-1">
       <div className="relative min-w-0" ref={ref}>
         <button
           type="button"

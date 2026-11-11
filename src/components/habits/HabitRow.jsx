@@ -10,8 +10,12 @@ import { CheckIcon, ChevronRightIcon, FlameIcon } from '../icons';
  * The circle is the whole point: one tap finishes a yes/no habit, and adds one to a count
  * habit. Skip sits beside it as its own button rather than inside a menu, because the
  * three states only help if the gentle one is as easy to reach as the other two.
+ *
+ * The row is not a way into the form. Today is for doing the habits; changing what they
+ * are belongs on the Habits section, where that is the whole purpose of the screen and a
+ * mis-tap cannot land you in a form you did not want.
  */
-function HabitRow({ habit, onDone, onSkip, onUndoSkip, onOpen, busy }) {
+function HabitRow({ habit, onDone, onSkip, onUndoSkip, busy }) {
   const done = isDone(habit);
   const skipped = isSkipped(habit);
   const counted = habit.goal !== 'YES_NO';
@@ -36,7 +40,7 @@ function HabitRow({ habit, onDone, onSkip, onUndoSkip, onOpen, busy }) {
           {habit.icon}
         </span>
 
-        <button type="button" onClick={() => onOpen(habit)} className="flex-1 min-w-0 text-left">
+        <div className="flex-1 min-w-0">
           <p className={`font-bold truncate ${skipped ? 'text-slate-400' : 'text-white'}`}>
             {habit.name}
           </p>
@@ -50,7 +54,7 @@ function HabitRow({ habit, onDone, onSkip, onUndoSkip, onOpen, busy }) {
               </span>
             )}
           </p>
-        </button>
+        </div>
 
         {skipped ? (
           <button type="button" onClick={() => onUndoSkip(habit)} disabled={busy} className="btn btn-secondary shrink-0">
