@@ -109,7 +109,7 @@ function QuickSwitcher({ currentId, lastTab, onClose }) {
                 </span>
                 <span className="min-w-0 w-full">
                   <span className="block text-sm font-bold text-white truncate">{feature.name}</span>
-                  <span className="block text-[11px] text-slate-500 truncate mt-0.5">
+                  <span className="block text-sm text-slate-400 truncate mt-0.5">
                     {current
                       ? "You're here"
                       : summary.loading ? '…' : statusOf(feature.id, summary, attendance)}

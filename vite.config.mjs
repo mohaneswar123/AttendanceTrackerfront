@@ -37,8 +37,8 @@ export default defineConfig({
 
       manifest: {
         id: '/',
-        name: 'Attendance In Hand',
-        short_name: 'Attendance',
+        name: 'Momentum',
+        short_name: 'Momentum',
         description: 'Track class attendance, plan tasks, keep a calendar and a weekly timetable, and focus with a Pomodoro timer.',
         lang: 'en',
 

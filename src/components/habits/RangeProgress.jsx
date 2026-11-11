@@ -57,7 +57,7 @@ function RangeProgress({ progress, range, onRange, loading }) {
             <p className="text-[34px] leading-none font-bold tabular-nums text-white">
               {loading && !progress ? '—' : rateLabel(progress?.rate ?? -1)}
             </p>
-            <p className="text-sm text-slate-500 mt-1.5">
+            <p className="text-sm text-slate-400 mt-1.5">
               {progress && progress.due > 0
                 ? `${progress.done} of ${progress.due} kept · ${PERIOD[range]}`
                 : `Nothing was due ${PERIOD[range]}`}
@@ -93,14 +93,14 @@ function RangeProgress({ progress, range, onRange, loading }) {
             </ul>
             <div className="flex gap-[3px] mt-1.5" aria-hidden="true">
               {buckets.map(bucket => (
-                <span key={bucket.from} className="flex-1 min-w-0 text-center text-[11px] text-slate-500 truncate">
+                <span key={bucket.from} className="flex-1 min-w-0 text-center text-xs text-slate-400 truncate">
                   {bucket.label}
                 </span>
               ))}
             </div>
             {/* Said out loud when the bars cover fewer habits than the figure above them */}
             {progress?.bucketNote && (
-              <p className="text-[11px] leading-relaxed text-slate-500 mt-3">{progress.bucketNote}</p>
+              <p className="text-xs leading-relaxed text-slate-400 mt-3">{progress.bucketNote}</p>
             )}
           </>
         )}

@@ -191,7 +191,7 @@ function AdminDashboard() {
 
   const stat = (label, value, tone = 'text-white') => (
     <div className="surface px-4 py-3">
-      <p className="text-xs text-slate-500">{label}</p>
+      <p className="text-xs text-slate-400">{label}</p>
       <p className={`text-xl font-semibold mt-0.5 tabular-nums ${tone}`}>{value}</p>
     </div>
   );
@@ -201,7 +201,7 @@ function AdminDashboard() {
       <header className="sticky top-0 z-30 h-14 bg-background-paper border-b border-line">
         <div className="h-full max-w-7xl mx-auto px-4 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5 min-w-0">
-            <span className="w-6 h-6 rounded bg-primary-600 text-primary-foreground text-[11px] font-bold flex items-center justify-center shrink-0">AH</span>
+            <span className="w-6 h-6 rounded bg-primary-600 text-primary-foreground text-xs font-bold flex items-center justify-center shrink-0">AH</span>
             <span className="font-semibold tracking-tight text-white truncate">Admin</span>
           </div>
           <div className="flex items-center gap-1 shrink-0">

@@ -23,7 +23,7 @@ function SubjectMenu({ subject, onEdit, onDelete }) {
         aria-label={`More actions for ${subject.name}`}
         aria-haspopup="menu"
         aria-expanded={open}
-        className="w-11 h-11 grid place-items-center rounded-lg text-slate-500 hover:text-slate-200 hover:bg-white/10"
+        className="w-11 h-11 grid place-items-center rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/10"
       >
         <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
           <circle cx="5" cy="12" r="1.6" /><circle cx="12" cy="12" r="1.6" /><circle cx="19" cy="12" r="1.6" />
@@ -193,7 +193,7 @@ function SubjectManager({ autoFocus = false }) {
 
   return (
     <div className="max-w-2xl space-y-4">
-      <p className="text-sm text-slate-500 -mt-1">
+      <p className="text-sm text-slate-400 -mt-1">
         {subjects.length} {subjects.length === 1 ? 'subject' : 'subjects'} this term
       </p>
 
@@ -248,7 +248,7 @@ function SubjectManager({ autoFocus = false }) {
                 </span>
                 <span className="flex-1 min-w-0">
                   <span className="block font-bold text-white truncate">{subject.name}</span>
-                  <span className="block text-xs text-slate-500">
+                  <span className="block text-sm text-slate-400">
                     {totals.percentage === null
                       ? 'Nothing counted yet'
                       : `${totals.percentage}% · ${totals.counted} hrs counted`}
@@ -265,7 +265,7 @@ function SubjectManager({ autoFocus = false }) {
         </ul>
       )}
 
-      <p className="text-xs text-slate-500 text-center px-4">
+      <p className="text-sm text-slate-400 text-center px-4">
         Rename or recolour a subject from its ••• menu. Removing one also removes the
         attendance recorded against it, so its hours leave your reports too.
       </p>

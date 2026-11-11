@@ -7,7 +7,7 @@ function PageHeader({ eyebrow, title, children }) {
     <div className="flex items-start justify-between gap-3">
       <div className="min-w-0">
         {/* A div, not a p: the eyebrow is sometimes a control, such as the mode dropdown */}
-        {eyebrow && <div className="text-sm text-slate-500 mb-0.5">{eyebrow}</div>}
+        {eyebrow && <div className="text-sm text-slate-400 mb-0.5">{eyebrow}</div>}
         <h1 className="text-[28px] leading-8 font-bold tracking-tight text-white">{title}</h1>
       </div>
       {children && <div className="flex items-center gap-2 shrink-0 pt-1">{children}</div>}

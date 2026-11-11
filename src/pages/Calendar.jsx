@@ -278,7 +278,7 @@ function CalendarPage() {
 
       {(searchOpen || eventsOnly) && (
         <div className="surface flex items-center gap-3 px-3 h-12">
-          <SearchIcon className="w-5 h-5 shrink-0 text-slate-500" aria-hidden="true" />
+          <SearchIcon className="w-5 h-5 shrink-0 text-slate-400" aria-hidden="true" />
           <input
             autoFocus={searchOpen}
             value={searchQuery}
@@ -338,7 +338,7 @@ function CalendarPage() {
           {listGroups.length === 0 ? (
             <section className="surface p-8 text-center" aria-label="Nothing coming up">
               <h2 className="font-semibold text-white">Nothing coming up</h2>
-              <p className="text-sm text-slate-500 mt-1">
+              <p className="text-sm text-slate-400 mt-1">
                 Entries you add appear here, soonest first.
               </p>
             </section>
@@ -347,7 +347,7 @@ function CalendarPage() {
               <section key={group.id} aria-label={group.title}>
                 <div className="flex items-center gap-2 px-1 mb-2">
                   <h2 className="text-xl font-bold text-white">{group.title}</h2>
-                  <span className="text-sm text-slate-500">{group.entries.length}</span>
+                  <span className="text-sm text-slate-400">{group.entries.length}</span>
                 </div>
                 <ul className="space-y-2">
                   {group.entries
@@ -382,7 +382,7 @@ function CalendarPage() {
           <section aria-label="Selected day">
             <div className="flex items-baseline justify-between gap-3 px-1 mb-2">
               <h2 className="text-xl font-bold text-white">{dayHeading(selectedDate, today)}</h2>
-              <span className="text-sm text-slate-500 shrink-0">
+              <span className="text-sm text-slate-400 shrink-0">
                 {dayEntries.length} {dayEntries.length === 1 ? 'entry' : 'entries'}
               </span>
             </div>
@@ -441,7 +441,7 @@ function CalendarPage() {
           {sections.map(section => (section.empty ? (
             <div
               key={section.id}
-              className="flex items-center gap-3 px-4 py-3 rounded-xl border border-dashed border-line text-sm text-slate-500"
+              className="flex items-center gap-3 px-4 py-3 rounded-xl border border-dashed border-line text-sm text-slate-400"
             >
               <span aria-hidden="true">—</span>
               <span>
@@ -459,7 +459,7 @@ function CalendarPage() {
                 <h2 className={`text-xl font-bold ${section.date === today ? 'text-calendar' : 'text-white'}`}>
                   {dayHeading(section.date, today)}
                 </h2>
-                <span className="text-sm text-slate-500">
+                <span className="text-sm text-slate-400">
                   {section.entries.length} {section.entries.length === 1 ? 'entry' : 'entries'}
                 </span>
               </div>

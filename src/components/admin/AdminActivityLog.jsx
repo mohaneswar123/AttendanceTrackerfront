@@ -11,7 +11,7 @@ function AdminActivityLog({ entries, title = 'Recent admin activity', emptyMessa
       </div>
 
       {entries.length === 0 ? (
-        <p className="p-6 text-center text-sm text-slate-500">{emptyMessage}</p>
+        <p className="p-6 text-center text-sm text-slate-400">{emptyMessage}</p>
       ) : (
         <ul className="divide-y divide-line max-h-80 overflow-y-auto custom-scrollbar">
           {entries.map(entry => (
@@ -23,11 +23,11 @@ function AdminActivityLog({ entries, title = 'Recent admin activity', emptyMessa
                 {showTarget && (
                   <span className="flex-1 min-w-0 text-sm text-slate-200 truncate">{entry.targetEmail}</span>
                 )}
-                <span className={`text-xs text-slate-500 shrink-0 ${showTarget ? '' : 'ml-auto'}`}>
+                <span className={`text-xs text-slate-400 shrink-0 ${showTarget ? '' : 'ml-auto'}`}>
                   {formatMoment(entry.createdAt)}
                 </span>
               </div>
-              <p className="mt-1 text-xs text-slate-500">
+              <p className="mt-1 text-xs text-slate-400">
                 {entry.detail} · by {entry.adminEmail}
               </p>
             </li>

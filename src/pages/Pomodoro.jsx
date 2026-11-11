@@ -9,7 +9,7 @@ import Tabs from '../components/Tabs';
 import DurationPicker from '../components/pomodoro/DurationPicker';
 import CountsTowards from '../components/pomodoro/CountsTowards';
 import useFocusHabits from '../hooks/useFocusHabits';
-import { PlayIcon, ResetIcon, SkipIcon, SpeakerIcon } from '../components/icons';
+import { PlayIcon, ResetIcon, SpeakerIcon } from '../components/icons';
 
 const RADIUS = 130;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
@@ -163,7 +163,7 @@ function PomodoroTimer() {
             />
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center" role="timer" aria-live="off">
-            <span className="text-sm text-slate-500">{label}</span>
+            <span className="text-sm text-slate-400">{label}</span>
             <span className="mt-1 text-5xl font-bold text-white tabular-nums tracking-tight">{clock}</span>
           </div>
         </div>
@@ -174,7 +174,10 @@ function PomodoroTimer() {
             onClick={() => setConfirmReset(true)}
             disabled={busy || idle}
             aria-label="Reset the timer"
-            className="w-12 h-12 shrink-0 rounded-full border border-line text-slate-400 grid place-items-center disabled:opacity-40 hover:text-slate-200 transition-colors"
+            title="Reset the timer"
+            // Was slate-400 at 40% opacity when idle, which read as broken rather than
+            // inactive. Brighter, and it names itself rather than relying on the glyph.
+            className="w-12 h-12 shrink-0 rounded-full border border-line text-slate-300 grid place-items-center gap-0.5 disabled:opacity-50 hover:text-white transition-colors"
           >
             <ResetIcon className="w-5 h-5" />
           </button>
@@ -202,17 +205,12 @@ function PomodoroTimer() {
             <button onClick={pomodoro.skipBreak} disabled={busy} className="btn btn-primary flex-1 h-14 rounded-full text-base">Skip break</button>
           )}
 
-          <button
-            onClick={pomodoro.skipBreak}
-            disabled={busy || phase !== 'BREAK'}
-            aria-label="Skip the break"
-            className="w-12 h-12 shrink-0 rounded-full border border-line text-slate-400 grid place-items-center disabled:opacity-40 hover:text-slate-200 transition-colors"
-          >
-            <SkipIcon className="w-5 h-5" />
-          </button>
+          {/* The skip icon that used to sit here is gone. During a focus session it was
+              labelled "Skip the break" — a break that did not exist yet — and during a
+              break it did the same job as the full-width button beside it. */}
         </div>
 
-        <p className="mt-5 text-xs text-slate-500 text-center">
+        <p className="mt-5 text-xs text-slate-400 text-center">
           The timer keeps running if you leave this page or close the app.
         </p>
       </div>

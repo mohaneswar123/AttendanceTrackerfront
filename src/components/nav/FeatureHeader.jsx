@@ -11,7 +11,7 @@ import { todayLocal } from '../../utils/date';
  * The feature name is a button rather than a label, because it is also how you leave for
  * another feature, and a chevron is the usual way to say so.
  */
-function FeatureHeader({ feature, tabLabel, subtitle, onSwitch, onAdd, children }) {
+function FeatureHeader({ feature, tabLabel, subtitle, onSwitch, switcherOpen = false, onAdd, children }) {
   const tone = toneOf(feature.id);
 
   return (
@@ -21,6 +21,7 @@ function FeatureHeader({ feature, tabLabel, subtitle, onSwitch, onAdd, children 
           type="button"
           onClick={onSwitch}
           aria-haspopup="dialog"
+          aria-expanded={switcherOpen}
           aria-label={`${feature.name}. Switch to another app`}
           className={`h-10 pl-2.5 pr-3 rounded-full flex items-center gap-2 text-sm font-semibold transition-colors ${tone.tint} ${tone.text}`}
         >
@@ -50,7 +51,7 @@ function FeatureHeader({ feature, tabLabel, subtitle, onSwitch, onAdd, children 
           someone is looking for, and the date only means something once they have found it */}
       <div className="min-w-0">
         <h1 className="text-[34px] leading-[1.1] font-bold tracking-tight text-white">{tabLabel}</h1>
-        <p className="text-sm text-slate-500 mt-1">{subtitle ?? longWeekday(todayLocal())}</p>
+        <p className="text-sm text-slate-400 mt-1">{subtitle ?? longWeekday(todayLocal())}</p>
       </div>
     </div>
   );

@@ -103,7 +103,7 @@ function Settings() {
         </div>
         <div className="flex-1 min-w-0">
           <h2 className="font-semibold text-white truncate">{currentUser ? currentUser.username || 'Student account' : 'Guest'}</h2>
-          <p className="text-sm text-slate-500 truncate">{currentUser ? currentUser.email : 'Signed out — nothing is saved'}</p>
+          <p className="text-sm text-slate-400 truncate">{currentUser ? currentUser.email : 'Signed out — nothing is saved'}</p>
         </div>
         {/* Sign out used to sit here, the first full-width button on the page. It is at the
             bottom now: it is not what anyone opens Settings to do, and it was a mis-tap
@@ -116,7 +116,7 @@ function Settings() {
       <section className="surface p-4 md:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="font-semibold text-white">Appearance</h2>
-          <p className="text-sm text-slate-500 mt-0.5">Remembered on this device only.</p>
+          <p className="text-sm text-slate-400 mt-0.5">Remembered on this device only.</p>
         </div>
         <ThemeToggle />
       </section>
@@ -180,7 +180,7 @@ function Settings() {
 
         <section className="surface p-4 md:p-5">
           <h2 className="font-semibold text-rose-400">Reset attendance</h2>
-          <p className="text-sm text-slate-500 mt-1 mb-4">
+          <p className="text-sm text-slate-400 mt-1 mb-4">
             Deletes your subjects and every attendance record, and cannot be undone. Your tasks, habits, calendar, timetable and focus history are not affected.
           </p>
 

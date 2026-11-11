@@ -53,6 +53,7 @@ function FeatureShell({ onAdd, actions, title, subtitle, children }) {
           tabLabel={title || tab?.label || feature.name}
           subtitle={subtitle}
           onSwitch={() => setSwitching(true)}
+          switcherOpen={switching}
           onAdd={onAdd}
         >
           {actions}
@@ -74,7 +75,7 @@ function FeatureShell({ onAdd, actions, title, subtitle, children }) {
                 aria-selected={current}
                 className={`flex-1 h-9 px-2 rounded-lg text-sm font-medium whitespace-nowrap grid place-items-center transition-colors ${current
                   ? `bg-background-paper ${tone.text} shadow-sm`
-                  : 'text-slate-500 hover:text-slate-300'}`}
+                  : 'text-slate-400 hover:text-slate-300'}`}
               >
                 {item.label}
               </Link>

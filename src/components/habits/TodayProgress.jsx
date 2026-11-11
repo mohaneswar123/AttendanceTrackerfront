@@ -22,7 +22,7 @@ function TodayProgress({ done, due, skipped = 0, byDay, average }) {
             {done}
             <span className="text-slate-400"> of {due}</span>
           </p>
-          <p className="text-sm text-slate-500 mt-1.5">
+          <p className="text-sm text-slate-400 mt-1.5">
             {due === 0
               ? 'Nothing due today'
               : [
@@ -66,7 +66,7 @@ function TodayProgress({ done, due, skipped = 0, byDay, average }) {
           {days.map(day => (
             <span
               key={day}
-              className={`flex-1 text-center text-[11px] ${day === today ? 'font-bold text-white' : 'text-slate-500'}`}
+              className={`flex-1 text-center text-xs ${day === today ? 'font-bold text-white' : 'text-slate-400'}`}
             >
               {day === today ? 'Today' : weekdayShort(day)}
             </span>
@@ -75,7 +75,7 @@ function TodayProgress({ done, due, skipped = 0, byDay, average }) {
       </div>
 
       {average >= 0 && (
-        <p className="text-xs text-slate-500">Last 7 days: {average}% kept on average</p>
+        <p className="text-sm text-slate-400">7-day average: {average}% kept</p>
       )}
     </section>
   );

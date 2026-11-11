@@ -60,14 +60,15 @@ const tileOf = (id, summary) => {
       return {
         value: due,
         unit: 'due',
-        caption: overdue > 0 ? `${overdue} overdue` : 'due today'
+        // The tile already reads "1 due"; repeating "due today" under it is noise
+        caption: overdue > 0 ? `${overdue} overdue` : ''
       };
     }
     case 'habits': {
       if (!summary.habits) return { value: '—', unit: '', caption: '' };
       const { due, done } = summary.habits;
       if (due === 0) return { value: '0', unit: '', caption: 'Nothing due today' };
-      return { value: done, unit: `/${due}`, caption: 'done today' };
+      return { value: done, unit: `/${due}`, caption: '' };
     }
     case 'calendar': {
       if (!summary.calendar) return { value: '—', unit: '', caption: '' };
@@ -76,7 +77,7 @@ const tileOf = (id, summary) => {
       return {
         value: count,
         unit: 'today',
-        caption: next ? [next.title, next.time].filter(Boolean).join(', ') : 'Entries today'
+        caption: next ? [next.title, next.time].filter(Boolean).join(', ') : ''
       };
     }
     case 'timetable': {
@@ -95,7 +96,7 @@ const tileOf = (id, summary) => {
       return {
         value: summary.focus.minutes,
         unit: 'min',
-        caption: summary.focus.minutes > 0 ? 'focused today' : 'Start a session'
+        caption: summary.focus.minutes > 0 ? '' : 'Start a session'
       };
     }
     default:
@@ -191,9 +192,9 @@ function HomeHub() {
     <div className="space-y-6">
       <header className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-sm text-slate-500">{longWeekday(today)}</p>
-          <h1 className="text-[40px] leading-[1.05] font-bold tracking-tight text-white mt-1">
-            {greeting()}{name ? <>,<br />{name}</> : ''}
+          <p className="text-sm text-slate-400">{longWeekday(today)}</p>
+          <h1 className="text-[28px] leading-[1.15] font-bold tracking-tight text-white mt-0.5">
+            {greeting()}{name ? `, ${name}` : ''}
           </h1>
         </div>
         <div className="flex items-center gap-1 shrink-0">
@@ -258,33 +259,36 @@ function HomeHub() {
           {FEATURES.map(feature => {
             const tone = toneOf(feature.id);
             const to = remembered[feature.id] || feature.tabs[0].path;
-            const tile = summary.loading
-              ? { value: '—', unit: '', caption: 'Loading…' }
-              : tileOf(feature.id, full);
+            const tile = summary.loading ? null : tileOf(feature.id, full);
             return (
               <Link
                 key={feature.id}
                 to={to}
-                className={`rounded-2xl p-4 flex flex-col gap-3 transition-opacity hover:opacity-90 ${tone.tint}`}
+                className={`rounded-2xl p-3 flex flex-col gap-2 transition-opacity hover:opacity-90 ${tone.tint}`}
               >
-                <div className="flex items-start justify-between gap-2">
-                  <span className={`w-11 h-11 rounded-xl grid place-items-center bg-background-paper ${tone.text}`}>
-                    <feature.Icon className="w-5 h-5" />
+                <div className="flex items-center justify-between gap-2">
+                  <span className={`w-9 h-9 rounded-xl grid place-items-center bg-background-paper ${tone.text}`}>
+                    <feature.Icon className="w-[18px] h-[18px]" />
                   </span>
                   {feature.isNew && (
-                    <span className="text-[10px] font-bold px-2 py-1 rounded-full bg-light-primary text-background">
+                    <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-light-primary text-background">
                       NEW
                     </span>
                   )}
                 </div>
 
                 <div className="min-w-0">
-                  <p className="text-[28px] leading-none font-bold tabular-nums text-white">
-                    {tile.value}
-                    {tile.unit && <span className="text-sm font-semibold text-slate-400 ml-1">{tile.unit}</span>}
-                  </p>
-                  <p className="text-xs text-slate-500 truncate mt-1.5">{tile.caption}</p>
-                  <p className="font-bold text-white mt-2.5 truncate">{feature.name}</p>
+                  {/* A shimmer, not an em dash: "—" and "Loading..." read as the answer */}
+                  {tile === null ? (
+                    <span className="block h-7 w-16 rounded-md bg-background-paper/70 animate-pulse" aria-hidden="true" />
+                  ) : (
+                    <p className="text-2xl leading-none font-bold tabular-nums text-white">
+                      {tile.value}
+                      {tile.unit && <span className="text-sm font-semibold text-slate-400 ml-1">{tile.unit}</span>}
+                    </p>
+                  )}
+                  <p className="font-bold text-white mt-1.5 truncate">{feature.name}</p>
+                  {tile?.caption && <p className="text-sm text-slate-400 truncate">{tile.caption}</p>}
                 </div>
               </Link>
             );

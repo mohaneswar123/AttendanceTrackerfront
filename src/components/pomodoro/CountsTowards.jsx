@@ -22,11 +22,11 @@ function CountsTowards({ habits, value, onChange, lastCredited }) {
         <option value="">Nothing</option>
         {habits.map(habit => (
           <option key={habit.id} value={habit.id}>
-            {habit.icon} {habit.name} · {habit.today?.amount ?? 0} of {habit.target} min
+            {habit.name} · {habit.today?.amount ?? 0} of {habit.target} min
           </option>
         ))}
       </select>
-      <p className="text-xs text-slate-500 mt-1.5">
+      <p className="text-sm text-slate-400 mt-1.5">
         {lastCredited
           ? lastCredited
           : 'When a focus period finishes, its minutes are added to this habit.'}

@@ -201,7 +201,7 @@ function HabitsPage() {
       {empty && (
         <section className="surface p-8 text-center" aria-label="No habits yet">
           <h2 className="font-semibold text-white">No habits yet</h2>
-          <p className="text-sm text-slate-500 mt-1 mb-5">
+          <p className="text-sm text-slate-400 mt-1 mb-5">
             Start with something small and daily. The form suggests a few.
           </p>
           <button onClick={() => setForm({ initial: null })} className="btn bg-teal-500 text-white hover:bg-teal-600 px-5">
@@ -223,7 +223,7 @@ function HabitsPage() {
           {due.length === 0 ? (
             <section className="surface p-8 text-center" aria-label="Nothing due today">
               <h2 className="font-semibold text-white">Nothing due today</h2>
-              <p className="text-sm text-slate-500 mt-1">
+              <p className="text-sm text-slate-400 mt-1">
                 None of your habits run today. The Habits tab is where you change that.
               </p>
             </section>
@@ -236,7 +236,7 @@ function HabitsPage() {
               <section key={section.id} aria-label={`${section.title} today`}>
                 <div className="flex items-center gap-2 px-1 mb-2">
                   <h2 className="text-xl font-bold text-white">{section.title}</h2>
-                  <span className="text-sm text-slate-500">{section.habits.length}</span>
+                  <span className="text-sm text-slate-400">{section.habits.length}</span>
                 </div>
                 <ul className="space-y-2">
                   {section.habits.map(habit => (
@@ -264,7 +264,7 @@ function HabitsPage() {
             ))}
           </ul>
           {active.length === 0 && (
-            <p className="text-sm text-slate-500 px-1">Everything is archived. Restore one to start again.</p>
+            <p className="text-sm text-slate-400 px-1">Everything is archived. Restore one to start again.</p>
           )}
 
           <button
@@ -287,7 +287,7 @@ function HabitsPage() {
               </button>
               {showArchived && (
                 <>
-                  <p className="text-xs text-slate-500 mt-1 mb-2">
+                  <p className="text-xs text-slate-400 mt-1 mb-2">
                     Archived habits stop being due, and keep every day recorded against them.
                   </p>
                   <ul className="space-y-2">
@@ -311,7 +311,7 @@ function HabitsPage() {
             loading={progressLoading}
           />
           {active.length === 0 ? (
-            <p className="text-sm text-slate-500 px-1">Restore a habit and its history will appear here.</p>
+            <p className="text-sm text-slate-400 px-1">Restore a habit and its history will appear here.</p>
           ) : (
             <HabitProgress
               habits={active}

@@ -202,7 +202,7 @@ function MarkAttendance({ onAddSubject }) {
 
         {/* The day. Tapping anywhere on the row opens the picker; "Change" says so. */}
         <label className="flex items-center gap-3 h-12 px-3 rounded-xl bg-background-surface cursor-pointer">
-          <span className="text-slate-500">
+          <span className="text-slate-400">
             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
               <rect x="3" y="5" width="18" height="16" rx="2" /><path d="M16 3v4M8 3v4M3 11h18" strokeLinecap="round" />
             </svg>
@@ -234,7 +234,7 @@ function MarkAttendance({ onAddSubject }) {
                     ? option.on
                     : 'border-line bg-background-surface text-slate-300 hover:text-slate-100'}`}
                 >
-                  <span className={`w-7 h-7 rounded-full grid place-items-center ${chosen ? option.dot : 'bg-background-paper text-slate-500'}`}>
+                  <span className={`w-7 h-7 rounded-full grid place-items-center ${chosen ? option.dot : 'bg-background-paper text-slate-400'}`}>
                     {option.icon}
                   </span>
                   {option.value}
@@ -256,7 +256,7 @@ function MarkAttendance({ onAddSubject }) {
                 onClick={() => setClassNumber(hours)}
                 className={`w-14 h-11 rounded-lg text-sm font-semibold transition-colors ${classNumber === hours
                   ? 'bg-light-primary text-background'
-                  : 'text-slate-500'}`}
+                  : 'text-slate-400'}`}
               >
                 {hours} hr
               </button>
@@ -289,7 +289,7 @@ function MarkAttendance({ onAddSubject }) {
             </p>
           )}
           {/* What this will do to the percentage, before it is done */}
-          {ahead && <p className="text-xs text-slate-500 text-center mt-2.5">{ahead}</p>}
+          {ahead && <p className="text-sm text-slate-400 text-center mt-2.5">{ahead}</p>}
         </div>
       </form>
 
@@ -299,13 +299,13 @@ function MarkAttendance({ onAddSubject }) {
           <h2 className="font-semibold text-white">
             {date === today ? 'Marked today' : `Marked on ${dayLabel(date, today)}`}
           </h2>
-          <span className="text-xs text-slate-500">
+          <span className="text-sm text-slate-400">
             {marked.length} of {subjects.length} {subjects.length === 1 ? 'subject' : 'subjects'}
           </span>
         </div>
 
         {marked.length === 0 ? (
-          <p className="text-sm text-slate-500 px-1">Nothing recorded for this day yet.</p>
+          <p className="text-sm text-slate-400 px-1">Nothing recorded for this day yet.</p>
         ) : (
           <ul className="space-y-2">
             {marked.map(record => {
@@ -320,7 +320,7 @@ function MarkAttendance({ onAddSubject }) {
                     <span className="block text-sm font-semibold text-white truncate">
                       {record.subject?.name || 'Removed subject'}
                     </span>
-                    <span className="block text-xs text-slate-500">{hours} {hours === 1 ? 'hr' : 'hrs'}</span>
+                    <span className="block text-sm text-slate-400">{hours} {hours === 1 ? 'hr' : 'hrs'}</span>
                   </span>
                   <span className={`h-7 px-2.5 rounded-full grid place-items-center text-xs font-bold shrink-0 ${BADGE[record.status] || BADGE['No Class']}`}>
                     {record.status}

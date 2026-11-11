@@ -7,7 +7,7 @@ const iconButton = 'w-10 h-10 flex items-center justify-center rounded-xl transi
 
 const row = (icon, text, muted) => (
   <div className="flex items-start gap-3">
-    <span className="mt-0.5 text-slate-500 shrink-0" aria-hidden="true">{icon}</span>
+    <span className="mt-0.5 text-slate-400 shrink-0" aria-hidden="true">{icon}</span>
     <span className={muted ? 'text-slate-400' : 'text-slate-200'}>{text}</span>
   </div>
 );

@@ -54,16 +54,16 @@ export function TaskRowBody({ task, dragging = false, onToggle, onStar, onOpen, 
         </p>
         {(overdue || steps || task.note || task.taskDate) && (
           <p className="mt-0.5 text-xs flex items-center gap-2 flex-wrap">
-            <span className={overdue ? 'text-rose-400 font-medium' : 'text-slate-500'}>
+            <span className={overdue ? 'text-rose-400 font-medium' : 'text-slate-400'}>
               {dayLabel(task.taskDate)}
             </span>
             {steps && (
-              <span className="text-slate-500 inline-flex items-center gap-1">
+              <span className="text-slate-400 inline-flex items-center gap-1">
                 <ListIcon className="w-3 h-3" aria-hidden="true" />
                 {steps}
               </span>
             )}
-            {task.note && <span className="text-slate-500 truncate max-w-[12rem]">{task.note}</span>}
+            {task.note && <span className="text-slate-400 truncate max-w-[12rem]">{task.note}</span>}
           </p>
         )}
       </button>
@@ -77,7 +77,7 @@ export function TaskRowBody({ task, dragging = false, onToggle, onStar, onOpen, 
           aria-label={task.important ? `Remove the star from "${task.title}"` : `Star "${task.title}"`}
           className={`w-11 h-11 shrink-0 rounded-lg grid place-items-center transition-colors ${task.important
             ? 'text-streak'
-            : 'text-slate-500 hover:text-slate-300'}`}
+            : 'text-slate-400 hover:text-slate-300'}`}
         >
           <StarIcon className="w-[18px] h-[18px]" filled={task.important} />
         </button>

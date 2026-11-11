@@ -194,9 +194,9 @@ function TasksPage() {
             <span className="block font-bold text-white">
               {overdue} {overdue === 1 ? 'task is' : 'tasks are'} overdue
             </span>
-            <span className="block text-xs text-slate-500">Catch up on them in My Day</span>
+            <span className="block text-xs text-slate-400">Catch up on them in My Day</span>
           </span>
-          <ChevronRightIcon className="w-4 h-4 shrink-0 text-slate-500" aria-hidden="true" />
+          <ChevronRightIcon className="w-4 h-4 shrink-0 text-slate-400" aria-hidden="true" />
         </Link>
       )}
 

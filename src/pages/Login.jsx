@@ -2,6 +2,7 @@ import React, { useState, useContext, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AttendanceContext } from '../contexts/AttendanceContext';
 import PasswordField from '../components/PasswordField';
+import { APP_NAME } from '../branding';
 import { errorMessage, isSubscriptionError } from '../services/api';
 
 function Login() {
@@ -54,7 +55,7 @@ function Login() {
             <div className="w-11 h-11 mx-auto rounded-lg bg-primary-600 text-primary-foreground text-sm font-bold flex items-center justify-center">AH</div>
           </div>
           <h1 className="text-center text-xl font-semibold text-white">Sign in</h1>
-          <p className="mt-1 text-center text-sm text-slate-400">Welcome back to Attendance In Hand</p>
+          <p className="mt-1 text-center text-sm text-slate-400">Welcome back to {APP_NAME}</p>
         </div>
 
         {justRegistered && !error && (
@@ -109,13 +110,19 @@ function Login() {
             </button>
           </div>
 
-          <div className="flex flex-col items-center gap-4 text-sm mt-6">
-            <Link to="/register" className="font-medium text-primary-400 hover:text-primary-300 transition-colors">
+          {/* "Access Admin Portal" used to sit here, on the page every student sees. It
+              has its own address; the people who need it know it. What belongs here
+              instead is the way back in for someone who cannot get in. */}
+          <div className="flex flex-col items-center gap-1 text-sm mt-4">
+            <Link
+              to="/register"
+              className="h-11 inline-flex items-center font-medium text-primary-400 hover:text-primary-300 transition-colors"
+            >
               Don't have an account? Sign up
             </Link>
-            <a href="/admin/login" className="text-slate-500 hover:text-slate-300 transition-colors text-xs">
-              Access Admin Portal
-            </a>
+            <p className="text-slate-400 text-center">
+              Forgotten your password? Ask your admin to set a new one.
+            </p>
           </div>
         </form>
       </div>

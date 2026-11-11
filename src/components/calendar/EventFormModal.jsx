@@ -48,7 +48,7 @@ function TimeStepper({ label, value, onChange, hint }) {
     <div className="flex items-center gap-3 h-14 px-4 rounded-xl bg-background-surface">
       <span className="flex-1 min-w-0">
         <span className="font-bold text-white">{label}</span>
-        {hint && <span className="text-slate-500 font-normal"> · {hint}</span>}
+        {hint && <span className="text-slate-400 font-normal"> · {hint}</span>}
       </span>
       <button
         type="button"
@@ -216,7 +216,7 @@ function EventFormModal({ event, initial, onSave, onClose }) {
         <div>
           <div className="flex items-baseline justify-between gap-3 mb-1">
             <span className="label mb-0">Date</span>
-            <span className="text-xs text-slate-500">{shortDate(date, true)}</span>
+            <span className="text-sm text-slate-400">{shortDate(date, true)}</span>
           </div>
           <div className="flex gap-2">
             {[['Today', 0], ['Tomorrow', 1]].map(([label, offset]) => {

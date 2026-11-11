@@ -76,7 +76,7 @@ function AttendanceReports() {
     return (
       <section className="surface p-8 text-center" aria-label="Nothing to report yet">
         <h2 className="font-semibold text-white">Nothing to report yet</h2>
-        <p className="text-sm text-slate-500 mt-1">
+        <p className="text-sm text-slate-400 mt-1">
           Record a class and your percentage appears here.
         </p>
       </section>
@@ -107,7 +107,7 @@ function AttendanceReports() {
 
         <div>
           <TargetBar percentage={overall.percentage} fillClass="bg-light-primary" />
-          <p className="text-[11px] font-semibold text-rose-400 text-right mt-1">{TARGET}% line</p>
+          <p className="text-xs font-semibold text-rose-400 text-right mt-1">{TARGET}% line</p>
         </div>
 
         {/* The one sentence a student is here for */}
@@ -129,13 +129,13 @@ function AttendanceReports() {
               <p className="text-xl font-bold tabular-nums leading-none">
                 {tile.value}<span className="text-sm font-semibold"> h</span>
               </p>
-              <p className="text-xs text-slate-500 mt-1">{tile.label}</p>
+              <p className="text-sm text-slate-400 mt-1">{tile.label}</p>
             </div>
           ))}
         </div>
 
         {earliest && (
-          <p className="text-xs text-slate-500">
+          <p className="text-sm text-slate-400">
             Counting {shortDate(earliest)} to {shortDate(today)}.
           </p>
         )}
@@ -158,7 +158,7 @@ function AttendanceReports() {
         </div>
 
         {bySubject.length === 0 ? (
-          <p className="text-sm text-slate-500 px-1">No subject has anything counted in this period.</p>
+          <p className="text-sm text-slate-400 px-1">No subject has anything counted in this period.</p>
         ) : (
           <ul className="space-y-2">
             {bySubject.map(({ subject, totals }) => {
@@ -177,7 +177,7 @@ function AttendanceReports() {
                   <TargetBar percentage={totals.percentage} trackClass="bg-background/40" fillClass="bg-light-primary" />
 
                   <div className="flex items-center justify-between gap-3 mt-2.5">
-                    <p className="text-xs text-slate-500">
+                    <p className="text-sm text-slate-400">
                       {totals.attended} of {totals.counted} hrs · {totals.missed} missed
                     </p>
                     <span className={`h-7 px-2.5 rounded-full grid place-items-center text-xs font-bold shrink-0 ${hint.tone}`}>

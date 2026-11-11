@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Layout from './components/Layout';
 import LoadingIndicator from './components/LoadingIndicator';
 import ProtectedRoute from './components/ProtectedRoute';
+import usePageTitle from './hooks/usePageTitle';
 import { AttendanceContext, AttendanceProvider } from './contexts/AttendanceContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 
@@ -33,6 +34,12 @@ const AdminRoute = ({ children }) => {
   return currentUser?.isAdmin ? children : <Navigate to="/admin/login" replace />;
 };
 
+/** Keeps the browser tab named after the page; must sit inside the Router */
+function PageTitle() {
+  usePageTitle();
+  return null;
+}
+
 function AppContent() {
   const { loading } = useContext(AttendanceContext);
 
@@ -40,6 +47,7 @@ function AppContent() {
     <>
       {loading && <LoadingIndicator />}
       <Router>
+        <PageTitle />
         <Suspense fallback={<div className="text-center p-6">Loading...</div>}>
           <Routes>
             {/* Public routes */}

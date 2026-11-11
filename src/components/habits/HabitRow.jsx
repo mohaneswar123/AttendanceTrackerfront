@@ -41,10 +41,10 @@ function HabitRow({ habit, onDone, onSkip, onUndoSkip, busy }) {
         </span>
 
         <div className="flex-1 min-w-0">
-          <p className={`font-bold truncate ${skipped ? 'text-slate-400' : 'text-white'}`}>
+          <p className={`font-bold line-clamp-2 ${skipped ? 'text-slate-400' : 'text-white'}`}>
             {habit.name}
           </p>
-          <p className="text-xs text-slate-500 truncate flex items-center gap-1.5">
+          <p className="text-sm text-slate-400 truncate flex items-center gap-1.5">
             <span>{metaLabel(habit)}</span>
             {habit.reminderTime && <span>· {habit.reminderTime}</span>}
             {habit.currentStreak > 0 && (
@@ -62,14 +62,18 @@ function HabitRow({ habit, onDone, onSkip, onUndoSkip, busy }) {
           </button>
         ) : (
           <>
-            <button
-              type="button"
-              onClick={() => onSkip(habit)}
-              disabled={busy || done}
-              className="h-11 px-2 shrink-0 text-sm font-bold text-slate-400 hover:text-slate-200 disabled:opacity-40"
-            >
-              Skip
-            </button>
+            {/* Gone once it is done, rather than sitting there greyed out: there is
+                nothing left to skip, and a disabled button only invites the question */}
+            {!done && (
+              <button
+                type="button"
+                onClick={() => onSkip(habit)}
+                disabled={busy}
+                className="h-11 px-2 shrink-0 text-sm font-bold text-slate-400 hover:text-slate-200 disabled:opacity-40"
+              >
+                Skip
+              </button>
+            )}
             {/* The one tap the row exists for: finish it, or add one more towards the goal */}
             <button
               type="button"
@@ -92,14 +96,14 @@ function HabitRow({ habit, onDone, onSkip, onUndoSkip, busy }) {
           <div className="flex-1 h-1.5 rounded-full bg-background-surface overflow-hidden">
             <div className={`h-full rounded-full transition-[width] ${tone.dot}`} style={{ width: `${progress * 100}%` }} />
           </div>
-          <span className="text-xs text-slate-500 shrink-0">
+          <span className="text-sm text-slate-400 shrink-0">
             {reached ? 'Goal reached' : `${left} ${habit.unit || ''} to go`.trim()}
           </span>
         </div>
       )}
 
       {skipped && habit.today?.note && (
-        <p className="mt-2 ml-14 text-xs text-slate-500 truncate">Skipped for today · {habit.today.note}</p>
+        <p className="mt-2 ml-14 text-sm text-slate-400 truncate">Skipped for today · {habit.today.note}</p>
       )}
     </li>
   );
@@ -121,10 +125,10 @@ export function HabitConfigRow({ habit, onOpen }) {
           {habit.icon}
         </span>
         <span className="flex-1 min-w-0">
-          <span className="block font-semibold text-white truncate">{habit.name}</span>
-          <span className="block text-xs text-slate-500 truncate">
+          <span className="block font-semibold text-white line-clamp-2">{habit.name}</span>
+          <span className="block text-sm text-slate-400 truncate">
             {scheduleLabel(habit)}
-            {habit.reminderTime ? ` · ${habit.reminderTime}` : ' · no reminder'}
+            {habit.reminderTime ? ` · ${habit.reminderTime}` : ' · no set time'}
           </span>
         </span>
         <span className="badge badge-neutral shrink-0">{GOAL_CHIP[habit.goal]}{goal ? ` · ${goal}` : ''}</span>
@@ -134,7 +138,7 @@ export function HabitConfigRow({ habit, onOpen }) {
             {streakUnit(habit, habit.currentStreak)}
           </span>
         )}
-        <ChevronRightIcon className="w-4 h-4 shrink-0 text-slate-500" aria-hidden="true" />
+        <ChevronRightIcon className="w-4 h-4 shrink-0 text-slate-400" aria-hidden="true" />
       </button>
     </li>
   );

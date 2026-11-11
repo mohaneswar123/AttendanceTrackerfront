@@ -228,7 +228,7 @@ function HabitFormModal({ habit, initial, onSave, onArchive, onDelete, onClose }
               </button>
             ))}
           </div>
-          <p className="text-xs text-slate-500 mt-1.5">{GOALS.find(g => g.value === fields.goal)?.hint}</p>
+          <p className="text-sm text-slate-400 mt-1.5">{GOALS.find(g => g.value === fields.goal)?.hint}</p>
         </div>
 
         {fields.goal !== 'YES_NO' && (
@@ -309,7 +309,7 @@ function HabitFormModal({ habit, initial, onSave, onArchive, onDelete, onClose }
         )}
 
         <div>
-          <label htmlFor="habit-reminder" className="label">Reminder time</label>
+          <label htmlFor="habit-reminder" className="label">Usual time</label>
           <div className="flex gap-2">
             <input
               id="habit-reminder"
@@ -324,8 +324,8 @@ function HabitFormModal({ habit, initial, onSave, onArchive, onDelete, onClose }
               </button>
             )}
           </div>
-          <p className="text-xs text-slate-500 mt-1.5">
-            Orders the Today list and labels the row. Nothing is sent to your phone.
+          <p className="text-sm text-slate-400 mt-1.5">
+            When you usually do this. It orders the Today list and labels the row.
           </p>
         </div>
 

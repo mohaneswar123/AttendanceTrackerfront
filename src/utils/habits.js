@@ -58,7 +58,7 @@ export const STATUS_LABEL = { DONE: 'Done', MISSED: 'Missed', SKIPPED: 'Skipped'
 export const STATUS_CELL = {
   DONE: 'bg-teal-500 text-white',
   SKIPPED: 'bg-slate-500/25 text-slate-400',
-  MISSED: 'bg-transparent border border-line text-slate-500'
+  MISSED: 'bg-transparent border border-line text-slate-400'
 };
 
 // Something to start from, so the first screen is not empty

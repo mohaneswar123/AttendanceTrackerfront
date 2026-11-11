@@ -42,7 +42,7 @@ function RowMenu({ record, onChange, onDelete }) {
         aria-label={`More actions for ${record.subject?.name || 'this record'}`}
         aria-haspopup="menu"
         aria-expanded={open}
-        className="w-11 h-11 grid place-items-center rounded-lg text-slate-500 hover:text-slate-200 hover:bg-white/5"
+        className="w-11 h-11 grid place-items-center rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5"
       >
         <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
           <circle cx="5" cy="12" r="1.6" /><circle cx="12" cy="12" r="1.6" /><circle cx="19" cy="12" r="1.6" />
@@ -125,7 +125,7 @@ function AttendanceHistory() {
 
   return (
     <div className="space-y-4">
-      <p className="text-sm text-slate-500 -mt-1">Every class you've marked</p>
+      <p className="text-sm text-slate-400 -mt-1">Every class you've marked</p>
 
       {notice && <div className="notice notice-danger" role="alert">{notice}</div>}
 
@@ -156,7 +156,7 @@ function AttendanceHistory() {
       {days.length === 0 ? (
         <section className="surface p-8 text-center" aria-label="Nothing marked yet">
           <h2 className="font-semibold text-white">Nothing marked yet</h2>
-          <p className="text-sm text-slate-500 mt-1">
+          <p className="text-sm text-slate-400 mt-1">
             {subjectFilter === 'all'
               ? 'Classes you record show up here, newest first.'
               : 'Nothing recorded for this subject yet.'}
@@ -167,7 +167,7 @@ function AttendanceHistory() {
           <section key={day.date} aria-label={dayHeading(day.date, today)}>
             <div className="flex items-baseline justify-between gap-3 px-1 mb-2">
               <h2 className="text-sm font-bold text-white">{dayHeading(day.date, today)}</h2>
-              <span className="text-xs text-slate-500">
+              <span className="text-sm text-slate-400">
                 {day.totals.attended} of {day.totals.counted} {day.totals.counted === 1 ? 'hr' : 'hrs'} attended
               </span>
             </div>
@@ -185,7 +185,7 @@ function AttendanceHistory() {
                       <span className="block text-sm font-semibold text-white truncate">
                         {record.subject?.name || 'Removed subject'}
                       </span>
-                      <span className="block text-xs text-slate-500">{hours} {hours === 1 ? 'hr' : 'hrs'}</span>
+                      <span className="block text-sm text-slate-400">{hours} {hours === 1 ? 'hr' : 'hrs'}</span>
                     </span>
                     <span className={`h-7 px-2.5 rounded-full grid place-items-center text-xs font-bold shrink-0 ${STATUS_BADGE[record.status] || STATUS_BADGE['No Class']}`}>
                       {record.status}

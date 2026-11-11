@@ -15,7 +15,7 @@ function MonthGrid({ currentDate, selectedDate, today, eventsByDate, onSelect })
     <section className="surface p-3" aria-label="Month">
       <div className="grid grid-cols-7 mb-1" aria-hidden="true">
         {WEEKDAYS.map(day => (
-          <span key={day} className="text-center text-xs font-semibold text-slate-500 py-1">
+          <span key={day} className="text-center text-xs font-semibold text-slate-400 py-1">
             {day.slice(0, 1)}
           </span>
         ))}
@@ -45,7 +45,7 @@ function MonthGrid({ currentDate, selectedDate, today, eventsByDate, onSelect })
                         ? 'bg-calendar-tint text-calendar font-bold'
                         : inMonth
                           ? 'text-white font-medium hover:bg-white/5'
-                          : 'text-slate-500'}`}
+                          : 'text-slate-400'}`}
                   >
                     {Number(date.slice(8, 10))}
                   </span>

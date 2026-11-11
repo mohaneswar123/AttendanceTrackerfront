@@ -21,7 +21,7 @@ function TaskList({ groups, onToggle, onStar, onOpen, onReorder, onGroupAction, 
     return (
       <section className="surface p-8 text-center" aria-label={empty.title}>
         <h2 className="font-semibold text-white">{empty.title}</h2>
-        <p className="text-sm text-slate-500 mt-1">{empty.body}</p>
+        <p className="text-sm text-slate-400 mt-1">{empty.body}</p>
       </section>
     );
   }
@@ -44,7 +44,7 @@ function TaskList({ groups, onToggle, onStar, onOpen, onReorder, onGroupAction, 
               <h2 className={`text-xl font-bold ${group.tone === 'overdue' ? 'text-rose-400' : 'text-white'}`}>
                 {group.title}
               </h2>
-              <span className="text-sm text-slate-500 flex-1">{group.tasks.length}</span>
+              <span className="text-sm text-slate-400 flex-1">{group.tasks.length}</span>
               {/* The group's own way out: move a pile of overdue work, or clear a finished day */}
               {group.action && onGroupAction && (
                 <button
