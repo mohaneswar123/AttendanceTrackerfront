@@ -80,6 +80,7 @@ function AppContent() {
             {[
               ['/attendance', Attendance], ['/attendance/history', Attendance],
               ['/attendance/reports', Attendance], ['/attendance/subjects', Attendance],
+              ['/attendance/plan', Attendance],
               ['/tasks', Tasks], ['/tasks/important', Tasks], ['/tasks/done', Tasks],
               ['/habits', Habits], ['/habits/all', Habits], ['/habits/progress', Habits],
               ['/calendar', Calendar], ['/calendar/week', Calendar], ['/calendar/events', Calendar],

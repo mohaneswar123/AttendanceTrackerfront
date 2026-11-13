@@ -29,6 +29,11 @@ function FeatureBottomNav({ feature, onAdd }) {
   const { pathname } = useLocation();
   const tone = toneOf(feature.id);
 
+  // Five sections plus Home out-count a 320-379px row, so only then does the active
+  // label yield (to screen readers) and only then do slots shrink. A three-tab feature
+  // keeps its name on screen at every width it ever showed it.
+  const packed = feature.tabs.length >= 5;
+
   // Longest path first, so /tasks/important does not light up /tasks
   const active = [...feature.tabs]
     .sort((a, b) => b.path.length - a.path.length)
@@ -70,16 +75,24 @@ function FeatureBottomNav({ feature, onAdd }) {
             const current = tab.id === active?.id;
             const TabIcon = tab.Icon || feature.Icon;
             return (
+              /* Five sections plus Home is more 44px slots than a 320px phone owns, so
+                 the row bends in two steps rather than overflowing: below 380px the
+                 active label goes screen-reader-only (the tester's own suggestion), and
+                 at 320 the icon slots themselves shrink a few px, floored at 36. */
               <Link
                 key={tab.id}
                 to={tab.path}
                 aria-current={current ? 'page' : undefined}
                 className={`h-11 rounded-full transition-colors ${current
-                  ? `min-w-0 flex items-center justify-center bg-background ${tone.text} px-3 gap-1.5 font-bold`
-                  : 'w-11 shrink-0 grid place-items-center text-nav-ink/70 hover:text-nav-ink'}`}
+                  ? `min-w-0 flex items-center justify-center bg-background ${tone.text} px-3 gap-1.5 font-bold ${packed
+                    ? 'max-[379px]:basis-11 max-[379px]:shrink max-[379px]:min-w-[36px] max-[379px]:px-0 max-[379px]:gap-0'
+                    : ''}`
+                  : 'basis-11 min-w-[36px] shrink grid place-items-center text-nav-ink/70 hover:text-nav-ink'}`}
               >
                 <TabIcon className="w-[22px] h-[22px] shrink-0" filled={current} />
-                <span className={current ? 'text-sm whitespace-nowrap truncate' : 'sr-only'}>{tab.label}</span>
+                <span className={current
+                  ? `text-sm whitespace-nowrap truncate ${packed ? 'max-[379px]:sr-only' : ''}`
+                  : 'sr-only'}>{tab.label}</span>
               </Link>
             );
           })}

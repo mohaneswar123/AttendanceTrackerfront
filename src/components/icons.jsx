@@ -135,6 +135,8 @@ export const SearchIcon = (props) => <Icon {...props} path={<><circle cx="11" cy
 export const ChevronLeftIcon = (props) => <Icon {...props} path={<path d="m15 18-6-6 6-6" />} />;
 export const ChevronRightIcon = (props) => <Icon {...props} path={<path d="m9 18 6-6-6-6" />} />;
 export const ChevronDownIcon = (props) => <Icon {...props} path={<path d="m6 9 6 6 6-6" />} />;
+export const ChevronUpIcon = (props) => <Icon {...props} path={<path d="m18 15-6-6-6 6" />} />;
+export const CopyIcon = (props) => <Icon {...props} path={<><rect x="9" y="9" width="13" height="13" rx="2" ry="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" /></>} />;
 export const CheckIcon = (props) => <Icon {...props} path={<path d="m5 13 4 4L19 7" />} />;
 export const CloseIcon = (props) => <Icon {...props} path={<path d="M18 6 6 18M6 6l12 12" />} />;
 export const PencilIcon = (props) => <Icon {...props} path={<><path d="M11 5H6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-5" /><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z" /></>} />;
