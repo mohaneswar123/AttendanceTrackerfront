@@ -99,3 +99,52 @@ export const dayLabel = (iso, today) => {
   if (iso === today) return `Today, ${short}`;
   return `${date.toLocaleDateString('en-US', { weekday: 'short' })}, ${short}`;
 };
+
+/** The week as the plan stores it, Monday first, with the labels the chips wear */
+export const PLAN_WEEK = [
+  { key: 'MONDAY', short: 'Mon', long: 'Monday' },
+  { key: 'TUESDAY', short: 'Tue', long: 'Tuesday' },
+  { key: 'WEDNESDAY', short: 'Wed', long: 'Wednesday' },
+  { key: 'THURSDAY', short: 'Thu', long: 'Thursday' },
+  { key: 'FRIDAY', short: 'Fri', long: 'Friday' },
+  { key: 'SATURDAY', short: 'Sat', long: 'Saturday' },
+  { key: 'SUNDAY', short: 'Sun', long: 'Sunday' }
+];
+
+// "2026-11-12" -> "THURSDAY", for looking a date up in the plan
+export const weekdayKeyOf = (iso) => {
+  const names = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
+  return names[new Date(`${iso}T00:00:00`).getDay()];
+};
+
+/**
+ * Pairs a day's planned classes with the records already made for that day.
+ *
+ * Records carry no idea of which planned slot they came from — the form can make them
+ * too — so the pairing is worked out fresh each render: within a subject, a record claims
+ * the planned class with the same hours first, and failing that any planned class of that
+ * subject still open. Two identical maths classes are interchangeable, so which of the
+ * two shows as marked does not matter; that one of them does is what the student needs.
+ *
+ * Returns [{ subjectId, hours, record|null }] in the plan's own order.
+ */
+export const pairPlanWithRecords = (planned, dayRecords) => {
+  const rows = (planned || []).map(planClass => ({ ...planClass, record: null }));
+  const unclaimed = [...(dayRecords || [])];
+
+  const claim = (matches) => {
+    rows.forEach(row => {
+      if (row.record) return;
+      const index = unclaimed.findIndex(record => matches(row, record));
+      if (index !== -1) {
+        row.record = unclaimed[index];
+        unclaimed.splice(index, 1);
+      }
+    });
+  };
+
+  claim((row, record) => record.subjectId === row.subjectId
+    && (Number(record.classNumber) || 1) === row.hours);
+  claim((row, record) => record.subjectId === row.subjectId);
+  return rows;
+};

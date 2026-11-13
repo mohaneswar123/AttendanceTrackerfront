@@ -2,7 +2,8 @@ import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AttendanceContext } from '../../contexts/AttendanceContext';
 import { todayLocal } from '../../utils/date';
-import { dayLabel, initialOf, subjectTone, tally } from '../../utils/attendance';
+import { dayLabel, initialOf, subjectTone, tally, weekdayKeyOf, PLAN_WEEK } from '../../utils/attendance';
+import PlannedChecklist from './PlannedChecklist';
 import ConfirmDialog from '../ConfirmDialog';
 import { CheckIcon, CloseIcon, PlusIcon } from '../icons';
 
@@ -53,7 +54,7 @@ const projection = (records, subject, status, hours) => {
 };
 
 // Record one class: which subject, which day, what happened, how long.
-function MarkAttendance({ onAddSubject }) {
+function MarkAttendance({ onAddSubject, plan }) {
   const {
     currentUser, subjects, attendanceRecords, addAttendanceRecord, deleteAttendanceRecord
   } = useContext(AttendanceContext);
@@ -99,6 +100,26 @@ function MarkAttendance({ onAddSubject }) {
   }, [marked]);
 
   const repeatingSubject = Boolean(subject && alreadyMarked[subject._id]);
+
+  // The plan for whichever date the form is on; records pair up inside the checklist
+  const weekdayKey = weekdayKeyOf(date);
+  const planned = (plan && plan[weekdayKey]) || [];
+  const dayRecords = useMemo(() => attendanceRecords
+    .filter(record => String(record.date).slice(0, 10) === date), [attendanceRecords, date]);
+
+  /** One tap on the checklist: the plan supplies subject and hours, the tap the status */
+  const markPlanned = async (row, chosenStatus) => {
+    if (!currentUser) return setMessage({ text: 'Sign in to record attendance.', ok: false });
+    const stored = chosenStatus === 'No Class' ? 'No Class' : chosenStatus;
+    setSaving(true);
+    const result = await addAttendanceRecord({
+      subjectId: row.subjectId, date, status: stored, classNumber: row.hours
+    });
+    setSaving(false);
+    if (!result.success) {
+      setMessage({ text: result.message || 'Could not save that record.', ok: false });
+    }
+  };
 
   // How many distinct subjects have anything down for this day
   const markedSubjects = useMemo(
@@ -158,6 +179,22 @@ function MarkAttendance({ onAddSubject }) {
 
   return (
     <div className="space-y-5">
+      {planned.length > 0 && (
+        <PlannedChecklist
+          planned={planned}
+          dayRecords={dayRecords}
+          subjects={subjects}
+          dayName={date === today ? 'Today' : PLAN_WEEK.find(d => d.key === weekdayKey)?.long || 'The day'}
+          saving={saving}
+          onMark={markPlanned}
+        />
+      )}
+
+      {/* On a planned day the form is for the unplanned: a substituted class, an extra hour */}
+      {planned.length > 0 && (
+        <p className="label px-1 -mb-2">Something else that day?</p>
+      )}
+
       <form onSubmit={handleSubmit} className="surface p-4 space-y-4">
         {!currentUser && (
           <div className="notice notice-warning">

@@ -218,6 +218,18 @@ export const attendanceService = {
   deleteRecord: async (recordId) => {
     const response = await apiClient.delete(`/attendance/${recordId}`);
     return response.data;
+  },
+
+  // The weekly class plan: { MONDAY: [{subjectId, hours}], ... }; unplanned days absent
+  getPlan: async () => {
+    const response = await apiClient.get('/attendance/plan');
+    return response.data;
+  },
+
+  // Replaces one weekday whole; an empty list clears the day. Answers the full plan.
+  setPlanDay: async (weekday, classes) => {
+    const response = await apiClient.put(`/attendance/plan/${weekday}`, { classes });
+    return response.data;
   }
 };
 

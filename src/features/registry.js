@@ -54,7 +54,8 @@ export const FEATURES = [
       { id: 'record', label: 'Record', path: '/attendance', Icon: ClipboardCheckIcon },
       { id: 'history', label: 'History', path: '/attendance/history', Icon: ClockIcon },
       { id: 'reports', label: 'Reports', path: '/attendance/reports', Icon: ChartIcon },
-      { id: 'subjects', label: 'Subjects', path: '/attendance/subjects', Icon: BookIcon }
+      { id: 'subjects', label: 'Subjects', path: '/attendance/subjects', Icon: BookIcon },
+      { id: 'plan', label: 'Plan', path: '/attendance/plan', Icon: ColumnsIcon }
     ]
   },
   {
